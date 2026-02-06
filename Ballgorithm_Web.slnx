@@ -1,0 +1,6 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Emscripten" />
+  </Configurations>
+  <Project Path="Ballgorithm_Web/Ballgorithm_Web.vcxproj" />
+</Solution>
