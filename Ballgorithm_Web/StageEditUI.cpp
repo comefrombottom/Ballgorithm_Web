@@ -570,8 +570,14 @@ void StageEditUI::updateLineCreateMode(Stage& stage, bool isDoubleClicked, Singl
 	}
 }
 
-void StageEditUI::updateSelectArea(Stage& stage, SingleUseCursorPos& cursorPos, const OpenContextMenuCallback& openContextMenu, bool useRightDragSelect)
+void StageEditUI::updateSelectArea(Stage& stage, SingleUseCursorPos& cursorPos, const OpenContextMenuCallback& openContextMenu, bool useRightDragSelect, bool cancelSelectArea)
 {
+	if (cancelSelectArea && m_selectAreaStart) {
+		m_selectAreaStart.reset();
+		m_lastSelectAreaBottomRight.reset();
+		cursorPos.release();
+		return;
+	}
 	const bool selectDown = useRightDragSelect ? MouseR.down() : MouseL.down();
 	const bool selectUp = useRightDragSelect ? MouseR.up() : MouseL.up();
 	if (selectDown && cursorPos) {
@@ -613,12 +619,12 @@ void StageEditUI::updateSelectArea(Stage& stage, SingleUseCursorPos& cursorPos, 
 	}
 }
 
-void StageEditUI::update(Stage& stage, bool isDoubleClicked, SingleUseCursorPos& cursorPos, const MyCamera2D& /*camera*/, const StageEditedCallback& onStageEdited, Optional<DraggingBallInfo>& draggingBall, const OpenContextMenuCallback& openContextMenu, bool useRightDragSelect)
+void StageEditUI::update(Stage& stage, bool isDoubleClicked, SingleUseCursorPos& cursorPos, const MyCamera2D& /*camera*/, const StageEditedCallback& onStageEdited, Optional<DraggingBallInfo>& draggingBall, const OpenContextMenuCallback& openContextMenu, bool useRightDragSelect, bool cancelSelectArea)
 {
 	updateLineCreateMode(stage, isDoubleClicked, cursorPos, onStageEdited);
 	updateHoverInfo(stage, cursorPos);
 	updateDragObject(stage, cursorPos, onStageEdited, draggingBall, openContextMenu);
-	updateSelectArea(stage, cursorPos, openContextMenu, useRightDragSelect);
+	updateSelectArea(stage, cursorPos, openContextMenu, useRightDragSelect, cancelSelectArea);
 }
 
 void StageEditUI::drawWorld(const Stage& stage, const MyCamera2D& camera) const

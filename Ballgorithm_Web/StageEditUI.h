@@ -31,7 +31,7 @@ public:
 	void resetTransientState();
 
 	// Update world-edit interaction (camera transformer must be active in caller if cursor pos is in world coords)
-	void update(Stage& stage, bool isDoubleClicked, SingleUseCursorPos& cursorPos, const MyCamera2D& camera, const StageEditedCallback& onStageEdited, Optional<DraggingBallInfo>& draggingBall, const OpenContextMenuCallback& openContextMenu, bool useRightDragSelect);
+	void update(Stage& stage, bool isDoubleClicked, SingleUseCursorPos& cursorPos, const MyCamera2D& camera, const StageEditedCallback& onStageEdited, Optional<DraggingBallInfo>& draggingBall, const OpenContextMenuCallback& openContextMenu, bool useRightDragSelect, bool cancelSelectArea);
 
 	// Draw editable world objects (expects caller to have activated camera transformer)
 	void drawWorld(const Stage& stage, const MyCamera2D& camera) const;
@@ -83,6 +83,6 @@ private:
 	void updateLineCreateMode(Stage& stage, bool isDoubleClicked, SingleUseCursorPos& cursorPos, const std::function<void(Stage&)>& onStageEdited);
 	void updateHoverInfo(Stage& stage, SingleUseCursorPos& cursorPos);
 	void updateDragObject(Stage& stage, SingleUseCursorPos& cursorPos, const std::function<void(Stage&)>& onStageEdited, Optional<DraggingBallInfo>& draggingBall, const OpenContextMenuCallback& openContextMenu);
-	void updateSelectArea(Stage& stage, SingleUseCursorPos& cursorPos, const OpenContextMenuCallback& openContextMenu, bool useRightDragSelect);
+	void updateSelectArea(Stage& stage, SingleUseCursorPos& cursorPos, const OpenContextMenuCallback& openContextMenu, bool useRightDragSelect, bool cancelSelectArea);
 };
 

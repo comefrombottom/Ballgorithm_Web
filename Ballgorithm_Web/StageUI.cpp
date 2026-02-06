@@ -477,12 +477,14 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 
 	m_cursorPos.init();
 
+	bool hasTwoFingerTouch = false;
 	// === 2本指タッチでカメラ操作（パン/ピンチ）===
 	// UI操作と衝突させないため、2本指がある間は cursorPos を消費してステージ編集入力を抑制する
 	{
 		auto touches = Touches.unused();
 		if (touches.size() >= 2)
 		{
+			hasTwoFingerTouch = true;
 			TouchInfo& t0 = touches.front();
 			TouchInfo& t1 = touches.back();
 
@@ -1154,7 +1156,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 				}
 			};
 			
-			m_editUI.update(stage, isDoubleClicked, m_cursorPos, m_camera, [this](Stage& s) { onStageEdited(s); }, m_draggingBall, openContextMenuCallback, !m_dragModeToggle.isRangeSelectLeft());
+			m_editUI.update(stage, isDoubleClicked, m_cursorPos, m_camera, [this](Stage& s) { onStageEdited(s); }, m_draggingBall, openContextMenuCallback, !m_dragModeToggle.isRangeSelectLeft(), hasTwoFingerTouch);
 		}
 				
 
