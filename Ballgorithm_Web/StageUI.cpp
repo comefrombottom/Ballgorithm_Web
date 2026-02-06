@@ -530,7 +530,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 			// 2本指ジェスチャー中は他の入力を抑制
 			t0.use();
 			t1.use();
-			// m_cursorPos.use();
+			m_cursorPos.use();
 		}
 		else
 		{
@@ -1064,7 +1064,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 	if (m_cursorPos) {
 		if (CameraMoveInput.pressed() or MouseM.pressed()) {
 			auto cameraTf = m_camera.createTransformer();
-			Vec2 pos = m_camera.getCenter() - Cursor::DeltaF();
+			Vec2 pos = m_camera.getCenter() -  (CameraMoveInput.down() ? Vec2::Zero() : Cursor::DeltaF());
 			m_camera.setTargetCenter(pos);
 			m_camera.setCenter(pos);
 		}
