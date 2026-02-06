@@ -530,7 +530,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 			// 2本指ジェスチャー中は他の入力を抑制
 			t0.use();
 			t1.use();
-			m_cursorPos.use();
+			// m_cursorPos.use();
 		}
 		else
 		{
