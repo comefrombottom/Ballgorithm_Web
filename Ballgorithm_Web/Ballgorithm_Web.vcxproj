@@ -80,6 +80,8 @@
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="ContextMenu.cpp" />
+    <ClCompile Include="DPadUI.cpp" />
+    <ClCompile Include="DragModeToggle.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Inventory.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -321,6 +323,8 @@
     <ClInclude Include="ContextMenu.h" />
     <ClInclude Include="Debug.hpp" />
     <ClInclude Include="Domain.hpp" />
+    <ClInclude Include="DPadUI.h" />
+    <ClInclude Include="DragModeToggle.h" />
     <ClInclude Include="Game.hpp" />
     <ClInclude Include="Game_StagesConstruct.h" />
     <ClInclude Include="GeometryUtils.hpp" />

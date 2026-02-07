@@ -809,6 +809,8 @@
     <ClCompile Include="StageUI.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="TitleScene.cpp" />
+    <ClCompile Include="DPadUI.cpp" />
+    <ClCompile Include="DragModeToggle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Inventory.h" />
@@ -833,5 +835,7 @@
     <ClInclude Include="TitleScene.hpp" />
     <ClInclude Include="Touches.h" />
     <ClInclude Include="UI.hpp" />
+    <ClInclude Include="DPadUI.h" />
+    <ClInclude Include="DragModeToggle.h" />
   </ItemGroup>
 </Project>
