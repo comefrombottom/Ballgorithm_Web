@@ -1728,10 +1728,10 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 		m_stages.push_back(std::move(stage));
 	}
 
-	// Branch Tree
+	// Branch Three
 	{
 		auto stage = std::make_unique<Stage>();
-		stage->m_name = U"Branch Tree";
+		stage->m_name = U"Branch Three";
 
 		stage->addStartCircle({ Circle{ 100, 200, 20 }, true });
 

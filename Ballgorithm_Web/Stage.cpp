@@ -1,6 +1,7 @@
 ﻿# include "Stage.hpp"
 # include "Query.hpp"
 # include "GeometryUtils.hpp"
+# include "IndexedDB.hpp"
 
 Stage::Stage()
 {
@@ -119,7 +120,7 @@ void Stage::createGroupFromSelection(HashSet<SelectedID>& selectedIDs)
 	}
 	
 	// Point を追加
-	auto& mut_points = newGroup.m_pointIds.get_mutable();
+	auto& mut_points = newGroup.m_pointIds;
 	for (auto& edge : m_edges) {
 		if (addPointIds.contains(edge[0]) and addPointIds.contains(edge[1])) {
 			mut_points.insert(edge[0]);
@@ -128,19 +129,19 @@ void Stage::createGroupFromSelection(HashSet<SelectedID>& selectedIDs)
 	}
 	
 	// PlacedBall を追加
-	auto& mut_placedBalls = newGroup.m_placedBallIds.get_mutable();
+	auto& mut_placedBalls = newGroup.m_placedBallIds;
 	for (auto ballId : addPlacedBallIds) {
 		mut_placedBalls.insert(ballId);
 	}
 	
 	// StartCircle を追加
-	auto& mut_startCircles = newGroup.m_startCircleIds.get_mutable();
+	auto& mut_startCircles = newGroup.m_startCircleIds;
 	for (auto startCircleId : addStartCircleIds) {
 		mut_startCircles.insert(startCircleId);
 	}
 	
 	// GoalArea を追加
-	auto& mut_goalAreas = newGroup.m_goalAreaIds.get_mutable();
+	auto& mut_goalAreas = newGroup.m_goalAreaIds;
 	for (auto goalAreaId : addGoalAreaIds) {
 		mut_goalAreas.insert(goalAreaId);
 	}
@@ -152,7 +153,7 @@ void Stage::createGroupFromSelection(HashSet<SelectedID>& selectedIDs)
 void Stage::ungroup(size_t groupId)
 {
 	const auto& group = m_groups.at(groupId);
-	for (const auto& g : *group.m_groups) {
+	for (const auto& g : group.m_groups) {
 		size_t newGroupId = m_nextGroupId++;
 		m_groups[newGroupId] = g;
 	}
@@ -161,20 +162,20 @@ void Stage::ungroup(size_t groupId)
 
 Vec2 Stage::getBeginPointOfGroup(const Group& group) const
 {
-	if (not group.m_pointIds->empty()) {
+	if (not group.m_pointIds.empty()) {
 		return m_points.at(group.getBeginPointId());
 	}
-	else if (not group.m_placedBallIds->empty()) {
-		return m_placedBalls[*group.m_placedBallIds->begin()].circle.center;
+	else if (not group.m_placedBallIds.empty()) {
+		return m_placedBalls[*group.m_placedBallIds.begin()].circle.center;
 	}
-	else if (not group.m_startCircleIds->empty()) {
-		return m_startCircles[*group.m_startCircleIds->begin()].circle.center;
+	else if (not group.m_startCircleIds.empty()) {
+		return m_startCircles[*group.m_startCircleIds.begin()].circle.center;
 	}
-	else if (not group.m_goalAreaIds->empty()) {
-		return m_goalAreas[*group.m_goalAreaIds->begin()].rect.pos;
+	else if (not group.m_goalAreaIds.empty()) {
+		return m_goalAreas[*group.m_goalAreaIds.begin()].rect.pos;
 	}
-	else if (not group.m_groups->empty()) {
-		return getBeginPointOfGroup(*group.m_groups->begin());
+	else if (not group.m_groups.empty()) {
+		return getBeginPointOfGroup(*group.m_groups.begin());
 	}
 	return Vec2(0, 0);
 }
@@ -222,10 +223,10 @@ Optional<size_t> Stage::findTopGroupForGoalArea(size_t goalAreaId) const
 Group Stage::mapGroupIDs(const Group& group, const HashTable<size_t, size_t>& idMapping) const
 {
 	Group newGroup;
-	for (auto pointId : *group.m_pointIds) {
-		newGroup.m_pointIds.get_mutable().insert(idMapping.at(pointId));
+	for (auto pointId : group.m_pointIds) {
+		newGroup.m_pointIds.insert(idMapping.at(pointId));
 	}
-	for (const auto& subGroup : *group.m_groups) {
+	for (const auto& subGroup : group.m_groups) {
 		newGroup.insert(mapGroupIDs(subGroup, idMapping));
 	}
 	return newGroup;
@@ -336,6 +337,8 @@ void Stage::startSimulation()
 	m_world = P2World{ 980 };
 	m_linesInWorld.clear();
 	m_startBallsInWorld.clear();
+
+	auto saveTask = saveAsync();
 	
 	// 壁（エッジ）を物理世界に追加
 	for (const auto& edge : m_edges) {
@@ -359,6 +362,8 @@ void Stage::startSimulation()
 	if (m_currentQueryIndex < m_queries.size()) {
 		m_queries[m_currentQueryIndex]->startSimulation(*this);
 	}
+
+	s3d::Platform::Web::System::AwaitAsyncTask(saveTask);
 }
 
 bool Stage::checkSimulationResult() const
@@ -535,4 +540,24 @@ bool Stage::isLineAllowedInEditableArea(const Line& line) const
 	}
 
 	return true;
+}
+
+void Stage::save() const
+{
+	auto task = saveAsync();
+	s3d::Platform::Web::System::AwaitAsyncTask(task).value_or(false);
+}
+
+AsyncTask<bool> Stage::saveAsync() const
+{
+	{
+		Serializer<BinaryWriter> serializer{ U"Ballagorithm/Stages/{}.bin"_fmt(m_name) };
+
+		serializer(createSnapshot());
+		serializer(m_queryCompleted);
+		serializer(m_queryFailed);
+		serializer(m_isCleared);
+	}
+
+	return s3d::Platform::Web::IndexedDB::SaveAsync();
 }

@@ -2,6 +2,8 @@
 # include "Stage.hpp"
 # include "Game.hpp"
 
+# include "IndexedDB.hpp"
+
 StageUI::StageUI() {
 	Camera2DParameters params = m_camera.getParameters();
 	params.minScale = (1.0 / 8.0);
@@ -124,6 +126,8 @@ void StageUI::onStageExit(Stage& stage)
 	
 	// コンテキストメニューを閉じる
 	m_contextMenu.close();
+
+	stage.save();
 	
 	// Undo/Redo履歴をクリア
 	// clearUndoRedoHistory();

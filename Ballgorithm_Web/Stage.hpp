@@ -20,6 +20,12 @@ struct StageSnapshot {
 	Array<InventorySlot> inventorySlots;
 	Array<LayerObject> layerOrder;
 	Array<RectF> nonEditableAreas;
+
+	template <class Archive>
+	void SIV3D_SERIALIZE(Archive& archive)
+	{
+		archive(points, nextPointId, edges, groups, nextGroupId, placedBalls, inventorySlots, layerOrder, nonEditableAreas);
+	}
 };
 
 // ステージ固有のデータとロジックのみを持つクラス
@@ -128,5 +134,9 @@ public:
 	// Undo/Redo用スナップショット
 	StageSnapshot createSnapshot() const;
 	void restoreSnapshot(const StageSnapshot& snapshot);
+
+	void save() const;
+
+	AsyncTask<bool> saveAsync() const;
 };
 

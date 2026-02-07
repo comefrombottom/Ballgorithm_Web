@@ -23,6 +23,7 @@ size_t hash_values(const Args&... args) {
 template <class>
 inline constexpr bool dependent_false_v = false;
 
+/*
 // ハッシュ値をキャッシュするラッパークラス
 template <typename T>
 class HashCache {
@@ -81,3 +82,5 @@ namespace std {
 		}
 	};
 }
+
+*/

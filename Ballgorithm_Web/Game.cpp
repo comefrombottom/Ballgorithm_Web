@@ -7,6 +7,27 @@ Game::Game()
 {
 	stagesConstruct(m_stages);
 
+	for (auto& file : FileSystem::DirectoryContents(U"Ballagorithm/Stages")) {
+		Deserializer<BinaryReader> deserializer{ file };
+
+		try {
+			for (auto& stage : m_stages) {
+				if (stage->m_name == FileSystem::BaseName(file)) {
+					StageSnapshot snapshot{};
+					deserializer(snapshot);
+					deserializer(stage->m_queryCompleted);
+					deserializer(stage->m_queryFailed);
+					deserializer(stage->m_isCleared);
+					stage->restoreSnapshot(snapshot);
+				}
+			}
+		}
+		catch (...) {
+			Console << U"[Error] failed to open the save file '{{}}'"_fmt(file);
+			FileSystem::Remove(file);
+		};
+	}
+
 	m_stageUI = std::make_unique<StageUI>();
 	m_stageSelectScene = std::make_unique<StageSelectScene>();
 	m_titleScene = std::make_unique<TitleScene>();
@@ -33,7 +54,8 @@ void Game::goToNextStage()
 
 	m_selectedStageIndex = (*m_currentStageIndex + 1) % m_stages.size();
 
-	// ここで onStageExit + currentStageIndex reset をしてしまうと、FadeOut中に描画するものが無くなり
+	// ここで onStage
+	// + currentStageIndex reset をしてしまうと、FadeOut中に描画するものが無くなり
 	// 背景色(クリア色)が見えてしまう。切り替えは onTransitionFinished() に寄せる。
 	startTransition(GameState::Playing);
 }

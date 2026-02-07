@@ -49,6 +49,12 @@ enum class LayerObjectType {
 struct LayerObject {
 	LayerObjectType type;
 	size_t id;
+
+	template<class Archive>
+	void SIV3D_SERIALIZE(Archive& archive)
+	{
+		archive(type, id);
+	}
 	
 	bool operator==(const LayerObject&) const = default;
 	
@@ -69,6 +75,12 @@ struct LayerObject {
 struct PlacedBall {
 	Circle circle;
 	BallKind kind;
+
+	template <class Archive>
+	void SIV3D_SERIALIZE(Archive& archive)
+	{
+		archive(circle, kind);
+	}
 	
 	bool isSmall() const { return kind == BallKind::Small; }
 	bool isLarge() const { return kind == BallKind::Large; }
@@ -186,36 +198,42 @@ struct PointEdgeGroup {
 };
 
 struct Group {
-	HashCache<HashSet<size_t>> m_pointIds; // 点のID
-	HashCache<HashSet<size_t>> m_placedBallIds; // PlacedBall のID
-	HashCache<HashSet<size_t>> m_startCircleIds; // StartCircle のID
-	HashCache<HashSet<size_t>> m_goalAreaIds; // GoalArea のID
-	HashCache<Array<Group>> m_groups;
+	HashSet<size_t> m_pointIds; // 点のID
+	HashSet<size_t> m_placedBallIds; // PlacedBall のID
+	HashSet<size_t> m_startCircleIds; // StartCircle のID
+	HashSet<size_t> m_goalAreaIds; // GoalArea のID
+	Array<Group> m_groups;
 	bool isLocked = false;  // グループ解除不可能フラグ
 
-	void insert(const Group& group) { m_groups.get_mutable().push_back(group); }
-	void insertPointId(size_t pointId) { m_pointIds.get_mutable().insert(pointId); }
-	void insertGoalAreaId(size_t goalAreaId) { m_goalAreaIds.get_mutable().insert(goalAreaId); }
-	void insertStartCircleId(size_t startCircleId) { m_startCircleIds.get_mutable().insert(startCircleId); }
-	void insertPlacedBallId(size_t placedBallId) { m_placedBallIds.get_mutable().insert(placedBallId); }
+	template <class Archive>
+	void SIV3D_SERIALIZE(Archive& archive)
+	{
+		archive(m_pointIds, m_placedBallIds, m_startCircleIds, m_goalAreaIds, m_groups, isLocked);
+	}
 
-	size_t size() const { return m_pointIds->size() + m_placedBallIds->size() + m_startCircleIds->size() + m_goalAreaIds->size() + m_groups->size(); }
+	void insert(const Group& group) { m_groups.push_back(group); }
+	void insertPointId(size_t pointId) { m_pointIds.insert(pointId); }
+	void insertGoalAreaId(size_t goalAreaId) { m_goalAreaIds.insert(goalAreaId); }
+	void insertStartCircleId(size_t startCircleId) { m_startCircleIds.insert(startCircleId); }
+	void insertPlacedBallId(size_t placedBallId) { m_placedBallIds.insert(placedBallId); }
+
+	size_t size() const { return m_pointIds.size() + m_placedBallIds.size() + m_startCircleIds.size() + m_goalAreaIds.size() + m_groups.size(); }
 
 	size_t getBeginPointId() const {
-		if (not m_pointIds->empty()) {
-			return *m_pointIds->begin();
+		if (not m_pointIds.empty()) {
+			return *m_pointIds.begin();
 		}
-		else if (not m_groups->empty()) {
-			return (*m_groups->begin()).getBeginPointId();
+		else if (not m_groups.empty()) {
+			return (*m_groups.begin()).getBeginPointId();
 		}
 		throw std::runtime_error("Group is empty, no point ID available.");
 	}
 
 	bool containsPointRecursive(size_t pointId) const {
-		if (m_pointIds->contains(pointId)) {
+		if (m_pointIds.contains(pointId)) {
 			return true;
 		}
-		for (const auto& g : *m_groups) {
+		for (const auto& g : m_groups) {
 			if (g.containsPointRecursive(pointId)) {
 				return true;
 			}
@@ -224,10 +242,10 @@ struct Group {
 	}
 	
 	bool containsPlacedBallRecursive(size_t placedBallId) const {
-		if (m_placedBallIds->contains(placedBallId)) {
+		if (m_placedBallIds.contains(placedBallId)) {
 			return true;
 		}
-		for (const auto& g : *m_groups) {
+		for (const auto& g : m_groups) {
 			if (g.containsPlacedBallRecursive(placedBallId)) {
 				return true;
 			}
@@ -236,10 +254,10 @@ struct Group {
 	}
 	
 	bool containsStartCircleRecursive(size_t startCircleId) const {
-		if (m_startCircleIds->contains(startCircleId)) {
+		if (m_startCircleIds.contains(startCircleId)) {
 			return true;
 		}
-		for (const auto& g : *m_groups) {
+		for (const auto& g : m_groups) {
 			if (g.containsStartCircleRecursive(startCircleId)) {
 				return true;
 			}
@@ -248,10 +266,10 @@ struct Group {
 	}
 	
 	bool containsGoalAreaRecursive(size_t goalAreaId) const {
-		if (m_goalAreaIds->contains(goalAreaId)) {
+		if (m_goalAreaIds.contains(goalAreaId)) {
 			return true;
 		}
-		for (const auto& g : *m_groups) {
+		for (const auto& g : m_groups) {
 			if (g.containsGoalAreaRecursive(goalAreaId)) {
 				return true;
 			}
@@ -260,8 +278,8 @@ struct Group {
 	}
 
 	HashSet<size_t> getAllPointIds() const {
-		HashSet<size_t> allPointIds = *m_pointIds;
-		for (const auto& g : *m_groups) {
+		HashSet<size_t> allPointIds = m_pointIds;
+		for (const auto& g : m_groups) {
 			auto subPointIds = g.getAllPointIds();
 			allPointIds.merge(subPointIds);
 		}
@@ -269,8 +287,8 @@ struct Group {
 	}
 	
 	HashSet<size_t> getAllPlacedBallIds() const {
-		HashSet<size_t> allPlacedBallIds = *m_placedBallIds;
-		for (const auto& g : *m_groups) {
+		HashSet<size_t> allPlacedBallIds = m_placedBallIds;
+		for (const auto& g : m_groups) {
 			auto subPlacedBallIds = g.getAllPlacedBallIds();
 			allPlacedBallIds.merge(subPlacedBallIds);
 		}
@@ -278,8 +296,8 @@ struct Group {
 	}
 	
 	HashSet<size_t> getAllStartCircleIds() const {
-		HashSet<size_t> allStartCircleIds = *m_startCircleIds;
-		for (const auto& g : *m_groups) {
+		HashSet<size_t> allStartCircleIds = m_startCircleIds;
+		for (const auto& g : m_groups) {
 			auto subStartCircleIds = g.getAllStartCircleIds();
 			allStartCircleIds.merge(subStartCircleIds);
 		}
@@ -287,8 +305,8 @@ struct Group {
 	}
 	
 	HashSet<size_t> getAllGoalAreaIds() const {
-		HashSet<size_t> allGoalAreaIds = *m_goalAreaIds;
-		for (const auto& g : *m_groups) {
+		HashSet<size_t> allGoalAreaIds = m_goalAreaIds;
+		for (const auto& g : m_groups) {
 			auto subGoalAreaIds = g.getAllGoalAreaIds();
 			allGoalAreaIds.merge(subGoalAreaIds);
 		}
@@ -321,12 +339,19 @@ struct GoalArea { RectF rect; bool isLocked = false; };
 struct Edge {
 	std::array<size_t, 2> ids; // 点のID
 	bool isLocked = false;
+
 	[[nodiscard]] size_t& operator[](size_t i) { return ids[i]; }
 	[[nodiscard]] const size_t& operator[](size_t i) const { return ids[i]; }
 	bool operator==(const Edge& other) const = default;
 	friend void Formatter(FormatData& formatData, const Edge& value)
 	{
 		formatData.string += U"({}, {})"_fmt(value.ids[0], value.ids[1]);
+	}
+
+	template <class Archive>
+	void SIV3D_SERIALIZE(Archive& archive)
+	{
+		archive(ids, isLocked);
 	}
 };
 

@@ -16,6 +16,12 @@ struct InventorySlot
 	Optional<size_t> maxCount;   // none = infinite
 	size_t usedCount = 0;
 
+	template<class Archive>
+	void SIV3D_SERIALIZE(Archive& archive)
+	{
+		archive(kind, ballKind, maxCount, usedCount);
+	}
+
 	bool hasRemaining() const
 	{
 		return (not maxCount) || (usedCount < *maxCount);

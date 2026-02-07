@@ -83,7 +83,7 @@ bool StageEditUI::ungroupSelection(Stage& stage)
 	size_t onlySelectedGroupId = m_selectedIDs.begin()->id;
 	auto& group = stage.m_groups.at(onlySelectedGroupId);
 	if (group.isLocked) return false;
-	for (auto& subGroup : *group.m_groups) {
+	for (auto& subGroup : group.m_groups) {
 		size_t newGroupId = stage.m_nextGroupId++;
 		stage.m_groups[newGroupId] = subGroup;
 	}

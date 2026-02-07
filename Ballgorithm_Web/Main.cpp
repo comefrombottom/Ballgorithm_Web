@@ -1,6 +1,7 @@
 ﻿# include <Siv3D.hpp>
 # include "Game.hpp"
 # include "Touches.h"
+# include "IndexedDB.hpp"
 
 
 # if SIV3D_PLATFORM(WEB)
@@ -59,6 +60,8 @@ void Main()
 		});
 	});
 # endif
+
+	Platform::Web::IndexedDB::Init(U"Ballagorithm");
 
 	Game game;
 	FontAsset::Register(U"Regular", FontMethod::MSDF, 30);
