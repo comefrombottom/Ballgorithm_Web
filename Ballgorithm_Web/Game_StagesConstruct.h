@@ -274,6 +274,10 @@ void stagestagesConstruct_0(Array<std::unique_ptr<Stage>>& m_stages) {
 	}
 
 
+}
+
+void stagestagesConstruct_0_2(Array<std::unique_ptr<Stage>>& m_stages) {
+
 	// Two Paths
 	{
 		auto stage = std::make_unique<Stage>();
@@ -2278,6 +2282,10 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 
 	{}
 
+}
+
+void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
+
 	// Or Way
 	{
 		auto stage = std::make_unique<Stage>();
@@ -2738,10 +2746,12 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 
 void stagesConstruct(Array<std::unique_ptr<Stage>>& m_stages) {
 	stagestagesConstruct_0(m_stages);
+	stagestagesConstruct_0_2(m_stages);
 	stagestagesConstruct_1(m_stages);
 	stagestagesConstruct_2(m_stages);
 	stagestagesConstruct_3(m_stages);
 	stagestagesConstruct_4(m_stages);
+	stagestagesConstruct_5(m_stages);
 
 
 
