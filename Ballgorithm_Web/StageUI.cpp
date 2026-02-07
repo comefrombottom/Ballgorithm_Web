@@ -2,158 +2,6 @@
 # include "Stage.hpp"
 # include "Game.hpp"
 
-// DPadUI implementation
-RectF DPadUI::getButtonRect(Direction dir) const {
-	const double offset = ButtonSize + ButtonGap;
-	switch (dir) {
-	case Direction::Up:
-		return RectF{ Arg::center = m_center + Vec2{0, -offset}, ButtonSize, ButtonSize };
-	case Direction::Down:
-		return RectF{ Arg::center = m_center + Vec2{0, offset}, ButtonSize, ButtonSize };
-	case Direction::Left:
-		return RectF{ Arg::center = m_center + Vec2{-offset, 0}, ButtonSize, ButtonSize };
-	case Direction::Right:
-		return RectF{ Arg::center = m_center + Vec2{offset, 0}, ButtonSize, ButtonSize };
-	default:
-		return RectF{};
-	}
-}
-
-bool DPadUI::hitTest(const Vec2& pos, Direction dir) const {
-	return getButtonRect(dir).contains(pos);
-}
-
-DPadUI::Direction DPadUI::update(SingleUseCursorPos& cursorPos) {
-	if (!m_visible) return Direction::None;
-
-	m_hoveredDirection = Direction::None;
-	Direction result = Direction::None;
-
-	// 各方向のヒットテストとホバー検出
-	for (Direction dir : { Direction::Up, Direction::Down, Direction::Left, Direction::Right }) {
-		if (cursorPos && hitTest(*cursorPos, dir)) {
-			m_hoveredDirection = dir;
-			cursorPos.use();
-			break;
-		}
-	}
-
-	// マウスダウンで押下開始
-	if (MouseL.down() && m_hoveredDirection != Direction::None) {
-		m_pressedDirection = m_hoveredDirection;
-		m_pressTimer = 0.0;
-		m_repeatTimer = 0.0;
-		m_firstPress = true;
-		result = m_pressedDirection;
-	}
-
-	// 押下中の繰り返し処理
-	if (MouseL.pressed() && m_pressedDirection != Direction::None) {
-		// 押下中も同じボタン上にいるかチェック
-		if (m_hoveredDirection == m_pressedDirection) {
-			m_pressTimer += Scene::DeltaTime();
-
-			if (m_firstPress) {
-				m_firstPress = false;
-				// 最初の押下は既にresultに設定済み
-			}
-			else if (m_pressTimer >= RepeatDelay) {
-				m_repeatTimer += Scene::DeltaTime();
-				while (m_repeatTimer >= RepeatInterval) {
-					m_repeatTimer -= RepeatInterval;
-					result = m_pressedDirection;
-				}
-			}
-		}
-	}
-
-	// マウスアップで押下終了
-	if (MouseL.up()) {
-		m_pressedDirection = Direction::None;
-		m_pressTimer = 0.0;
-		m_repeatTimer = 0.0;
-		m_firstPress = true;
-	}
-
-	return result;
-}
-
-void DPadUI::draw() const {
-	if (!m_visible) return;
-
-	auto drawButton = [&](Direction dir, const String& arrow) {
-		RectF rect = getButtonRect(dir);
-		bool isHovered = (m_hoveredDirection == dir);
-		bool isPressed = (m_pressedDirection == dir && MouseL.pressed());
-
-		// 影
-		rect.movedBy(2, 2).rounded(8).draw(ColorF(0.0, 0.3));
-
-		// 背景
-		ColorF bgColor = ColorF(0.2, 0.25, 0.3, 0.95);
-		if (isPressed) {
-			bgColor = ColorF(0.4, 0.6, 0.9, 0.95);
-		}
-		else if (isHovered) {
-			bgColor = ColorF(0.3, 0.4, 0.5, 0.95);
-		}
-		rect.rounded(8).draw(bgColor);
-
-		// 枠
-		ColorF frameColor = isPressed ? ColorF(0.6, 0.8, 1.0, 0.9) : ColorF(0.4, 0.5, 0.6, 0.7);
-		rect.rounded(8).drawFrame(2, frameColor);
-
-		// 矢印
-		ColorF arrowColor = isPressed ? ColorF(1.0) : (isHovered ? ColorF(0.95) : ColorF(0.75));
-		FontAsset(U"Regular")(arrow).drawAt(24, rect.center(), arrowColor);
-	};
-
-	// 中央のボタン背景（十字の中心部分）
-	RectF centerRect{ Arg::center = m_center, ButtonSize * 0.6, ButtonSize * 0.6 };
-	centerRect.rounded(6).draw(ColorF(0.15, 0.18, 0.22, 0.8));
-
-	drawButton(Direction::Up, U"▲");
-	drawButton(Direction::Down, U"▼");
-	drawButton(Direction::Left, U"◀");
-	drawButton(Direction::Right, U"▶");
-}
-
-void DragModeToggle::update(SingleUseCursorPos& cursorPos)
-{
-	const RectF leftRect{ m_rect.x, m_rect.y, m_rect.w * 0.5, m_rect.h };
-	const RectF rightRect{ m_rect.x + m_rect.w * 0.5, m_rect.y, m_rect.w * 0.5, m_rect.h };
-
-	if (cursorPos.intersects_use(m_rect)) {
-		if (MouseL.down()) {
-			if (leftRect.contains(Cursor::PosF())) {
-				m_isRangeSelectLeft = true;
-			}
-			else if (rightRect.contains(Cursor::PosF())) {
-				m_isRangeSelectLeft = false;
-			}
-		}
-		Cursor::RequestStyle(CursorStyle::Hand);
-	}
-}
-
-void DragModeToggle::draw() const
-{
-	const RectF leftRect{ m_rect.x, m_rect.y, m_rect.w * 0.5, m_rect.h };
-	const RectF rightRect{ m_rect.x + m_rect.w * 0.5, m_rect.y, m_rect.w * 0.5, m_rect.h };
-
-	m_rect.rounded(6).draw(ColorF(0.1, 0.12, 0.16, 0.9));
-	m_rect.rounded(6).drawFrame(1, ColorF(0.3, 0.35, 0.4, 0.6));
-
-	const ColorF activeBg = ColorF(0.3, 0.6, 0.9, 0.5);
-	const ColorF inactiveBg = ColorF(0.2, 0.22, 0.26, 0.6);
-	leftRect.rounded(6).draw(m_isRangeSelectLeft ? activeBg : inactiveBg);
-	rightRect.rounded(6).draw(m_isRangeSelectLeft ? inactiveBg : activeBg);
-
-	const Font& iconFont = FontAsset(U"Icon");
-	iconFont(U"\uF0C8").drawAt(14, leftRect.center(), ColorF(0.9));
-	iconFont(U"\uF245").drawAt(14, rightRect.center(), ColorF(0.9));
-}
-
 StageUI::StageUI() {
 	Camera2DParameters params = m_camera.getParameters();
 	params.minScale = (1.0 / 8.0);
@@ -464,7 +312,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 	bool isDoubleClicked = false;
 	if (MouseL.down()) {
 		Vec2 cursorPos = Cursor::PosF();
-		if (m_isFirstMouseLDown and m_timeAfterMouseLDown.elapsed() < 0.5s and (cursorPos - m_preMouseLDownPos).length() < 20) {
+		if (m_isFirstMouseLDown and m_timeAfterMouseLDown.elapsed() < 0.4s and (cursorPos - m_preMouseLDownPos).length() < 20) {
 			isDoubleClicked = true;
 			m_isFirstMouseLDown = false;
 		}
@@ -521,7 +369,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 				const double safeBaseDist = Max(1.0, m_twoFingerBaseDistance);
 				const double ratio = Max(0.01, distance / safeBaseDist);
 				const double targetScale = m_twoFingerBaseScale * ratio;
-				m_camera.zoomAt(center, targetScale);
+				m_camera.zoomAtImmediate(center, targetScale);
 
 				m_prevTwoFingerCenter = center;
 				m_prevTwoFingerDistance = Max(1.0, distance);
@@ -623,8 +471,8 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 				m_contextMenu.openWithoutSelection(currentPos);
 			}
 			else {
-				// 選択あり: Copy, Delete, Group, Ungroup
-				m_contextMenu.openWithSelection(currentPos);
+				// 選択あり: Copy, Paste, Delete, Group, Ungroup
+				m_contextMenu.openWithSelectionClick(currentPos);
 			}
 		}
 		m_rightClickStartPos.reset();
@@ -657,7 +505,8 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 	{
 		const double dpadOffsetX = 100;  // クエリパネルの左端からのオフセット
 		const double dpadY = Scene::Height() - 100;  // パネル下部付近
-		m_dpadUI.setCenter(Vec2{ m_queryPanelRect.x - dpadOffsetX, dpadY });
+		// m_dpadUI.setCenter(Vec2{ m_queryPanelRect.x - dpadOffsetX, dpadY });
+		m_dpadUI.setCenter(Vec2{ Scene::Width() - dpadOffsetX, dpadY });
 	}
 	
 	// 十字キーUIの表示状態を更新（選択中かつシミュレーション中でない場合に表示）
@@ -678,14 +527,11 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 			}
 			
 			if (arrowMove != Vec2{ 0, 0 }) {
-				for (const auto& s : m_editUI.selectedIDs()) {
-					if (s.type == SelectType::Point) { stage.m_points[s.id] += arrowMove; }
-					else if (s.type == SelectType::Group) { stage.deltaMoveGroup(stage.m_groups.at(s.id), arrowMove); }
-					else if (s.type == SelectType::StartCircle) { stage.m_startCircles[s.id].circle.center += arrowMove; }
-					else if (s.type == SelectType::GoalArea) { stage.m_goalAreas[s.id].rect.pos += arrowMove; }
-					else if (s.type == SelectType::PlacedBall) { stage.m_placedBalls[s.id].circle.center += arrowMove; }
+				auto& selected = m_editUI.selectedIDs();
+				if (selected.isMovedSelectedNotInNonEditableArea(stage, arrowMove)) {
+					selected.moveSelectedObjects(stage, arrowMove);
+					onStageEdited(stage);
 				}
-				onStageEdited(stage);
 			}
 		}
 	}
@@ -870,14 +716,11 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 		}
 		
 		if (arrowMove != Vec2{ 0, 0 }) {
-			for (const auto& s : m_editUI.selectedIDs()) {
-				if (s.type == SelectType::Point) { stage.m_points[s.id] += arrowMove; }
-				else if (s.type == SelectType::Group) { stage.deltaMoveGroup(stage.m_groups.at(s.id), arrowMove); }
-				else if (s.type == SelectType::StartCircle) { stage.m_startCircles[s.id].circle.center += arrowMove; }
-				else if (s.type == SelectType::GoalArea) { stage.m_goalAreas[s.id].rect.pos += arrowMove; }
-				else if (s.type == SelectType::PlacedBall) { stage.m_placedBalls[s.id].circle.center += arrowMove; }
+			auto& selected = m_editUI.selectedIDs();
+			if (selected.isMovedSelectedNotInNonEditableArea(stage, arrowMove)) {
+				selected.moveSelectedObjects(stage, arrowMove);
+				onStageEdited(stage);
 			}
-			onStageEdited(stage);
 		}
 	}
 
@@ -1363,7 +1206,7 @@ void StageUI::draw(const Stage& stage) const
 	m_dpadUI.draw();
 
 	// コンテキストメニュー描画
-	if (m_timeAfterMouseLDown.elapsed() > 0.3s) {
+	if (m_timeAfterMouseLDown.elapsed() > 0.30s) {
 		m_contextMenu.draw();
 	}
 

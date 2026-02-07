@@ -54,6 +54,22 @@ void ContextMenu::openWithSelectionAlignRight(const Vec2& pos)
 	m_items.push_back({ ContextMenuItemType::Ungroup, U"Ungroup", true });
 }
 
+void ContextMenu::openWithSelectionClick(const Vec2& pos)
+{
+	m_isOpen = true;
+	m_position = pos;
+	m_hoveredIndex = none;
+	m_alignRight = false;
+
+	// 選択ありメニュー: Copy, Delete, Group, Ungroup
+	m_items.clear();
+	m_items.push_back({ ContextMenuItemType::Delete, U"Delete", true });
+	m_items.push_back({ ContextMenuItemType::Copy, U"Copy", true });
+	m_items.push_back({ ContextMenuItemType::Paste, U"Paste", true });
+	m_items.push_back({ ContextMenuItemType::Group, U"Group", true });
+	m_items.push_back({ ContextMenuItemType::Ungroup, U"Ungroup", true });
+}
+
 void ContextMenu::openWithoutSelection(const Vec2& pos)
 {
 	m_isOpen = true;

@@ -13,63 +13,12 @@
 # include "StageEditUI.h"
 # include "QueryPanel.h"
 # include "ContextMenu.h"
+# include "DPadUI.h"
+# include "DragModeToggle.h"
 # include "Touches.h"
 
 class Game;
 class Stage;
-
-// 十字キーUIクラス
-class DPadUI {
-public:
-	enum class Direction { Up, Down, Left, Right, None };
-
-	DPadUI() = default;
-
-	void setCenter(const Vec2& center) { m_center = center; }
-	Vec2 center() const { return m_center; }
-
-	// 更新処理：押されている方向を返す
-	Direction update(SingleUseCursorPos& cursorPos);
-
-	// 描画
-	void draw() const;
-
-	// 表示状態
-	bool isVisible() const { return m_visible; }
-	void setVisible(bool visible) { m_visible = visible; }
-
-private:
-	Vec2 m_center{ 0, 0 };
-	bool m_visible = false;
-	Direction m_hoveredDirection = Direction::None;
-	Direction m_pressedDirection = Direction::None;
-	double m_pressTimer = 0.0;
-	double m_repeatTimer = 0.0;
-	bool m_firstPress = true;
-
-	static constexpr double ButtonSize = 50.0;
-	static constexpr double ButtonGap = 4.0;
-	static constexpr double RepeatDelay = 0.4;
-	static constexpr double RepeatInterval = 0.05;
-
-	RectF getButtonRect(Direction dir) const;
-	bool hitTest(const Vec2& pos, Direction dir) const;
-};
-
-// 範囲選択 / カメラ移動のドラッグモード切り替え
-class DragModeToggle {
-public:
-	void setRect(const RectF& rect) { m_rect = rect; }
-	const RectF& rect() const { return m_rect; }
-	bool isRangeSelectLeft() const { return m_isRangeSelectLeft; }
-
-	void update(SingleUseCursorPos& cursorPos);
-	void draw() const;
-
-private:
-	RectF m_rect{ 0, 0, 220, 28 };
-	bool m_isRangeSelectLeft = true;
-};
 
 // クリア演出用パーティクル
 struct ClearParticle {

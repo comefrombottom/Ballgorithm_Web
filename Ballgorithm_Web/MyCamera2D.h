@@ -62,6 +62,7 @@ public:
 
 	// 指定したスクリーン座標を拡大・縮小の支点にしてズームする
 	void zoomAt(const Vec2& screenPos, double targetScale, const SizeF& sceneSize = Graphics2D::GetRenderTargetSize());
+	void zoomAtImmediate(const Vec2& screenPos, double targetScale, const SizeF& sceneSize = Graphics2D::GetRenderTargetSize());
 
 	/// @brief 右クリックによる移動の開始座標を返します。
 	/// @return 右クリックによる移動の開始座標。右クリックによる移動が開始されていない場合は none

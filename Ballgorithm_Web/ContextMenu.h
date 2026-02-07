@@ -33,6 +33,9 @@ public:
 	
 	// 選択ありメニューを開く（右揃え：メニューの右上が基準）
 	void openWithSelectionAlignRight(const Vec2& pos);
+
+	// 右クリックで選択ありメニューを開く
+	void openWithSelectionClick(const Vec2& pos);
 	
 	// 選択なしメニューを開く（Camera Reset, Paste, Run）
 	void openWithoutSelection(const Vec2& pos);

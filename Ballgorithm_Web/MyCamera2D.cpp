@@ -83,3 +83,22 @@ void MyCamera2D::zoomAt(const Vec2& screenPos, double targetScale, const SizeF& 
 	const Vec2 point = (m_center + (screenPos - (sceneSize * 0.5)) / m_scale);
 	m_pointedScale.emplace(screenPos, point);
 }
+
+void MyCamera2D::zoomAtImmediate(const Vec2& screenPos, double targetScale, const SizeF& sceneSize)
+{
+	if (targetScale <= 0.0)
+	{
+		return;
+	}
+
+	const double clampedScale = Clamp(targetScale, m_parameters.minScale, m_parameters.maxScale);
+	const Vec2 screenCenter = sceneSize * 0.5;
+	const Vec2 worldPoint = m_center + (screenPos - screenCenter) / m_scale;
+	const Vec2 newCenter = worldPoint - (screenPos - screenCenter) / clampedScale;
+
+	m_pointedScale.reset();
+	m_positionChangeVelocity = Vec2::Zero();
+	m_scaleChangeVelocity = 0.0;
+	m_targetScale = m_scale = clampedScale;
+	m_targetCenter = m_center = newCenter;
+}

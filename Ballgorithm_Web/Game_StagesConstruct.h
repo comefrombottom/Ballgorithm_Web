@@ -471,7 +471,6 @@ void stagestagesConstruct_0(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		stage->m_tutorialTexts = {
 			U"インベントリからドラッグでボールを出し、配置することが出来ます。",
-			U"このステージでは、入力が何もない場合ゴールに何も入れてはいけません。",
 		};
 
 		m_stages.push_back(std::move(stage));
@@ -492,6 +491,54 @@ void stagestagesConstruct_0(Array<std::unique_ptr<Stage>>& m_stages) {
 		stage->m_queries << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{none},
 			Array<Optional<BallKind>>{none}
+		);
+
+		stage->m_queries << std::make_unique<SampleQuery>(
+			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } },
+			Array<Optional<BallKind>>{ BallKind::Small }
+		);
+
+		stage->addInventorySlot(BallKind::Small, 1);
+
+		m_stages.push_back(std::move(stage));
+	}
+
+	// Collision (2)
+	{
+		auto stage = std::make_unique<Stage>();
+		stage->m_name = U"Collision (2)";
+
+		stage->addStartCircle({ Circle{ 100, 200, 20 }, true });
+
+		addGoalAreaWithContainer(*stage, RectF{ 500, 400, 80, 80 });
+
+		stage->m_queries << std::make_unique<SampleQuery>(
+			Array<Optional<StartBallState>>{none},
+			Array<Optional<BallKind>>{none}
+		);
+
+		stage->m_queries << std::make_unique<SampleQuery>(
+			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } },
+			Array<Optional<BallKind>>{ BallKind::Small }
+		);
+
+		stage->addInventorySlot(BallKind::Small, 1);
+
+		m_stages.push_back(std::move(stage));
+	}
+
+	// Be Small
+	{
+		auto stage = std::make_unique<Stage>();
+		stage->m_name = U"Be Small";
+
+		stage->addStartCircle({ Circle{ 100, 200, 20 }, true });
+
+		addGoalAreaWithContainer(*stage, RectF{ 500, 400, 80, 80 });
+
+		stage->m_queries << std::make_unique<SampleQuery>(
+			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } },
+			Array<Optional<BallKind>>{ BallKind::Small }
 		);
 
 		stage->m_queries << std::make_unique<SampleQuery>(
@@ -2284,6 +2331,59 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 		m_stages.push_back(std::move(stage));
 	}
 
+
+	// And Way
+	{
+		auto stage = std::make_unique<Stage>();
+		stage->m_name = U"And Way";
+
+		stage->addStartCircle({ Circle{ 100, 100, 20 }, true });
+		stage->addStartCircle({ Circle{ 200, 100, 20 }, true });
+		stage->addStartCircle({ Circle{ 300, 100, 20 }, true });
+		stage->addStartCircle({ Circle{ 400, 100, 20 }, true });
+
+
+		addGoalAreaWithContainer(*stage, RectF{ 100 - 40, 550, 80, 80 }, true);
+
+		addGoalAreaWithContainer(*stage, RectF{ 400 - 40, 550, 80, 80 }, true);
+
+		stage->m_queries << std::make_unique<SequentialQuery>(
+			Array<DelayedBallRelease>{
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none, none, none }, 0.0 },
+				{ Array<Optional<StartBallState>>{ none, none, StartBallState{ BallKind::Small }, none }, none },
+		},
+			Array<Optional<BallKind>>{ BallKind::Small, none }
+		);
+
+		stage->m_queries << std::make_unique<SequentialQuery>(
+			Array<DelayedBallRelease>{
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none, none, none }, 0.0 },
+				{ Array<Optional<StartBallState>>{ none, none, none, StartBallState{ BallKind::Small } }, none },
+		},
+			Array<Optional<BallKind>>{ BallKind::Small, none }
+		);
+
+		stage->m_queries << std::make_unique<SequentialQuery>(
+			Array<DelayedBallRelease>{
+				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small }, none, none }, 0.0 },
+				{ Array<Optional<StartBallState>>{ none, none, StartBallState{ BallKind::Small }, none }, none },
+		},
+			Array<Optional<BallKind>>{ BallKind::Small, none }
+		);
+
+		stage->m_queries << std::make_unique<SequentialQuery>(
+			Array<DelayedBallRelease>{
+				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small }, none, none }, 0.0 },
+				{ Array<Optional<StartBallState>>{ none, none, none, StartBallState{ BallKind::Small } }, none },
+		},
+			Array<Optional<BallKind>>{ none, BallKind::Small }
+		);
+
+		stage->addInventorySlot(BallKind::Small, 1);
+
+
+		m_stages.push_back(std::move(stage));
+	}
 
 	// Or Way Repeat
 	{

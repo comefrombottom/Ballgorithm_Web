@@ -245,5 +245,3 @@ public:
 inline TouchesType Touches;
 
 
-
-

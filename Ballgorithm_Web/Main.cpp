@@ -2,6 +2,7 @@
 # include "Game.hpp"
 # include "Touches.h"
 
+
 # if SIV3D_PLATFORM(WEB)
 EM_JS(void, setupMultiTouchHandler, (), {
 	// グローバル変数を定義
@@ -22,6 +23,7 @@ canvas.addEventListener("touchend", updateTouches, false);
 
 
 # endif
+
 
 void Main()
 {
@@ -65,30 +67,34 @@ void Main()
 	Scene::SetBackground(ColorF(0.08, 0.1, 0.14));
 	//Scene::SetBackground(Palette::Papayawhip);
 
-	//bool subTouchActive = false;
-	//Vec2 subTouchPos = Vec2::Zero();
+	bool subTouchActive = false;
+	Vec2 subTouchPos = Vec2::Zero();
 
 	while (System::Update())
 	{
 		ClearPrint();
 
-		//if (KeyR.down())
-		//{
-		//	subTouchActive = true;
-		//	subTouchPos = Cursor::PosF();
-		//}
-		//if (KeyR.up())
-		//{
-		//	subTouchActive = false;
-		//}
+		if (KeyR.down())
+		{
+			subTouchActive = true;
+			subTouchPos = Cursor::PosF();
+		}
+		if (KeyR.up())
+		{
+			subTouchActive = false;
+		}
+		if(KeyT.pressed())
+		{
+			subTouchPos += Vec2(1, 1);
+		}
 
-		//Array<TouchRawInfo> additionalTouches;
-		//if (subTouchActive)
-		//{
-		//	additionalTouches.push_back(TouchRawInfo{ 999, subTouchPos });
-		//}
+		Array<TouchRawInfo> additionalTouches;
+		if (subTouchActive)
+		{
+			additionalTouches.push_back(TouchRawInfo{ 999, subTouchPos });
+		}
 
-		Touches.update();
+		Touches.update(additionalTouches);
 
 		for (const auto& touch : Touches.raw())
 		{
@@ -104,9 +110,9 @@ void Main()
 		game.update();
 		game.draw();
 
-		/*if (subTouchActive)
+		if (subTouchActive)
 		{
 			Circle{subTouchPos, 10}.drawFrame(0, 3, Palette::Orange);
-		}*/
+		}
 	}
 }

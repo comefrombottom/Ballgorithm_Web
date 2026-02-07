@@ -45,26 +45,15 @@ void StageSelectScene::drawBackground() const
 void StageSelectScene::drawTitle() const
 {
 	const Font& font = FontAsset(U"Regular");
-	String title = U"SELECT STAGE";
-	
-	// タイトル背景
+	const String title = U"SELECT STAGE";
+
 	RectF titleBg{ 0, 30, Scene::Width(), 80 };
-	titleBg.draw(ColorF(0.0, 0.3));
-	
-	// 波打つタイトル文字
-	Vec2 basePos{ Scene::Width() / 2.0, 70 };
-	double totalWidth = font(title).region(40).w;
-	double startX = basePos.x - totalWidth / 2.0;
-	
-	for (size_t i = 0; i < title.size(); ++i) {
-		double offset = Math::Sin(m_titleWave * 3.0 + i * 0.5) * 3;
-		double charX = startX + font(title.substr(0, i)).region(40).w;
-		ColorF color = HSV{ 200 + i * 10, 0.6, 1.0 };
-		font(title.substr(i, 1)).drawAt(40, Vec2{ charX, basePos.y + offset }, color); // drawAtを使用
-	}
-	
-	// サブタイトル
-	font(U"↑↓: Select   Enter: Start").draw(14, Arg::center = Vec2{ Scene::Width() / 2.0, 130 }, ColorF(0.7));
+	titleBg.draw(ColorF(0.0, 0.25));
+
+	const double titleWidth = font(title).region(40).w;
+	const Vec2 titlePos{ Scene::Width() / 2.0 - titleWidth / 2.0, 70 };
+	font(title).draw(40, Arg::leftCenter = titlePos, ColorF(0.95));
+
 }
 
 void StageSelectScene::drawCard(size_t index, const String& name, bool isCleared, bool isSelected, bool isHovered, size_t queryCount, size_t completedCount) const

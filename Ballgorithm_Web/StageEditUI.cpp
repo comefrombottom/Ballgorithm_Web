@@ -794,6 +794,30 @@ void StageEditUI::drawWorld(const Stage& stage, const MyCamera2D& camera) const
 			Line(p1 + Vec2{ 2, 2 }, p2 + Vec2{ 2, 2 }).draw(3.0 / Graphics2D::GetMaxScaling(), ColorF(0.0, 0.2));
 			Line(p1, p2).draw(2.5 / Graphics2D::GetMaxScaling(), lineColor);
 
+			auto drawEdgeEndpointHighlight = [&](size_t pointId, size_t otherPointId) {
+				const bool isPointSelected = m_selectedIDs.isSelectedPoint(stage, pointId);
+				const bool isPointHovered = isHoveredPoint(stage, m_hoveredInfo, pointId);
+				if (!isPointSelected && !isPointHovered) {
+					return;
+				}
+
+				const Vec2 pointPos = stage.m_points.at(pointId);
+				const Vec2 otherPointPos = stage.m_points.at(otherPointId);
+				const Vec2 direction = otherPointPos - pointPos;
+				const double length = direction.length();
+				if (length <= 0.0) {
+					return;
+				}
+
+				const double segmentLength = Min(10.0, length);
+				const Vec2 segmentEnd = pointPos + (direction / length) * segmentLength;
+				const ColorF highlightColor = isPointSelected ? ColorF(0.4, 0.7, 1.0) : ColorF(1.0, 0.7, 0.3);
+				Line(pointPos, segmentEnd).draw(3.0 / Graphics2D::GetMaxScaling(), highlightColor);
+			};
+
+			drawEdgeEndpointHighlight(edge[0], edge[1]);
+			drawEdgeEndpointHighlight(edge[1], edge[0]);
+
 			for (auto j : step(2)) {
 				size_t pointId = edge[j];
 				size_t otherPointId = edge[1 - j];
@@ -826,7 +850,7 @@ void StageEditUI::drawWorld(const Stage& stage, const MyCamera2D& camera) const
 				}
 
 				if (not edge.isLocked && not isInGroup) {
-					Circle(pointPos, 10.0).draw(ColorF(0.15, 0.18, 0.22, 0.8));
+					//Circle(pointPos, 10.0).draw(ColorF(0.15, 0.18, 0.22, 0.8));
 					Circle(pointPos, 10.0).drawFrame(2.5 / Graphics2D::GetMaxScaling(), pointColor);
 				}
 			}
