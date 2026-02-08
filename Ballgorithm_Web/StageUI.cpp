@@ -3,6 +3,7 @@
 # include "Game.hpp"
 
 # include "IndexedDB.hpp"
+# include "Sharing.hpp"
 
 StageUI::StageUI() {
 	Camera2DParameters params = m_camera.getParameters();
@@ -874,6 +875,11 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 						// Console << U"★ Stage Cleared! ★";
 						startClearEffect();  // クリア演出を開始
 					}
+
+					// TODO 
+					stage.save();
+					Platform::Web::IndexedDB::Save();
+					CreatePostTask(U"A", stage);
 				}
 				else {
 					// Console << U"Query {} Failed."_fmt(completedQueryIndex + 1);

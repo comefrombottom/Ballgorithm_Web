@@ -6,33 +6,14 @@ namespace s3d::Platform::Web::IndexedDB
 {
 	namespace detail
 	{
-		EM_JS
-		(
-			void, siv3dMountIDBFS, (const char32_t* path),
-			{
-				const pathStr = UTF32ToString(path);
-				FS.mount(IDBFS, {}, pathStr);
-			}
-		);
-		
-		EM_JS
-		(
-			void, siv3dSyncFSAsync, (bool populate, std::promise<bool>* promise),
-			{
-				FS.syncfs
-				(
-					populate,
-					function(err)
-					{
-						Module["_siv3dSyncFSCallback"](promise, !err);
-						_siv3dMaybeAwake();
-					}
-				);
-			}
-		);
+		__attribute__((import_name("siv3dMountIDBFS")))
+			void siv3dMountIDBFS(const char32* path);
+
+		__attribute__((import_name("siv3dSyncFSAsync")))
+			void siv3dSyncFSAsync(bool populate, std::promise<bool>* promise);
 
 		__attribute__((used, export_name("siv3dSyncFSCallback")))
-		void siv3dSyncFSCallback(std::promise<bool>* promise, bool result)
+			void siv3dSyncFSCallback(std::promise<bool>* promise, bool result)
 		{
 			promise->set_value(result);
 			delete promise;

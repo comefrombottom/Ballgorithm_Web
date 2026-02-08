@@ -90,6 +90,7 @@
     <ClCompile Include="Query.cpp" />
     <ClCompile Include="QueryPanel.cpp" />
     <ClCompile Include="SelectedIDSet.cpp" />
+    <ClCompile Include="Sharing.cpp" />
     <ClCompile Include="Stage.cpp" />
     <ClCompile Include="StageEditUI.cpp" />
     <ClCompile Include="StageSelectScene.cpp" />
@@ -98,6 +99,8 @@
     <ClCompile Include="TitleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".SECRET" />
+    <None Include="mylib.js" />
     <None Include="resources\engine\font\fontawesome\fontawesome-brands.otf.zstdcmp" />
     <None Include="resources\engine\font\fontawesome\fontawesome-solid.otf.zstdcmp" />
     <None Include="resources\engine\font\fontawesome\LICENSE.txt" />
@@ -338,6 +341,7 @@
     <ClInclude Include="Query.hpp" />
     <ClInclude Include="QueryPanel.h" />
     <ClInclude Include="ScrollBar.h" />
+    <ClInclude Include="Sharing.hpp" />
     <ClInclude Include="SimpleWatch.hpp" />
     <ClInclude Include="Stage.hpp" />
     <ClInclude Include="StageEditUI.h" />
@@ -358,7 +362,7 @@
       <AdditionalLinkDirectories>$(LibraryPath);%(AdditionalLinkDirectories)</AdditionalLinkDirectories>
       <AdditionalDependencies>Siv3DScript;Siv3D;opencv_objdetect;opencv_photo;opencv_imgproc;opencv_core;harfbuzz;freetype;turbojpeg;gif;webp;opusfile;opus;tiff;png;z;SDL2;</AdditionalDependencies>
       <EchoCommandLines>false</EchoCommandLines>
-      <JsLibrary>$(SIV3D_0_6_16_WEB)\lib\Siv3D.js;</JsLibrary>
+      <JsLibrary>$(SIV3D_0_6_16_WEB)\lib\Siv3D.js;$(ProjectDir)\mylib.js</JsLibrary>
       <PreJsFile>$(SIV3D_0_6_16_WEB)\lib\Siv3D.pre.js;</PreJsFile>
       <PostJsFile>$(ProjectDir)\Templates\Embeddable\web-player.js;$(SIV3D_0_6_16_WEB)\lib\Siv3D.post.js;</PostJsFile>
       <HtmlShellFile>$(ProjectDir)\Templates\Embeddable\web-player.html</HtmlShellFile>
