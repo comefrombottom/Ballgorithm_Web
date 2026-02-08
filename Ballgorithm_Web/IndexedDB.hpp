@@ -1,9 +1,11 @@
-# pragma once
+﻿# pragma once
 
 # include <Siv3D/AsyncTask.hpp>
 # include <Siv3D/FileSystem.hpp>
 # include <Siv3D/System.hpp>
+# include <Siv3D/Platform.hpp>
 
+# if SIV3D_PLATFORM(WEB)
 namespace s3d::Platform::Web
 {
 	/// @brief ファイルシステム内のデータをIndexedDB上に保存するための関数群を提供します。
@@ -30,3 +32,5 @@ namespace s3d::Platform::Web
 }
 
 # include "IndexedDB.ipp"
+
+# endif

@@ -278,40 +278,6 @@ bool StageUI::hasSameObjectWithClipboard(const Stage& stage) const
 
 void StageUI::update(Game& game, Stage& stage, double dt)
 {
-	// チュートリアルテキストの表示処理
-	if (m_tutorialPageIndex < m_tutorialTexts.size()) {
-		m_tutorialDisplayTime += dt;
-		
-		// フェードイン完了後はクリック待ち
-		if (m_tutorialDisplayTime >= TutorialFadeInTime) {
-			m_tutorialWaitingForClick = true;
-		}
-		
-		// クリックで次のページへ
-		if (m_tutorialWaitingForClick && MouseL.down()) {
-			// テキストボックス上でのみ進める（全画面クリック判定を避ける）
-			const Font& font = FontAsset(U"Regular");
-			const String& text = m_tutorialTexts[m_tutorialPageIndex];
-			const int32 fontSize = 18;
-
-			const double boxWidth = Min(600.0, Scene::Width() - 80.0);
-			const double boxX = (Scene::Width() - boxWidth) / 2.0;
-			const double boxY = 550;
-
-			RectF textRegion = font(text).region(fontSize, Vec2{ 0, 0 });
-			const double boxHeight = Max(60.0, textRegion.h + 40);
-			RectF boxRect{ boxX, boxY, boxWidth, boxHeight };
-
-			if (m_cursorPos and boxRect.contains(Cursor::PosF())) {
-				m_tutorialPageIndex++;
-				m_tutorialDisplayTime = TutorialFadeInTime;
-				m_tutorialWaitingForClick = false;
-				// クリックを消費してステージ操作に影響しないようにする
-				m_cursorPos.use();
-			}
-		}
-	}
-	
 	// ダブルクリック検出（最初に行う）
 	bool isDoubleClicked = false;
 	if (MouseL.down()) {
@@ -333,7 +299,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 	// === 2本指タッチでカメラ操作（パン/ピンチ）===
 	// UI操作と衝突させないため、2本指がある間は cursorPos を消費してステージ編集入力を抑制する
 	{
-		auto touches = Touches.unused();
+		auto touches = Touches.unused().presseds();
 		if (touches.size() >= 2)
 		{
 			hasTwoFingerTouch = true;
@@ -400,6 +366,46 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 	if (!stage.m_isSimulationRunning) {
 		prevSelection = m_editUI.selectedIDs().m_ids;
 	}
+
+
+	// チュートリアルテキストの表示処理
+	if (m_tutorialPageIndex < m_tutorialTexts.size()) {
+		m_tutorialDisplayTime += dt;
+
+		// フェードイン完了後はクリック待ち
+		if (m_tutorialDisplayTime >= TutorialFadeInTime) {
+			m_tutorialWaitingForClick = true;
+		}
+
+		// クリックで次のページへ
+		if (m_tutorialWaitingForClick) {
+			// テキストボックス上でのみ進める（全画面クリック判定を避ける）
+			const Font& font = FontAsset(U"Regular");
+			const String& text = m_tutorialTexts[m_tutorialPageIndex];
+			const int32 fontSize = 18;
+
+			const double boxWidth = Min(600.0, Scene::Width() - 80.0);
+			const double boxX = (Scene::Width() - boxWidth) / 2.0;
+			const double boxY = 550;
+
+			RectF textRegion = font(text).region(fontSize, Vec2{ 0, 0 });
+			const double boxHeight = Max(60.0, textRegion.h + 40);
+			RectF boxRect{ boxX, boxY, boxWidth, boxHeight };
+
+			if (m_cursorPos and boxRect.contains(Cursor::PosF())) {
+
+				if (MouseL.down()) {
+					m_tutorialPageIndex++;
+					m_tutorialDisplayTime = TutorialFadeInTime;
+					m_tutorialWaitingForClick = false;
+				}
+				// クリックを消費してステージ操作に影響しないようにする
+				m_cursorPos.use();
+				Print << U"(Tutorial) Click detected within tutorial text box.";
+			}
+		}
+	}
+
 	
 	// コンテキストメニューが開いている場合は先に処理
 	if (m_contextMenu.isOpen()) {
@@ -909,11 +915,24 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 	auto& CameraMoveInput = m_dragModeToggle.isRangeSelectLeft() ? MouseR : MouseL;
 
 	if (m_cursorPos) {
-		if (CameraMoveInput.pressed() or MouseM.pressed()) {
-			auto cameraTf = m_camera.createTransformer();
-			Vec2 pos = m_camera.getCenter() -  (CameraMoveInput.down() ? Vec2::Zero() : Cursor::DeltaF());
-			m_camera.setTargetCenter(pos);
-			m_camera.setCenter(pos);
+		if (!m_dragModeToggle.isRangeSelectLeft()) {
+			if (MouseL.down()) {
+				m_leftClickStartPos = Cursor::PosF();
+			}
+			if (MouseL.up() && m_leftClickStartPos) {
+				if (m_leftClickStartPos->distanceFrom(Cursor::PosF()) < LeftClickMoveThreshold) {
+					m_editUI.selectedIDs().clear();
+				}
+				m_leftClickStartPos.reset();
+			}
+		}
+		if (not hasTwoFingerTouch) {
+			if ((CameraMoveInput.pressed() or MouseM.pressed())) {
+				auto cameraTf = m_camera.createTransformer();
+				Vec2 pos = m_camera.getCenter() - (CameraMoveInput.down() ? Vec2::Zero() : Cursor::DeltaF());
+				m_camera.setTargetCenter(pos);
+				m_camera.setCenter(pos);
+			}
 		}
 		m_camera.updateWheel();
 	}
@@ -1018,6 +1037,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 	PrintDebug(stage.m_points.size());*/
 
 	PrintDebug(m_editUI.selectedIDs());
+
 
 	//PrintDebug(m_selectSingleLine);
 
@@ -1209,6 +1229,59 @@ void StageUI::draw(const Stage& stage) const
 	// 十字キーUI描画
 	m_dpadUI.draw();
 
+
+	// チュートリアルテキストの表示（ノベルゲーム風）
+	if (m_tutorialPageIndex < m_tutorialTexts.size()) {
+		const Font& font = FontAsset(U"Regular");
+		const String& text = m_tutorialTexts[m_tutorialPageIndex];
+
+		// アルファ値を計算（フェードイン）
+		double alpha = Min(m_tutorialDisplayTime / TutorialFadeInTime, 1.0);
+
+		// 画面中央少し下にテキストボックスを表示
+		const double boxWidth = Min(600.0, Scene::Width() - 80.0);
+		const double boxX = (Scene::Width() - boxWidth) / 2.0;
+		const double boxY = 550;
+
+		// テキスト領域の計算
+		const int32 fontSize = 18;
+		RectF textRegion = font(text).region(fontSize, Vec2{ 0, 0 });
+		const double boxHeight = Max(60.0, textRegion.h + 40);
+
+		// 背景ボックスの描画（ノベルゲーム風の枠）
+		RectF boxRect{ boxX, boxY, boxWidth, boxHeight };
+
+		// 影
+		boxRect.movedBy(4, 4).rounded(12).draw(ColorF(0.0, 0.4 * alpha));
+
+		// メインボックス
+		boxRect.rounded(12).draw(ColorF(0.08, 0.1, 0.15, 0.95 * alpha));
+		boxRect.rounded(12).drawFrame(2, ColorF(0.4, 0.5, 0.7, 0.8 * alpha));
+
+		// 内側の装飾線
+		boxRect.stretched(-6).rounded(8).drawFrame(1, ColorF(0.3, 0.4, 0.5, 0.4 * alpha));
+
+		// テキストの描画（中央揃え）
+		Vec2 textPos{ boxX + (boxWidth - textRegion.w) / 2.0, boxY + (boxHeight - textRegion.h) / 2.0 };
+		font(text).draw(fontSize, textPos, ColorF(0.95, 0.95, 1.0, alpha));
+
+		// クリック待ち中は「▼」を点滅表示
+		if (m_tutorialWaitingForClick) {
+			const double blinkAlpha = 0.5 + 0.5 * Sin(Scene::Time() * 4.0);
+			const String clickHint = U"▼";
+			Vec2 hintPos{ boxX + boxWidth - 30, boxY + boxHeight - 25 };
+			font(clickHint).draw(14, hintPos, ColorF(0.8, 0.9, 1.0, blinkAlpha * alpha));
+		}
+
+		// ページ数表示（複数ページの場合）
+		if (m_tutorialTexts.size() > 1) {
+			const String pageText = U"{}/{}"_fmt(m_tutorialPageIndex + 1, m_tutorialTexts.size());
+			Vec2 pagePos{ boxX + 15, boxY + boxHeight - 25 };
+			font(pageText).draw(12, pagePos, ColorF(0.6, 0.7, 0.8, alpha));
+		}
+	}
+
+
 	// コンテキストメニュー描画
 	if (m_timeAfterMouseLDown.elapsed() > 0.30s) {
 		m_contextMenu.draw();
@@ -1222,57 +1295,6 @@ void StageUI::draw(const Stage& stage) const
 		RectF bgRect = font(helpText).region(14, helpPos).stretched(8, 4);
 		bgRect.rounded(4).draw(ColorF(0.0, 0.25));
 		font(helpText).draw(14, helpPos, ColorF(0.8, 0.8, 0.9));
-	}
-	
-	// チュートリアルテキストの表示（ノベルゲーム風）
-	if (m_tutorialPageIndex < m_tutorialTexts.size()) {
-		const Font& font = FontAsset(U"Regular");
-		const String& text = m_tutorialTexts[m_tutorialPageIndex];
-		
-		// アルファ値を計算（フェードイン）
-		double alpha = Min(m_tutorialDisplayTime / TutorialFadeInTime, 1.0);
-		
-		// 画面中央少し下にテキストボックスを表示
-		const double boxWidth = Min(600.0, Scene::Width() - 80.0);
-		const double boxX = (Scene::Width() - boxWidth) / 2.0;
-		const double boxY = 550;
-		
-		// テキスト領域の計算
-		const int32 fontSize = 18;
-		RectF textRegion = font(text).region(fontSize, Vec2{ 0, 0 });
-		const double boxHeight = Max(60.0, textRegion.h + 40);
-		
-		// 背景ボックスの描画（ノベルゲーム風の枠）
-		RectF boxRect{ boxX, boxY, boxWidth, boxHeight };
-		
-		// 影
-		boxRect.movedBy(4, 4).rounded(12).draw(ColorF(0.0, 0.4 * alpha));
-		
-		// メインボックス
-		boxRect.rounded(12).draw(ColorF(0.08, 0.1, 0.15, 0.95 * alpha));
-		boxRect.rounded(12).drawFrame(2, ColorF(0.4, 0.5, 0.7, 0.8 * alpha));
-		
-		// 内側の装飾線
-		boxRect.stretched(-6).rounded(8).drawFrame(1, ColorF(0.3, 0.4, 0.5, 0.4 * alpha));
-		
-		// テキストの描画（中央揃え）
-		Vec2 textPos{ boxX + (boxWidth - textRegion.w) / 2.0, boxY + (boxHeight - textRegion.h) / 2.0 };
-		font(text).draw(fontSize, textPos, ColorF(0.95, 0.95, 1.0, alpha));
-		
-		// クリック待ち中は「▼」を点滅表示
-		if (m_tutorialWaitingForClick) {
-			const double blinkAlpha = 0.5 + 0.5 * Sin(Scene::Time() * 4.0);
-			const String clickHint = U"▼";
-			Vec2 hintPos{ boxX + boxWidth - 30, boxY + boxHeight - 25 };
-			font(clickHint).draw(14, hintPos, ColorF(0.8, 0.9, 1.0, blinkAlpha * alpha));
-		}
-		
-		// ページ数表示（複数ページの場合）
-		if (m_tutorialTexts.size() > 1) {
-			const String pageText = U"{}/{}"_fmt(m_tutorialPageIndex + 1, m_tutorialTexts.size());
-			Vec2 pagePos{ boxX + 15, boxY + boxHeight - 25 };
-			font(pageText).draw(12, pagePos, ColorF(0.6, 0.7, 0.8, alpha));
-		}
 	}
 	
 	// クリア演出の描画（最前面）

@@ -363,7 +363,9 @@ void Stage::startSimulation()
 		m_queries[m_currentQueryIndex]->startSimulation(*this);
 	}
 
+#if SIV3D_PLATFORM(WEB)
 	s3d::Platform::Web::System::AwaitAsyncTask(saveTask);
+#endif
 }
 
 bool Stage::checkSimulationResult() const
@@ -545,7 +547,10 @@ bool Stage::isLineAllowedInEditableArea(const Line& line) const
 void Stage::save() const
 {
 	auto task = saveAsync();
+	
+#if SIV3D_PLATFORM(WEB)
 	s3d::Platform::Web::System::AwaitAsyncTask(task).value_or(false);
+#endif
 }
 
 AsyncTask<bool> Stage::saveAsync() const
@@ -559,5 +564,9 @@ AsyncTask<bool> Stage::saveAsync() const
 		serializer(m_isCleared);
 	}
 
+#if SIV3D_PLATFORM(WEB)
 	return s3d::Platform::Web::IndexedDB::SaveAsync();
+#else
+	return AsyncTask<bool>([]() { return true; });
+#endif
 }
