@@ -507,30 +507,6 @@ void stagestagesConstruct_0_2(Array<std::unique_ptr<Stage>>& m_stages) {
 		m_stages.push_back(std::move(stage));
 	}
 
-	// Collision (2)
-	{
-		auto stage = std::make_unique<Stage>();
-		stage->m_name = U"Collision (2)";
-
-		stage->addStartCircle({ Circle{ 100, 200, 20 }, true });
-
-		addGoalAreaWithContainer(*stage, RectF{ 500, 400, 80, 80 });
-
-		stage->m_queries << std::make_unique<SampleQuery>(
-			Array<Optional<StartBallState>>{none},
-			Array<Optional<BallKind>>{none}
-		);
-
-		stage->m_queries << std::make_unique<SampleQuery>(
-			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } },
-			Array<Optional<BallKind>>{ BallKind::Small }
-		);
-
-		stage->addInventorySlot(BallKind::Small, 1);
-
-		m_stages.push_back(std::move(stage));
-	}
-
 	// Be Small
 	{
 		auto stage = std::make_unique<Stage>();
@@ -827,8 +803,7 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
 
-		stage->addInventorySlot(BallKind::Small, none);
-		stage->addInventorySlot(BallKind::Large, none);
+		stage->addInventorySlot(BallKind::Large, 1);
 
 		m_stages.push_back(std::move(stage));
 	}
@@ -922,8 +897,7 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
 
-		stage->addInventorySlot(BallKind::Small, none);
-		stage->addInventorySlot(BallKind::Large, none);
+		stage->addInventorySlot(BallKind::Small, 1);
 
 		m_stages.push_back(std::move(stage));
 	}
@@ -1407,19 +1381,27 @@ void stagestagesConstruct_3(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ none, none }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
-		},
-			Array<Optional<BallKind>>{ BallKind::Large, none }
-		);
-
-		stage->m_queries << std::make_unique<SequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
-		},
-			Array<Optional<BallKind>>{ BallKind::Large, BallKind::Small }
+		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+			Array<MultiPhaseQuery::Phase>{
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 1} }),
+							GoalRequirement::multi({ {BallKind::Small, 0} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 1} }),
+							GoalRequirement::multi({ {BallKind::Small, 1} }),
+					}
+				},
+		}
 		);
 
 		stage->addInventorySlot(BallKind::Small, 1);
@@ -1952,62 +1934,63 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		addGoalAreaWithContainer(*stage, RectF{ 400 - 40, 450, 80, 80 }, true);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
-		},
-			Array<GoalRequirement>{
-			GoalRequirement::multi({ {BallKind::Small, 0} }),
-				GoalRequirement::multi({ {BallKind::Small, 0} }),
-				GoalRequirement::multi({ {BallKind::Large, 1} }),
-		}
-		);
-
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-		},
-			Array<GoalRequirement>{
-			GoalRequirement::multi({ {BallKind::Small, 1} }),
-				GoalRequirement::multi({ {BallKind::Small, 1} }),
-				GoalRequirement::multi({ {BallKind::Large, 1} }),
-		}
-		);
-
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-		},
-			Array<GoalRequirement>{
-			GoalRequirement::multi({ {BallKind::Small, 2} }),
-				GoalRequirement::multi({ {BallKind::Small, 2} }),
-				GoalRequirement::multi({ {BallKind::Large, 2} }),
-		}
-		);
-
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-		},
-			Array<GoalRequirement>{
-			GoalRequirement::multi({ {BallKind::Small, 3} }),
-				GoalRequirement::multi({ {BallKind::Small, 3} }),
-				GoalRequirement::multi({ {BallKind::Large, 3} }),
+		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+			Array<MultiPhaseQuery::Phase>{
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ none, none }, 0.0 },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 0} }),
+							GoalRequirement::multi({ {BallKind::Small, 0} }),
+							GoalRequirement::multi({ {BallKind::Large, 0} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 0} }),
+							GoalRequirement::multi({ {BallKind::Small, 0} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+							{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
+							{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 1} }),
+							GoalRequirement::multi({ {BallKind::Small, 1} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+							{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, none },
+							{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
+							{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 2} }),
+							GoalRequirement::multi({ {BallKind::Small, 2} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+							{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, none },
+							{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
+							{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 3} }),
+							GoalRequirement::multi({ {BallKind::Small, 3} }),
+							GoalRequirement::multi({ {BallKind::Large, 3} }),
+					}
+				},
 		}
 		);
 
@@ -2030,118 +2013,92 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		addGoalAreaWithContainer(*stage, RectF{ 400 - 40, 450, 80, 80 }, true);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
-		},
-			Array<GoalRequirement>{
-			GoalRequirement::multi({ {BallKind::Small, 0} }),
-				GoalRequirement::multi({ {BallKind::Large, 1} }),
+
+		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+			Array<MultiPhaseQuery::Phase>{
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 0} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
+					},
+					Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 1} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
+					},
+					Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 1} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 1} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
+					},
+					Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 2} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
+					},
+					Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 2} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 2} }),
+							GoalRequirement::multi({ {BallKind::Large, 3} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
+					},
+					Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 3} }),
+							GoalRequirement::multi({ {BallKind::Large, 3} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
+					},
+					Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 3} }),
+							GoalRequirement::multi({ {BallKind::Large, 3} }),
+					}
+				},
 		}
 		);
-
-
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-		},
-			Array<GoalRequirement>{
-			GoalRequirement::multi({ {BallKind::Small, 1} }),
-				GoalRequirement::multi({ {BallKind::Large, 1} }),
-		}
-		);
-
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-		},
-			Array<GoalRequirement>{
-			GoalRequirement::multi({ {BallKind::Small, 1} }),
-				GoalRequirement::multi({ {BallKind::Large, 1} }),
-		}
-		);
-
-
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, none },
-		},
-			Array<GoalRequirement>{
-			GoalRequirement::multi({ {BallKind::Small, 1} }),
-				GoalRequirement::multi({ {BallKind::Large, 2} }),
-		}
-		);
-
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-		},
-			Array<GoalRequirement>{
-			GoalRequirement::multi({ {BallKind::Small, 2} }),
-				GoalRequirement::multi({ {BallKind::Large, 2} }),
-		}
-		);
-
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-		},
-			Array<GoalRequirement>{
-			GoalRequirement::multi({ {BallKind::Small, 2} }),
-				GoalRequirement::multi({ {BallKind::Large, 2} }),
-		}
-		);
-
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-		},
-			Array<GoalRequirement>{
-			GoalRequirement::multi({ {BallKind::Small, 3} }),
-				GoalRequirement::multi({ {BallKind::Large, 3} }),
-		}
-		);
-
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-		},
-			Array<GoalRequirement>{
-			GoalRequirement::multi({ {BallKind::Small, 3} }),
-				GoalRequirement::multi({ {BallKind::Large, 3} }),
-		}
-		);
-
 
 		stage->addInventorySlot(BallKind::Large, 1);
 
@@ -2162,118 +2119,92 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		addGoalAreaWithContainer(*stage, RectF{ 400 - 40, 450, 80, 80 }, true);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
-		},
-			Array<GoalRequirement>{
-			GoalRequirement::multi({ {BallKind::Small, 0} }),
-				GoalRequirement::multi({ {BallKind::Large, 1} }),
+
+		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+			Array<MultiPhaseQuery::Phase>{
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 0} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
+					},
+					Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 0} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
+					},
+					Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 1} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 1} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
+					},
+					Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 1} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
+					},
+					Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 2} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 2} }),
+							GoalRequirement::multi({ {BallKind::Large, 3} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
+					},
+					Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 2} }),
+							GoalRequirement::multi({ {BallKind::Large, 3} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
+					},
+					Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 3} }),
+							GoalRequirement::multi({ {BallKind::Large, 3} }),
+					}
+				},
 		}
 		);
-
-
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-		},
-			Array<GoalRequirement>{
-			GoalRequirement::multi({ {BallKind::Small, 0} }),
-				GoalRequirement::multi({ {BallKind::Large, 1} }),
-		}
-		);
-
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-		},
-			Array<GoalRequirement>{
-			GoalRequirement::multi({ {BallKind::Small, 1} }),
-				GoalRequirement::multi({ {BallKind::Large, 1} }),
-		}
-		);
-
-
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, none },
-		},
-			Array<GoalRequirement>{
-			GoalRequirement::multi({ {BallKind::Small, 1} }),
-				GoalRequirement::multi({ {BallKind::Large, 2} }),
-		}
-		);
-
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-		},
-			Array<GoalRequirement>{
-			GoalRequirement::multi({ {BallKind::Small, 1} }),
-				GoalRequirement::multi({ {BallKind::Large, 2} }),
-		}
-		);
-
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-		},
-			Array<GoalRequirement>{
-			GoalRequirement::multi({ {BallKind::Small, 2} }),
-				GoalRequirement::multi({ {BallKind::Large, 2} }),
-		}
-		);
-
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-		},
-			Array<GoalRequirement>{
-			GoalRequirement::multi({ {BallKind::Small, 2} }),
-				GoalRequirement::multi({ {BallKind::Large, 3} }),
-		}
-		);
-
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
-			Array<DelayedBallRelease>{
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
-		},
-			Array<GoalRequirement>{
-			GoalRequirement::multi({ {BallKind::Small, 3} }),
-				GoalRequirement::multi({ {BallKind::Large, 3} }),
-		}
-		);
-
 
 		stage->addInventorySlot(BallKind::Large, 1);
 
@@ -2744,18 +2675,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 	}
 }
 
-void stagesConstruct(Array<std::unique_ptr<Stage>>& m_stages) {
-	stagestagesConstruct_0(m_stages);
-	stagestagesConstruct_0_2(m_stages);
-	stagestagesConstruct_1(m_stages);
-	stagestagesConstruct_2(m_stages);
-	stagestagesConstruct_3(m_stages);
-	stagestagesConstruct_4(m_stages);
-	stagestagesConstruct_5(m_stages);
-
-
-
-	{}
+void stagestagesConstruct_6(Array<std::unique_ptr<Stage>>& m_stages) {
 
 	// Queue
 	{
@@ -2932,6 +2852,7 @@ void stagesConstruct(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ none }, none },
 						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
 					},
 						Array<GoalRequirement>{
@@ -3008,4 +2929,718 @@ void stagesConstruct(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		m_stages.push_back(std::move(stage));
 	}
+
+	// Big Toggle
+	{
+		auto stage = std::make_unique<Stage>();
+		stage->m_name = U"Big Toggle";
+
+		stage->addStartCircle({ Circle{ 200, 100, 20 }, true });
+
+		addGoalAreaWithContainer(*stage, RectF{ 100 - 40, 400, 80, 160 }, true);
+		addGoalAreaWithContainer(*stage, RectF{ 300 - 40, 400, 80, 160 }, true);
+
+		stage->addInventorySlot(BallKind::Large, 2);
+
+		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+			Array<MultiPhaseQuery::Phase>{
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ none }, none },
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 1} }),
+							GoalRequirement::multi({ {BallKind::Small, 0} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 1} }),
+							GoalRequirement::multi({ {BallKind::Small, 1} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 2} }),
+							GoalRequirement::multi({ {BallKind::Small, 1} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 2} }),
+							GoalRequirement::multi({ {BallKind::Small, 3} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 4} }),
+							GoalRequirement::multi({ {BallKind::Small, 3} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 4} }),
+							GoalRequirement::multi({ {BallKind::Small, 6} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 7} }),
+							GoalRequirement::multi({ {BallKind::Small, 6} }),
+					}
+				},
+
+		}
+		);
+
+		m_stages.push_back(std::move(stage));
+	}
+
+	// Self Toggles
+	{
+		auto stage = std::make_unique<Stage>();
+		stage->m_name = U"Self Toggles";
+
+		stage->addStartCircle({ Circle{ 200, 100, 20 }, true });
+
+		addGoalAreaWithContainer(*stage, RectF{ 100 - 40, 500, 80, 160 }, true);
+		addGoalAreaWithContainer(*stage, RectF{ 300 - 40, 500, 80, 160 }, true);
+		addGoalAreaWithContainer(*stage, RectF{ 500 - 40, 500, 80, 160 }, true);
+
+		stage->addInventorySlot(BallKind::Large, 4);
+
+		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+			Array<MultiPhaseQuery::Phase>{
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ none }, none },
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 1} }),
+							GoalRequirement::multi({ {BallKind::Large, 0} }),
+							GoalRequirement::multi({ {BallKind::Large, 0} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 1} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} }),
+							GoalRequirement::multi({ {BallKind::Large, 0} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 2} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} }),
+							GoalRequirement::multi({ {BallKind::Large, 0} })
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 2} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} })
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 3} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} })
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 3} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} })
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 4} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} })
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 4} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} })
+
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 5} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} })
+
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 5} }),
+							GoalRequirement::multi({ {BallKind::Large, 3} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} })
+
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 6} }),
+							GoalRequirement::multi({ {BallKind::Large, 3} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} })
+
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 6} }),
+							GoalRequirement::multi({ {BallKind::Large, 3} }),
+							GoalRequirement::multi({ {BallKind::Large, 3} })
+
+					}
+				},
+		}
+		);
+
+		m_stages.push_back(std::move(stage));
+	}
+
+	{}
+
+	// 2Bit Counter
+	{
+		auto stage = std::make_unique<Stage>();
+		stage->m_name = U"2Bit Counter";
+
+		stage->addStartCircle({ Circle{ 0, 100, 20 }, true });
+		stage->addStartCircle({ Circle{ 200, 100, 20 }, true });
+		stage->addStartCircle({ Circle{ 400, 100, 20 }, true });
+
+		addGoalAreaWithContainer(*stage, RectF{ 300 - 40, 500, 80, 160 }, true);
+		addGoalAreaWithContainer(*stage, RectF{ 500 - 40, 500, 80, 160 }, true);
+
+		stage->addInventorySlot(BallKind::Large, 4);
+
+		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+			Array<DelayedBallRelease>{
+				{ Array<Optional<StartBallState>>{ none, none, none }, none },
+				{ Array<Optional<StartBallState>>{ none,StartBallState{ BallKind::Small },StartBallState{ BallKind::Small } }, none },
+		},
+						Array<GoalRequirement>{
+			GoalRequirement::multi({ {BallKind::Small, 0} }),
+				GoalRequirement::multi({ {BallKind::Small, 0} }),
+		}
+		);
+
+		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+			Array<DelayedBallRelease>{
+				{ Array<Optional<StartBallState>>{ none, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ none,StartBallState{ BallKind::Small },StartBallState{ BallKind::Small } }, none },
+		},
+						Array<GoalRequirement>{
+			GoalRequirement::multi({ {BallKind::Small, 1} }),
+				GoalRequirement::multi({ {BallKind::Small, 0} }),
+		}
+		);
+
+		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+			Array<DelayedBallRelease>{
+				{ Array<Optional<StartBallState>>{ none, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ none,StartBallState{ BallKind::Small },StartBallState{ BallKind::Small } }, none },
+		},
+						Array<GoalRequirement>{
+			GoalRequirement::multi({ {BallKind::Small, 0} }),
+				GoalRequirement::multi({ {BallKind::Small, 1} }),
+		}
+		);
+
+		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+			Array<DelayedBallRelease>{
+				{ Array<Optional<StartBallState>>{ none, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ none,StartBallState{ BallKind::Small },StartBallState{ BallKind::Small } }, none },
+		},
+						Array<GoalRequirement>{
+			GoalRequirement::multi({ {BallKind::Small, 1} }),
+				GoalRequirement::multi({ {BallKind::Small, 1} }),
+		}
+		);
+
+		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+			Array<DelayedBallRelease>{
+				{ Array<Optional<StartBallState>>{ none, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ none,StartBallState{ BallKind::Small },StartBallState{ BallKind::Small } }, none },
+		},
+						Array<GoalRequirement>{
+			GoalRequirement::multi({ {BallKind::Small, 0} }),
+				GoalRequirement::multi({ {BallKind::Small, 0} }),
+		}
+		);
+
+		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+			Array<DelayedBallRelease>{
+				{ Array<Optional<StartBallState>>{ none, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ none,StartBallState{ BallKind::Small },StartBallState{ BallKind::Small } }, none },
+		},
+						Array<GoalRequirement>{
+			GoalRequirement::multi({ {BallKind::Small, 1} }),
+				GoalRequirement::multi({ {BallKind::Small, 0} }),
+		}
+		);
+
+		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+			Array<DelayedBallRelease>{
+				{ Array<Optional<StartBallState>>{ none, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ none,StartBallState{ BallKind::Small },StartBallState{ BallKind::Small } }, none },
+		},
+						Array<GoalRequirement>{
+			GoalRequirement::multi({ {BallKind::Small, 0} }),
+				GoalRequirement::multi({ {BallKind::Small, 1} }),
+		}
+		);
+
+		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+			Array<DelayedBallRelease>{
+				{ Array<Optional<StartBallState>>{ none, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ none,StartBallState{ BallKind::Small },StartBallState{ BallKind::Small } }, none },
+		},
+						Array<GoalRequirement>{
+			GoalRequirement::multi({ {BallKind::Small, 1} }),
+				GoalRequirement::multi({ {BallKind::Small, 1} }),
+		}
+		);
+
+		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+			Array<DelayedBallRelease>{
+				{ Array<Optional<StartBallState>>{ none, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
+				{ Array<Optional<StartBallState>>{ none,StartBallState{ BallKind::Small },StartBallState{ BallKind::Small } }, none },
+		},
+						Array<GoalRequirement>{
+			GoalRequirement::multi({ {BallKind::Small, 0} }),
+				GoalRequirement::multi({ {BallKind::Small, 0} }),
+		}
+		);
+
+		m_stages.push_back(std::move(stage));
+	}
+
+	{}
+
+	// Small Toggle
+	{
+		auto stage = std::make_unique<Stage>();
+		stage->m_name = U"Small Toggle";
+
+		stage->addStartCircle({ Circle{ 200, 100, 20 }, true });
+
+		addGoalAreaWithContainer(*stage, RectF{ 100 - 40, 400, 80, 160 }, true);
+		addGoalAreaWithContainer(*stage, RectF{ 300 - 40, 400, 80, 160 }, true);
+
+		stage->addInventorySlot(BallKind::Large, 2);
+		stage->addInventorySlot(BallKind::Small, 2);
+
+		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+			Array<MultiPhaseQuery::Phase>{
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ none }, none },
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 1} }),
+							GoalRequirement::multi({ {BallKind::Small, 0} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 1} }),
+							GoalRequirement::multi({ {BallKind::Small, 1} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 2} }),
+							GoalRequirement::multi({ {BallKind::Small, 1} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 2} }),
+							GoalRequirement::multi({ {BallKind::Small, 2} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 3} }),
+							GoalRequirement::multi({ {BallKind::Small, 2} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 3} }),
+							GoalRequirement::multi({ {BallKind::Small, 3} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 4} }),
+							GoalRequirement::multi({ {BallKind::Small, 3} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 4} }),
+							GoalRequirement::multi({ {BallKind::Small, 4} }),
+					}
+				},
+
+		}
+		);
+
+		m_stages.push_back(std::move(stage));
+	}
+
+	// Self Toggle (2)
+	{
+		auto stage = std::make_unique<Stage>();
+		stage->m_name = U"Self Toggle (2)";
+
+		stage->addStartCircle({ Circle{ 200, 100, 20 }, true });
+
+		addGoalAreaWithContainer(*stage, RectF{ 100 - 40, 500, 80, 160 }, true);
+		addGoalAreaWithContainer(*stage, RectF{ 300 - 40, 500, 80, 160 }, true);
+
+		stage->addInventorySlot(BallKind::Large, 2);
+		stage->addInventorySlot(BallKind::Small, 2);
+
+		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+			Array<MultiPhaseQuery::Phase>{
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ none }, none },
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 1} }),
+							GoalRequirement::multi({ {BallKind::Small, 0} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 1} }),
+							GoalRequirement::multi({ {BallKind::Small, 1} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 1}, {BallKind::Large,1} }),
+							GoalRequirement::multi({ {BallKind::Small, 1} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 1}, {BallKind::Large,1 } }),
+							GoalRequirement::multi({ {BallKind::Small, 1}, {BallKind::Large,1 } }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 2}, {BallKind::Large,1 } }),
+							GoalRequirement::multi({ {BallKind::Small, 1}, {BallKind::Large,1 } }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 2}, {BallKind::Large,1 } }),
+							GoalRequirement::multi({ {BallKind::Small, 1}, {BallKind::Large,2 } }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 2}, {BallKind::Large,2 } }),
+							GoalRequirement::multi({ {BallKind::Small, 1}, {BallKind::Large,2 } }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Small, 2}, {BallKind::Large,2 } }),
+							GoalRequirement::multi({ {BallKind::Small, 2}, {BallKind::Large,2 } }),
+					}
+				},
+
+		}
+		);
+
+		m_stages.push_back(std::move(stage));
+	}
+
+	// Three Rotate
+	{
+		auto stage = std::make_unique<Stage>();
+		stage->m_name = U"Three Rotate";
+
+		stage->addStartCircle({ Circle{ 200, 100, 20 }, true });
+
+		addGoalAreaWithContainer(*stage, RectF{ 100 - 40, 500, 80, 160 }, true);
+		addGoalAreaWithContainer(*stage, RectF{ 300 - 40, 500, 80, 160 }, true);
+		addGoalAreaWithContainer(*stage, RectF{ 500 - 40, 500, 80, 160 }, true);
+
+		stage->addInventorySlot(BallKind::Large, 4);
+
+		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+			Array<MultiPhaseQuery::Phase>{
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ none }, none },
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 1} }),
+							GoalRequirement::multi({ {BallKind::Large, 0} }),
+							GoalRequirement::multi({ {BallKind::Large, 0} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 1} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} }),
+							GoalRequirement::multi({ {BallKind::Large, 0} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 1} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 2} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 2} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} }),
+							GoalRequirement::multi({ {BallKind::Large, 1} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 2} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 3} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 3} }),
+							GoalRequirement::multi({ {BallKind::Large, 3} }),
+							GoalRequirement::multi({ {BallKind::Large, 2} }),
+					}
+				},
+				{
+					Array<DelayedBallRelease>{
+						{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
+					},
+						Array<GoalRequirement>{
+						GoalRequirement::multi({ {BallKind::Large, 3} }),
+							GoalRequirement::multi({ {BallKind::Large, 3} }),
+							GoalRequirement::multi({ {BallKind::Large, 3} }),
+					}
+				},
+
+		}
+		);
+
+		m_stages.push_back(std::move(stage));
+	}
+}
+
+void stagesConstruct(Array<std::unique_ptr<Stage>>& m_stages) {
+	stagestagesConstruct_0(m_stages);
+	stagestagesConstruct_0_2(m_stages);
+	stagestagesConstruct_1(m_stages);
+	stagestagesConstruct_2(m_stages);
+	stagestagesConstruct_3(m_stages);
+	stagestagesConstruct_4(m_stages);
+	stagestagesConstruct_5(m_stages);
+	stagestagesConstruct_6(m_stages);
 }
