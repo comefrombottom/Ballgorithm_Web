@@ -570,3 +570,19 @@ AsyncTask<bool> Stage::saveAsync() const
 	return AsyncTask<bool>([]() { return true; });
 #endif
 }
+
+size_t StageSnapshot::CalculateNumberOfObjects() const
+{
+	return edges.size() + placedBalls.size();
+}
+
+double StageSnapshot::CalculateTotalLength() const
+{
+	double sum = 0;
+	for (const auto& edge : edges) {
+		const Vec2& p1 = points.at(edge[0]);
+		const Vec2& p2 = points.at(edge[1]);
+		sum += p1.distanceFrom(p2);
+	}
+	return sum;
+}

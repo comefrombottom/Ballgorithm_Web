@@ -6,6 +6,7 @@
 # include "GeometryUtils.hpp"
 # include "Query.hpp"
 # include "Inventory.h"
+# include "Records.hpp"
 
 class Game;
 
@@ -26,6 +27,9 @@ struct StageSnapshot {
 	{
 		archive(points, nextPointId, edges, groups, nextGroupId, placedBalls, inventorySlots, layerOrder, nonEditableAreas);
 	}
+
+	size_t CalculateNumberOfObjects() const;
+	double CalculateTotalLength() const;
 };
 
 // ステージ固有のデータとロジックのみを持つクラス
@@ -74,6 +78,8 @@ public:
 	// カメラ位置（ステージごとに保持）
 	Vec2 m_cameraCenter{ 400, 300 };
 	double m_cameraScale = 1.0;
+
+	Array<StageRecord> m_snapshotRecords;
 
 	Stage();
 
@@ -135,10 +141,10 @@ public:
 	StageSnapshot createSnapshot() const;
 	void restoreSnapshot(const StageSnapshot& snapshot);
 
-	void save() const;
-
+	AsyncTask<bool> loadAsync();
 	AsyncTask<bool> saveAsync() const;
 
-
+	AsyncTask<bool> loadRecordsAsync();
+	AsyncTask<bool> saveRecordsAsync() const;
 };
 

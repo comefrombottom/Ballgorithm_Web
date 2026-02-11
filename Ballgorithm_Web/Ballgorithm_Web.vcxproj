@@ -90,7 +90,7 @@
     <ClCompile Include="Query.cpp" />
     <ClCompile Include="QueryPanel.cpp" />
     <ClCompile Include="SelectedIDSet.cpp" />
-    <ClCompile Include="Sharing.cpp" />
+    <ClCompile Include="Records.cpp" />
     <ClCompile Include="Stage.cpp" />
     <ClCompile Include="StageEditUI.cpp" />
     <ClCompile Include="StageSelectScene.cpp" />
@@ -341,7 +341,7 @@
     <ClInclude Include="Query.hpp" />
     <ClInclude Include="QueryPanel.h" />
     <ClInclude Include="ScrollBar.h" />
-    <ClInclude Include="Sharing.hpp" />
+    <ClInclude Include="Records.hpp" />
     <ClInclude Include="SimpleWatch.hpp" />
     <ClInclude Include="Stage.hpp" />
     <ClInclude Include="StageEditUI.h" />

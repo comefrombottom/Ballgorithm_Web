@@ -8,13 +8,13 @@ namespace s3d::Platform::Web::IndexedDB
 	namespace detail
 	{
 		__attribute__((import_name("siv3dMountIDBFS")))
-			void siv3dMountIDBFS(const char32* path);
+		void siv3dMountIDBFS(const char32* path);
 
 		__attribute__((import_name("siv3dSyncFSAsync")))
-			void siv3dSyncFSAsync(bool populate, std::promise<bool>* promise);
+		void siv3dSyncFSAsync(bool populate, std::promise<bool>* promise);
 
 		__attribute__((used, export_name("siv3dSyncFSCallback")))
-			void siv3dSyncFSCallback(std::promise<bool>* promise, bool result)
+		void siv3dSyncFSCallback(std::promise<bool>* promise, bool result)
 		{
 			promise->set_value(result);
 			delete promise;
