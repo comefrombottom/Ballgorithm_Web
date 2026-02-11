@@ -583,7 +583,6 @@ void StageEditUI::updateSelectArea(Stage& stage, SingleUseCursorPos& cursorPos, 
 	if (selectDown && cursorPos) {
 		m_selectAreaStart = *cursorPos;
 		cursorPos.capture();
-		m_selectSingleLine = false;
 	}
 	if (selectUp && m_selectAreaStart) {
 		Vec2 startPos = m_selectAreaStart.value();
@@ -602,6 +601,7 @@ void StageEditUI::updateSelectArea(Stage& stage, SingleUseCursorPos& cursorPos, 
 		else if (len > 20 && !m_selectedIDs.empty()) {
 			// 選択エリアの右下座標を保存（ワールド座標）
 			m_lastSelectAreaBottomRight = br;
+			m_selectSingleLine = false;
 			// エリア選択完了時にメニューを表示
 			if (openContextMenu) {
 				// 終了位置を基準にする
@@ -612,6 +612,7 @@ void StageEditUI::updateSelectArea(Stage& stage, SingleUseCursorPos& cursorPos, 
 		}
 		else {
 			m_lastSelectAreaBottomRight.reset();
+			m_selectSingleLine = false;
 		}
 
 		m_selectAreaStart.reset();
@@ -625,6 +626,7 @@ void StageEditUI::update(Stage& stage, bool isDoubleClicked, SingleUseCursorPos&
 	updateHoverInfo(stage, cursorPos);
 	updateDragObject(stage, cursorPos, onStageEdited, draggingBall, openContextMenu);
 	updateSelectArea(stage, cursorPos, openContextMenu, useRightDragSelect, cancelSelectArea);
+	PrintDebug(m_selectSingleLine);
 }
 
 void StageEditUI::drawWorld(const Stage& stage, const MyCamera2D& camera) const

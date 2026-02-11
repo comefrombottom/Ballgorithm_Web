@@ -1,5 +1,6 @@
-# pragma once
+﻿# pragma once
 
+#if SIV3D_PLATFORM(WEB)
 namespace s3d::Platform::Web
 {
 	namespace IndexedDB
@@ -45,3 +46,5 @@ namespace s3d::Platform::Web
 		}
 	}
 }
+
+#endif

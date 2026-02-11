@@ -59,9 +59,12 @@ void Main()
 			}
 		});
 	});
-# endif
 
 	Platform::Web::IndexedDB::Init(U"Ballagorithm");
+# endif
+
+
+
 
 	Game game;
 	FontAsset::Register(U"Regular", FontMethod::MSDF, 30);

@@ -124,6 +124,18 @@ Optional<ContextMenuItemType> ContextMenu::update(SingleUseCursorPos& cursorPos,
 	}
 
 	m_hoveredIndex = none;
+	const RectF closeRect = getCloseButtonRect();
+	const bool isOverClose = closeRect.contains(Cursor::PosF());
+	if (isOverClose) {
+		if (cursorPos) {
+			cursorPos.use();
+		}
+		Cursor::RequestStyle(CursorStyle::Hand);
+		if (MouseL.down()) {
+			close();
+			return none;
+		}
+	}
 
 	// メニュー外をクリックで閉じる
 	if (MouseL.down() || MouseR.down()) {
@@ -166,6 +178,8 @@ void ContextMenu::draw() const
 	if (!m_isOpen) return;
 
 	const RectF menuRect = getMenuRect();
+	const RectF closeRect = getCloseButtonRect();
+	const bool isCloseHovered = closeRect.mouseOver();
 
 	// 影
 	menuRect.movedBy(3, 3).rounded(CornerRadius).draw(ColorF(0.0, 0.4));
@@ -174,9 +188,16 @@ void ContextMenu::draw() const
 	menuRect.rounded(CornerRadius).draw(ColorF(0.15, 0.18, 0.22, 0.98));
 	menuRect.rounded(CornerRadius).drawFrame(1, ColorF(0.3, 0.35, 0.4));
 
+	const Vec2 closeCenter = closeRect.center();
+	const ColorF closeBg = isCloseHovered ? ColorF(0.8, 0.3, 0.3, 0.9) : ColorF(0.2, 0.22, 0.26, 0.9);
+	const ColorF closeFrame = isCloseHovered ? ColorF(1.0, 0.6, 0.6, 0.9) : ColorF(0.5, 0.55, 0.6, 0.7);
+	Circle(closeCenter, CloseButtonRadius).draw(closeBg);
+	Circle(closeCenter, CloseButtonRadius).drawFrame(1.0, closeFrame);
+
 	// 各項目の描画
 	const Font& font = FontAsset(U"Regular");
 	const Font& iconFont = FontAsset(U"Icon");
+	iconFont(U"\uF00d").draw(14, Arg::center = closeCenter, ColorF(0.95));
 	for (size_t i = 0; i < m_items.size(); ++i) {
 		const auto& item = m_items[i];
 		RectF itemRect = getItemRect(i);
@@ -205,7 +226,14 @@ void ContextMenu::draw() const
 bool ContextMenu::hitTest(const Vec2& pos) const
 {
 	if (!m_isOpen) return false;
-	return getMenuRect().contains(pos);
+	return getMenuRect().contains(pos) || getCloseButtonRect().contains(pos);
+}
+
+RectF ContextMenu::getCloseButtonRect() const
+{
+	const RectF menuRect = getMenuRect();
+	const Vec2 center = menuRect.tr() + Vec2{ -CloseButtonRadius, -CloseButtonRadius - 6.0 };
+	return RectF{ Arg::center = center, CloseButtonRadius * 2.0, CloseButtonRadius * 2.0 };
 }
 
 RectF ContextMenu::getMenuRect() const

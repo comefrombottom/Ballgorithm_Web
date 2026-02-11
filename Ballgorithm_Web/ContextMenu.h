@@ -66,7 +66,9 @@ private:
 	static constexpr double ItemHeight = 32.0;
 	static constexpr double Padding = 4.0;
 	static constexpr double CornerRadius = 6.0;
+	static constexpr double CloseButtonRadius = 13.0;
 
 	RectF getMenuRect() const;
+	RectF getCloseButtonRect() const;
 	RectF getItemRect(size_t index) const;
 };

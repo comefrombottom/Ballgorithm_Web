@@ -99,6 +99,15 @@ public:
 		return r;
 	}
 
+	TouchView presseds() const
+	{
+		TouchView r;
+		for (auto it : m_iters)
+			if (not it->up)
+				r.m_iters.push_back(it);
+		return r;
+	}
+
 	TouchView unused() const
 	{
 		TouchView r;
@@ -228,6 +237,11 @@ public:
 	TouchView ups()
 	{
 		return view().ups();
+	}
+
+	TouchView presseds()
+	{
+		return view().presseds();
 	}
 
 	TouchView unused()

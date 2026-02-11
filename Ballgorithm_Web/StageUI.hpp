@@ -74,6 +74,10 @@ private:
 	Optional<Vec2> m_rightClickStartPos;
 	static constexpr double RightClickMoveThreshold = 5.0;
 
+	// 左クリック開始位置（動いていない判定用）
+	Optional<Vec2> m_leftClickStartPos;
+	static constexpr double LeftClickMoveThreshold = 5.0;
+
 	// ドラッグ中のボール情報（インベントリ起点 or ステージ上のPlacedBall起点）
 	Optional<DraggingBallInfo> m_draggingBall;
 
