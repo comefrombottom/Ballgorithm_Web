@@ -23,6 +23,7 @@ enum class TransitionState
 
 class Game {
 	Array<std::unique_ptr<Stage>> m_stages;
+	HashTable<String, size_t> m_stageNameToIndex;
 	std::unique_ptr<StageUI> m_stageUI;
 	Optional<size_t> m_currentStageIndex;
 	size_t m_selectedStageIndex = 0;

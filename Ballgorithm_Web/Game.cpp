@@ -7,20 +7,27 @@ Game::Game()
 {
 	stagesConstruct(m_stages);
 
+	//TODO 非同期に
+
+	for (int i = 0; i < m_stages.size(); i++) {
+		m_stageNameToIndex.emplace(m_stages[i]->m_name, i);
+	}
+
 	for (auto& file : FileSystem::DirectoryContents(U"Ballagorithm/Stages")) {
-		Deserializer<BinaryReader> deserializer{ file };
+		if (!m_stageNameToIndex.contains(FileSystem::BaseName(file))) {
+			continue;
+		}
 
 		try {
-			for (auto& stage : m_stages) {
-				if (stage->m_name == FileSystem::BaseName(file)) {
-					StageSnapshot snapshot{};
-					deserializer(snapshot);
-					deserializer(stage->m_queryCompleted);
-					deserializer(stage->m_queryFailed);
-					deserializer(stage->m_isCleared);
-					stage->restoreSnapshot(snapshot);
-				}
-			}
+			Deserializer<BinaryReader> deserializer{ file };
+			auto& stage = m_stages[m_stageNameToIndex[FileSystem::BaseName(file)]];
+
+			StageSnapshot snapshot{};
+			deserializer(snapshot);
+			deserializer(stage->m_queryCompleted);
+			deserializer(stage->m_queryFailed);
+			deserializer(stage->m_isCleared);
+			stage->restoreSnapshot(snapshot);
 		}
 		catch (...) {
 			Console << U"[Error] failed to open the save file '{{}}'"_fmt(file);

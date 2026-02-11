@@ -60,11 +60,8 @@ void Main()
 		});
 	});
 
-	Platform::Web::IndexedDB::Init(U"Ballagorithm");
+	auto task = Platform::Web::IndexedDB::InitAsync(U"Ballagorithm");
 # endif
-
-
-
 
 	Game game;
 	FontAsset::Register(U"Regular", FontMethod::MSDF, 30);
@@ -75,6 +72,8 @@ void Main()
 
 	bool subTouchActive = false;
 	Vec2 subTouchPos = Vec2::Zero();
+
+	task.wait();
 
 	while (System::Update())
 	{
