@@ -73,8 +73,63 @@ void Main()
 	bool subTouchActive = false;
 	Vec2 subTouchPos = Vec2::Zero();
 
-	task.wait();
+# if SIV3D_PLATFORM(WEB)
+	Platform::Web::System::AwaitAsyncTask(task);
+	AsyncHTTPTask getTask;
+	auto params = Platform::Web::System::GetURLParameters();
+	if (params.contains(U"share"))
+	{
+		getTask = StageRecord::createGetTask(params[U"share"]);
+	}
+# endif
 
+	JSON profile;
+
+	{
+		TextReader profileReader{ U"Ballagorithm/profile.json" };
+		if (profileReader) {
+			JSON profile = JSON(profileReader.readAll());
+		}
+	}
+
+	if (profile.contains(U"username") && profile[U"username"].isString()) {
+		game.m_username = profile[U"username"].getString();
+	}
+	else {
+		profile[U"username"] = game.m_username = U"Player#{}"_fmt(ToHex(RandomUint16()));
+	}
+
+	profile.saveMinimum(U"Ballagorithm/profile.json");
+
+	StageRecord stageToLoad;
+
+# if SIV3D_PLATFORM(WEB)
+	Platform::Web::IndexedDB::SaveAsync();
+	if (!getTask.isEmpty())
+	{
+		auto asyncTask = Platform::Web::SimpleHTTP::CreateAsyncTask(getTask);
+		Platform::Web::System::AwaitAsyncTask(asyncTask);
+		stageToLoad = StageRecord::processGetTask(getTask);
+	}
+# else
+	if (!getTask.isEmpty())
+	{
+		while (!getTask.isReady())
+		{
+			System::Update();
+		}
+		stageToLoad = StageRecord::processGetTask(getTask);
+	}
+# endif
+
+	if (stageToLoad.isValid() && game.m_stageNameToIndex.contains(stageToLoad.m_stageName))
+	{
+		auto index = game.m_stageNameToIndex[stageToLoad.m_stageName];
+		game.m_stages[index]->restoreSnapshot(stageToLoad.m_snapshot);
+		game.selectStage(index);
+		game.enterSelectedStage();
+	}
+	
 	while (System::Update())
 	{
 		ClearPrint();

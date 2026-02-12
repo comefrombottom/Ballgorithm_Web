@@ -22,6 +22,8 @@ enum class TransitionState
 };
 
 class Game {
+public:
+	String m_username;
 	Array<std::unique_ptr<Stage>> m_stages;
 	HashTable<String, size_t> m_stageNameToIndex;
 	std::unique_ptr<StageUI> m_stageUI;
@@ -41,7 +43,6 @@ class Game {
 	void startTransition(GameState nextState);
 	void onTransitionFinished();
 
-public:
 	Game();
 	~Game();
 	void selectStage(size_t index);

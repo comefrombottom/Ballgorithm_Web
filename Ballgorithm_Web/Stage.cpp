@@ -547,7 +547,6 @@ bool Stage::isLineAllowedInEditableArea(const Line& line) const
 void Stage::save() const
 {
 	auto task = saveAsync();
-	
 #if SIV3D_PLATFORM(WEB)
 	s3d::Platform::Web::System::AwaitAsyncTask(task).value_or(false);
 #endif
@@ -571,18 +570,169 @@ AsyncTask<bool> Stage::saveAsync() const
 #endif
 }
 
-size_t StageSnapshot::CalculateNumberOfObjects() const
+int32 StageSnapshot::CalculateNumberOfObjects() const
 {
-	return edges.size() + placedBalls.size();
+	return edges.count_if([](const Edge& edge) { return !edge.isLocked; }) + placedBalls.size();
 }
 
-double StageSnapshot::CalculateTotalLength() const
+int32 StageSnapshot::CalculateTotalLength() const
 {
 	double sum = 0;
 	for (const auto& edge : edges) {
-		const Vec2& p1 = points.at(edge[0]);
-		const Vec2& p2 = points.at(edge[1]);
-		sum += p1.distanceFrom(p2);
+		if (!edge.isLocked)
+		{
+			const Vec2& p1 = points.at(edge[0]);
+			const Vec2& p2 = points.at(edge[1]);
+			sum += p1.distanceFrom(p2);
+		}
 	}
 	return sum;
+}
+
+# include ".SECRET"
+
+StageRecord::StageRecord(const Stage& stage, String author)
+{
+	if (!stage.isAllQueriesCompleted()) {
+		return;
+	}
+	//const std::string secret{ SIV3D_OBFUSCATE(SECRET_KEY) };
+	m_stageName = stage.m_name;
+	m_snapshot = stage.createSnapshot();
+	m_numberOfObjects = m_snapshot.CalculateNumberOfObjects();
+	m_totalLength = m_snapshot.CalculateTotalLength();
+	m_author = author;
+}
+
+bool StageRecord::isValid() const
+{
+	return !m_stageName.isEmpty() && m_hash != MD5Value();
+}
+
+void StageRecord::calculateHash()
+{
+	const std::string secret{ SIV3D_OBFUSCATE(SECRET_KEY) };
+	if (m_blobStr.isEmpty()) {
+		Serializer<BinaryWriter> serializer{ U"Temp/Ballagorithm/record.bin" };
+		serializer(m_snapshot);
+		serializer->close();
+		m_blobStr = Blob{ U"Temp/Ballagorithm/record.bin" }.base64Str();
+	}
+	m_hash = MD5::FromText(String(U"{}{}{}{}{}{}"_fmt(m_author, m_stageName, m_numberOfObjects, m_totalLength, m_blobStr, Unicode::Widen(secret))).toUTF8());
+}
+
+void StageRecord::fromJSON(const JSON& json)
+{
+	m_stageName = json[U"stagename"].getString();
+	m_author = json[U"username"].getString();
+	m_numberOfObjects = json[U"sc1"].get<int32>();
+	m_totalLength = json[U"sc2"].get<int32>();
+	m_blobStr = json[U"data"].getString();
+	calculateHash();
+	MD5Value sig;
+	{
+		auto md5Str = json[U"sig"].getString();
+		std::array<uint8, 16> md5Array;
+		// MD5値(String)をuint8のarrayに変換
+		for (int i = 0; i < 16; i++) {
+			md5Array[i] = ParseInt<uint8>(md5Str.substrView(i * 2, 2), Arg::radix = 16);
+		}
+		sig = MD5Value{ md5Array };
+	}
+	Console << sig;
+	Console << m_hash;
+	if (sig == m_hash) {
+		Deserializer<MemoryReader> deserializer{ Base64::Decode(m_blobStr) };
+		deserializer(m_snapshot);
+	}
+	else {
+		m_hash = MD5Value{};
+	}
+}
+
+void StageRecord::createPostTask()
+{
+	const std::string url{ SIV3D_OBFUSCATE(LEADERBOARD_URL) };
+	URL requestURL = Unicode::Widen(url);
+
+	if (!m_author.all([](char32 c) { return IsASCII(c) && !IsControl(c); }))
+	{
+		m_author = U"?";
+	}
+
+	calculateHash();
+
+	JSON json{};
+	json[U"sc1"] = m_numberOfObjects;
+	json[U"sc2"] = m_totalLength;
+	json[U"username"] = m_author;
+	json[U"stagename"] = m_stageName;
+	json[U"data"] = m_blobStr;
+	json[U"sig"] = m_hash.asString();
+
+	auto code = json.formatUTF8Minimum();
+
+	m_postTask = SimpleHTTP::PostAsync(requestURL, {}, code.data(), code.length() * sizeof(std::string::value_type), U"Temp/Ballagorithm/{}.json"_fmt(Time::GetMillisecSinceEpoch()));
+}
+
+String StageRecord::processPostTask()
+{
+	const auto& response = m_postTask.getResponse();
+
+	if (!response.isOK()) {
+		return {};
+	}
+
+	JSON json = m_postTask.getAsJSON();
+	m_shareCode = json[U"id"].getString();
+
+	return m_shareCode;
+}
+
+AsyncHTTPTask StageRecord::createGetTask(String shareCode)
+{
+	const std::string url{ SIV3D_OBFUSCATE(LEADERBOARD_URL) };
+	URL requestURL = U"{}?code={}"_fmt(Unicode::Widen(url), shareCode);
+	return SimpleHTTP::GetAsync(requestURL, {}, U"Temp/Ballagorithm/{}.json"_fmt(Time::GetMillisecSinceEpoch()));
+}
+
+AsyncHTTPTask StageRecord::createGetLeaderboradTask(String stageName)
+{
+	const std::string url{ SIV3D_OBFUSCATE(LEADERBOARD_URL) };
+	URL requestURL = U"{}?leaderboard={}"_fmt(Unicode::Widen(url), stageName);
+	return SimpleHTTP::GetAsync(requestURL, {}, U"Temp/Ballagorithm/{}.json"_fmt(Time::GetMillisecSinceEpoch()));
+}
+
+StageRecord StageRecord::processGetTask(AsyncHTTPTask& task)
+{
+	const auto& response = task.getResponse();
+	if (!response.isOK()) {
+		return {};
+	}
+
+	StageRecord record;
+	
+	record.fromJSON(task.getAsJSON());
+
+	return record;
+}
+
+Array<StageRecord> StageRecord::processGetLeaderboardTask(AsyncHTTPTask& task)
+{
+	Array<StageRecord> records;
+
+	const auto& response = task.getResponse();
+	if (!response.isOK()) {
+		return records;
+	}
+	
+	JSON json = task.getAsJSON();
+	for (const auto& item : json[U"records"]) {
+		records.push_back(StageRecord());
+		records.back().fromJSON(item.value);
+		if (!records.back().isValid()) {
+			records.pop_back();
+		}
+	}
+	return records;
 }

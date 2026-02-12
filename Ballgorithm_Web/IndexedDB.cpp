@@ -1,7 +1,7 @@
-﻿# if SIV3D_PLATFORM(WEB)
-# include <emscripten.h>
+﻿# include "IndexedDB.hpp"
 
-# include "IndexedDB.hpp"
+# if SIV3D_PLATFORM(WEB)
+# include <emscripten.h>
 
 namespace s3d::Platform::Web::IndexedDB
 {

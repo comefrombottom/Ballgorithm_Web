@@ -3,7 +3,6 @@
 # include "Game.hpp"
 
 # include "IndexedDB.hpp"
-# include "Sharing.hpp"
 
 StageUI::StageUI() {
 	Camera2DParameters params = m_camera.getParameters();
@@ -279,6 +278,14 @@ bool StageUI::hasSameObjectWithClipboard(const Stage& stage) const
 
 void StageUI::update(Game& game, Stage& stage, double dt)
 {
+	for (auto& record : stage.m_snapshotRecords)
+	{
+		if (record.m_postTask.isReady())
+		{
+			record.processPostTask();
+		}
+	}
+
 	// ダブルクリック検出（最初に行う）
 	bool isDoubleClicked = false;
 	if (MouseL.down()) {
@@ -884,8 +891,9 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 
 					// TODO 
 					stage.save();
-					Platform::Web::IndexedDB::Save();
-					CreatePostTask(U"A", stage);
+					Platform::Web::IndexedDB::SaveAsync();
+					stage.m_snapshotRecords.push_back(StageRecord(stage, game.m_username));
+					stage.m_snapshotRecords.back().createPostTask();
 				}
 				else {
 					// Console << U"Query {} Failed."_fmt(completedQueryIndex + 1);

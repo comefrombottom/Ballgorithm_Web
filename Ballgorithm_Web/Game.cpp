@@ -18,21 +18,15 @@ Game::Game()
 			continue;
 		}
 
-		try {
-			Deserializer<BinaryReader> deserializer{ file };
-			auto& stage = m_stages[m_stageNameToIndex[FileSystem::BaseName(file)]];
+		Deserializer<BinaryReader> deserializer{ file };
+		auto& stage = m_stages[m_stageNameToIndex[FileSystem::BaseName(file)]];
 
-			StageSnapshot snapshot{};
-			deserializer(snapshot);
-			deserializer(stage->m_queryCompleted);
-			deserializer(stage->m_queryFailed);
-			deserializer(stage->m_isCleared);
-			stage->restoreSnapshot(snapshot);
-		}
-		catch (...) {
-			Console << U"[Error] failed to open the save file '{{}}'"_fmt(file);
-			FileSystem::Remove(file);
-		};
+		StageSnapshot snapshot{};
+		deserializer(snapshot);
+		deserializer(stage->m_queryCompleted);
+		deserializer(stage->m_queryFailed);
+		deserializer(stage->m_isCleared);
+		stage->restoreSnapshot(snapshot);
 	}
 
 	m_stageUI = std::make_unique<StageUI>();

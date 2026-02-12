@@ -6,7 +6,6 @@
 # include "GeometryUtils.hpp"
 # include "Query.hpp"
 # include "Inventory.h"
-# include "Records.hpp"
 
 class Game;
 
@@ -28,9 +27,47 @@ struct StageSnapshot {
 		archive(points, nextPointId, edges, groups, nextGroupId, placedBalls, inventorySlots, layerOrder, nonEditableAreas);
 	}
 
-	size_t CalculateNumberOfObjects() const;
-	double CalculateTotalLength() const;
+	int32 CalculateNumberOfObjects() const;
+	int32 CalculateTotalLength() const;
 };
+
+class StageRecord
+{
+public:
+	String m_stageName;
+	StageSnapshot m_snapshot;
+
+	int32 m_numberOfObjects;
+	int32 m_totalLength;
+
+	String m_author;
+	String m_shareCode;
+
+	String m_blobStr;
+	MD5Value m_hash;
+
+	AsyncHTTPTask m_postTask;
+
+	StageRecord() = default;
+
+	StageRecord(const Stage& stage, String author);
+
+	bool isValid() const;
+
+	void calculateHash();
+
+	void fromJSON(const JSON& json);
+
+	void createPostTask();
+	String processPostTask();
+
+	static AsyncHTTPTask createGetTask(String shareCode);
+	static AsyncHTTPTask createGetLeaderboradTask(String stageName);
+
+	static StageRecord processGetTask(AsyncHTTPTask& task);
+	static Array<StageRecord> processGetLeaderboardTask(AsyncHTTPTask& task);
+};
+
 
 // ステージ固有のデータとロジックのみを持つクラス
 class Stage {
@@ -140,6 +177,9 @@ public:
 	// Undo/Redo用スナップショット
 	StageSnapshot createSnapshot() const;
 	void restoreSnapshot(const StageSnapshot& snapshot);
+
+	void save() const;
+	void load();
 
 	AsyncTask<bool> loadAsync();
 	AsyncTask<bool> saveAsync() const;
