@@ -814,7 +814,6 @@
     <ClCompile Include="DPadUI.cpp" />
     <ClCompile Include="DragModeToggle.cpp" />
     <ClCompile Include="IndexedDB.cpp" />
-    <ClCompile Include="Records.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Inventory.h" />
@@ -843,6 +842,5 @@
     <ClInclude Include="DragModeToggle.h" />
     <ClInclude Include="IndexedDB.hpp" />
     <ClInclude Include="IndexedDB.ipp" />
-    <ClInclude Include="Records.hpp" />
   </ItemGroup>
 </Project>
