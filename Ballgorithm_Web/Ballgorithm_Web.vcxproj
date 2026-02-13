@@ -85,6 +85,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="IndexedDB.cpp" />
     <ClCompile Include="Inventory.cpp" />
+    <ClCompile Include="LeaderboardScene.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MyCamera2D.cpp" />
     <ClCompile Include="Query.cpp" />
@@ -336,6 +337,7 @@
     <ClInclude Include="IndexedDB.ipp" />
     <ClInclude Include="InputUtils.hpp" />
     <ClInclude Include="Inventory.h" />
+    <ClInclude Include="LeaderboardScene.hpp" />
     <ClInclude Include="MyCamera2D.h" />
     <ClInclude Include="Query.hpp" />
     <ClInclude Include="QueryPanel.h" />
