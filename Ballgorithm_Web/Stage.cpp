@@ -555,7 +555,7 @@ void Stage::save() const
 AsyncTask<bool> Stage::saveAsync() const
 {
 	{
-		Serializer<BinaryWriter> serializer{ U"Ballagorithm/Stages/{}.bin"_fmt(m_name) };
+		Serializer<BinaryWriter> serializer{ U"Ballgorithm/Stages/{}.bin"_fmt(m_name) };
 
 		serializer(createSnapshot());
 		serializer(m_queryCompleted);
@@ -613,10 +613,10 @@ void StageRecord::calculateHash()
 {
 	const std::string secret{ SIV3D_OBFUSCATE(SECRET_KEY) };
 	if (m_blobStr.isEmpty()) {
-		Serializer<BinaryWriter> serializer{ U"Temp/Ballagorithm/record.bin" };
+		Serializer<BinaryWriter> serializer{ U"Temp/Ballgorithm/record.bin" };
 		serializer(m_snapshot);
 		serializer->close();
-		m_blobStr = Blob{ U"Temp/Ballagorithm/record.bin" }.base64Str();
+		m_blobStr = Blob{ U"Temp/Ballgorithm/record.bin" }.base64Str();
 	}
 	m_hash = MD5::FromText(String(U"{}{}{}{}{}{}"_fmt(m_author, m_stageName, m_numberOfObjects, m_totalLength, m_blobStr, Unicode::Widen(secret))).toUTF8());
 }
@@ -639,8 +639,8 @@ void StageRecord::fromJSON(const JSON& json)
 		}
 		sig = MD5Value{ md5Array };
 	}
-	Console << sig;
-	Console << m_hash;
+	// Console << sig;
+	// Console << m_hash;
 	if (sig == m_hash) {
 		Deserializer<MemoryReader> deserializer{ Base64::Decode(m_blobStr) };
 		deserializer(m_snapshot);
@@ -672,7 +672,7 @@ void StageRecord::createPostTask()
 
 	auto code = json.formatUTF8Minimum();
 
-	m_postTask = SimpleHTTP::PostAsync(requestURL, {}, code.data(), code.length() * sizeof(std::string::value_type), U"Temp/Ballagorithm/{}.json"_fmt(Time::GetMillisecSinceEpoch()));
+	m_postTask = SimpleHTTP::PostAsync(requestURL, {}, code.data(), code.length() * sizeof(std::string::value_type), U"Temp/Ballgorithm/{}.json"_fmt(Time::GetMillisecSinceEpoch()));
 }
 
 String StageRecord::processPostTask()
@@ -693,14 +693,14 @@ AsyncHTTPTask StageRecord::createGetTask(String shareCode)
 {
 	const std::string url{ SIV3D_OBFUSCATE(LEADERBOARD_URL) };
 	URL requestURL = U"{}?code={}"_fmt(Unicode::Widen(url), shareCode);
-	return SimpleHTTP::GetAsync(requestURL, {}, U"Temp/Ballagorithm/{}.json"_fmt(Time::GetMillisecSinceEpoch()));
+	return SimpleHTTP::GetAsync(requestURL, {}, U"Temp/Ballgorithm/{}.json"_fmt(Time::GetMillisecSinceEpoch()));
 }
 
 AsyncHTTPTask StageRecord::createGetLeaderboradTask(String stageName)
 {
 	const std::string url{ SIV3D_OBFUSCATE(LEADERBOARD_URL) };
 	URL requestURL = U"{}?leaderboard={}"_fmt(Unicode::Widen(url), stageName);
-	return SimpleHTTP::GetAsync(requestURL, {}, U"Temp/Ballagorithm/{}.json"_fmt(Time::GetMillisecSinceEpoch()));
+	return SimpleHTTP::GetAsync(requestURL, {}, U"Temp/Ballgorithm/{}.json"_fmt(Time::GetMillisecSinceEpoch()));
 }
 
 StageRecord StageRecord::processGetTask(AsyncHTTPTask& task)
@@ -727,6 +727,7 @@ Array<StageRecord> StageRecord::processGetLeaderboardTask(AsyncHTTPTask& task)
 	}
 	
 	JSON json = task.getAsJSON();
+	
 	for (const auto& item : json[U"records"]) {
 		records.push_back(StageRecord());
 		records.back().fromJSON(item.value);

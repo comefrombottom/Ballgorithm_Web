@@ -133,6 +133,16 @@ void StageSelectScene::drawCard(size_t index, const String& name, bool isCleared
 		Circle checkBg{ checkX, checkY, 18 };
 		checkBg.draw(ColorF(0.2, 0.7, 0.3));
 		font(U"✓").draw(20, Arg::center = checkBg.center, Palette::White);
+
+		// リーダーボードボタン（チェックマークの左）
+		const Font& iconFont = FontAsset(U"Icon");
+		double lbX = checkX - 40;
+		double lbY = rect.center().y;
+		Circle lbBg{ lbX, lbY, 16 };
+		bool lbHovered = lbBg.mouseOver();
+		lbBg.draw(lbHovered ? ColorF(0.35, 0.55, 0.8) : ColorF(0.25, 0.35, 0.5));
+		lbBg.drawFrame(1, lbHovered ? ColorF(0.5, 0.7, 1.0) : ColorF(0.4, 0.5, 0.6, 0.5));
+		iconFont(U"\uF091").drawAt(13, lbBg.center, ColorF(0.95));
 	}
 	
 	// ホバー時の光沢エフェクト
@@ -235,6 +245,7 @@ void StageSelectScene::update(Game& game, double dt)
 
 	// ホバー検出とマウスクリック
 	m_hoveredIndex.reset();
+	m_hoveredLeaderboardIndex.reset();
 	for (size_t i = 0; i < stageCount; ++i) {
 		RectF rect = getCardRect(i);
 		// スクロール位置を考慮したヒットテスト
@@ -242,6 +253,26 @@ void StageSelectScene::update(Game& game, double dt)
 
 		// 画面内にある場合のみホバー判定
 		if (screenRect.y + screenRect.h > CardStartY && screenRect.y < Scene::Height()) {
+			// リーダーボードボタンのヒットテスト（クリアステージのみ）
+			if (stages[i]->m_isCleared) {
+				double scale = (i < m_cardScales.size()) ? m_cardScales[i] : 1.0;
+				double offsetX = (i < m_cardOffsets.size()) ? m_cardOffsets[i] : 0.0;
+				Vec2 center = screenRect.center();
+				RectF scaledRect = RectF{ Arg::center = center + Vec2{offsetX, 0}, screenRect.w * scale, screenRect.h * scale };
+				double checkX = scaledRect.x + scaledRect.w - 40;
+				double lbX = checkX - 40;
+				double lbY = scaledRect.center().y;
+				Circle lbCircle{ lbX, lbY, 16 };
+				if (lbCircle.contains(Cursor::PosF())) {
+					m_hoveredLeaderboardIndex = i;
+					Cursor::RequestStyle(CursorStyle::Hand);
+					if (clickInput) {
+						game.enterLeaderboard(i);
+					}
+					continue;  // カード全体のクリックと競合させない
+				}
+			}
+
 			if (screenRect.mouseOver()) {
 				m_hoveredIndex = i;
 				Cursor::RequestStyle(CursorStyle::Hand);

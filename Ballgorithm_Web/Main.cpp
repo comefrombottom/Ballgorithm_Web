@@ -60,7 +60,7 @@ void Main()
 		});
 	});
 
-	auto task = Platform::Web::IndexedDB::InitAsync(U"Ballagorithm");
+	auto task = Platform::Web::IndexedDB::InitAsync(U"Ballgorithm");
 # endif
 
 	Game game;
@@ -83,23 +83,21 @@ void Main()
 	}
 # endif
 
-	JSON profile;
+	JSON profile = JSON::Load(U"Ballgorithm/profile.json");
 
-	{
-		TextReader profileReader{ U"Ballagorithm/profile.json" };
-		if (profileReader) {
-			JSON profile = JSON(profileReader.readAll());
-		}
+	if (not profile) {
+		profile = JSON();
 	}
 
 	if (profile.contains(U"username") && profile[U"username"].isString()) {
 		game.m_username = profile[U"username"].getString();
 	}
 	else {
-		profile[U"username"] = game.m_username = U"Player#{}"_fmt(ToHex(RandomUint16()));
+		game.m_username = U"Player#{}"_fmt(ToHex(RandomUint16()));
+		profile[U"username"] = game.m_username;
 	}
 
-	profile.saveMinimum(U"Ballagorithm/profile.json");
+	profile.saveMinimum(U"Ballgorithm/profile.json");
 
 	StageRecord stageToLoad;
 
