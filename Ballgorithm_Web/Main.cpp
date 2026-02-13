@@ -112,14 +112,14 @@ void Main()
 		stageToLoad = StageRecord::processGetTask(getTask);
 	}
 # else
-	if (!getTask.isEmpty())
+	/*if (!getTask.isEmpty())
 	{
 		while (!getTask.isReady())
 		{
 			System::Update();
 		}
 		stageToLoad = StageRecord::processGetTask(getTask);
-	}
+	}*/
 # endif
 
 	if (stageToLoad.isValid() && game.m_stageNameToIndex.contains(stageToLoad.m_stageName))

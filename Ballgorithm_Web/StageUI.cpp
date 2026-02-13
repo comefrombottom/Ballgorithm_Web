@@ -891,7 +891,9 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 
 					// TODO 
 					stage.save();
+#if SIV3D_PLATFORM(WEB)
 					Platform::Web::IndexedDB::SaveAsync();
+#endif // SIV3D_PLATFORM(WEB)
 					stage.m_snapshotRecords.push_back(StageRecord(stage, game.m_username));
 					stage.m_snapshotRecords.back().createPostTask();
 				}
