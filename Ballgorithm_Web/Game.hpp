@@ -43,6 +43,8 @@ public:
 	double m_transitionTimer = 0.0;
 	static constexpr double TransitionTime = 0.4; // 秒
 
+	AsyncHTTPTask m_postTask;
+
 	void startTransition(GameState nextState);
 	void onTransitionFinished();
 

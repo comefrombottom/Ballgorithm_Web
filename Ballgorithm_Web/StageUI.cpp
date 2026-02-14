@@ -280,14 +280,6 @@ bool StageUI::hasSameObjectWithClipboard(const Stage& stage) const
 
 void StageUI::update(Game& game, Stage& stage, double dt)
 {
-	for (auto& record : stage.m_snapshotRecords)
-	{
-		if (record.m_postTask.isReady())
-		{
-			record.processPostTask();
-		}
-	}
-
 	// ダブルクリック検出（最初に行う）
 	bool isDoubleClicked = false;
 	if (MouseL.down()) {
@@ -896,8 +888,10 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 #if SIV3D_PLATFORM(WEB)
 					Platform::Web::IndexedDB::SaveAsync();
 #endif // SIV3D_PLATFORM(WEB)
-					stage.m_snapshotRecords.push_back(StageRecord(stage, game.m_username));
-					stage.m_snapshotRecords.back().createPostTask();
+					if (game.m_postTask.isEmpty())
+					{
+						game.m_postTask = StageRecord(stage, game.m_username).createPostTask(false);
+					}
 				}
 				else {
 					// Console << U"Query {} Failed."_fmt(completedQueryIndex + 1);

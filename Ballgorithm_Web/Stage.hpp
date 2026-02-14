@@ -11,6 +11,7 @@ class Game;
 
 // Undo/Redo用のステージスナップショット
 struct StageSnapshot {
+	int32 version;
 	HashTable<int32, Vec2> points;
 	int32 nextPointId;
 	Array<Edge> edges;
@@ -21,15 +22,25 @@ struct StageSnapshot {
 	Array<LayerObject> layerOrder;
 	Array<RectF> nonEditableAreas;
 
-	template <class Archive>
-	void SIV3D_SERIALIZE(Archive& archive)
-	{
-		archive(points, nextPointId, edges, groups, nextGroupId, placedBalls, inventorySlots, layerOrder, nonEditableAreas);
-	}
-
 	int32 CalculateNumberOfObjects() const;
 	int32 CalculateTotalLength() const;
 };
+
+template <class Archive>
+inline void SIV3D_SERIALIZE_SAVE(Archive& archive, const StageSnapshot& snapshot)
+{
+	archive(snapshot.version, snapshot.points, snapshot.nextPointId, snapshot.edges, snapshot.groups, snapshot.nextGroupId, snapshot.placedBalls, snapshot.inventorySlots, snapshot.layerOrder, snapshot.nonEditableAreas);
+}
+
+template <class Archive>
+inline void SIV3D_SERIALIZE_LOAD(Archive& archive, StageSnapshot& snapshot)
+{
+	archive(snapshot.version);
+	if (snapshot.version == 0)
+	{
+		archive(snapshot.points, snapshot.nextPointId, snapshot.edges, snapshot.groups, snapshot.nextGroupId, snapshot.placedBalls, snapshot.inventorySlots, snapshot.layerOrder, snapshot.nonEditableAreas);
+	}
+}
 
 class StageRecord
 {
@@ -41,12 +52,9 @@ public:
 	int32 m_totalLength;
 
 	String m_author;
-	String m_shareCode;
 
 	String m_blobStr;
 	MD5Value m_hash;
-
-	AsyncHTTPTask m_postTask;
 
 	StageRecord() = default;
 
@@ -58,12 +66,12 @@ public:
 
 	void fromJSON(const JSON& json);
 
-	void createPostTask();
-	String processPostTask();
+	AsyncHTTPTask createPostTask(bool persistent);
 
 	static AsyncHTTPTask createGetTask(String shareCode);
 	static AsyncHTTPTask createGetLeaderboradTask(String stageName);
 
+	static String processPostTask(AsyncHTTPTask& task);
 	static StageRecord processGetTask(AsyncHTTPTask& task);
 	static Array<StageRecord> processGetLeaderboardTask(AsyncHTTPTask& task);
 };
@@ -115,8 +123,6 @@ public:
 	// カメラ位置（ステージごとに保持）
 	Vec2 m_cameraCenter{ 400, 300 };
 	double m_cameraScale = 1.0;
-
-	Array<StageRecord> m_snapshotRecords;
 
 	Stage();
 
@@ -181,10 +187,6 @@ public:
 	void save() const;
 	void load();
 
-	AsyncTask<bool> loadAsync();
 	AsyncTask<bool> saveAsync() const;
-
-	AsyncTask<bool> loadRecordsAsync();
-	AsyncTask<bool> saveRecordsAsync() const;
 };
 

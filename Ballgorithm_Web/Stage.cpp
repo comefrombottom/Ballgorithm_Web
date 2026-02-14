@@ -552,14 +552,27 @@ void Stage::save() const
 #endif
 }
 
+void Stage::load()
+{
+	const String path = U"Ballgorithm/VStages/{}.bin"_fmt(m_name);
+
+	if (!FileSystem::Exists(path)) {
+		return;
+	}
+
+	Deserializer<BinaryReader> deserializer{ path };
+	StageSnapshot snapshot{};
+	deserializer(snapshot);
+	deserializer(m_isCleared);
+	restoreSnapshot(snapshot);
+}
+
 AsyncTask<bool> Stage::saveAsync() const
 {
 	{
-		Serializer<BinaryWriter> serializer{ U"Ballgorithm/Stages/{}.bin"_fmt(m_name) };
+		Serializer<BinaryWriter> serializer{ U"Ballgorithm/VStages/{}.bin"_fmt(m_name) };
 
 		serializer(createSnapshot());
-		serializer(m_queryCompleted);
-		serializer(m_queryFailed);
 		serializer(m_isCleared);
 	}
 
@@ -614,12 +627,11 @@ void StageRecord::calculateHash()
 	try {
 		const std::string secret{ SIV3D_OBFUSCATE(SECRET_KEY) };
 		if (m_blobStr.isEmpty()) {
-			Serializer<BinaryWriter> serializer{ U"Temp/Ballgorithm/record.bin" };
+			Serializer<MemoryWriter> serializer;;
 			serializer(m_snapshot);
-			serializer->close();
-			m_blobStr = Blob{ U"Temp/Ballgorithm/record.bin" }.base64Str();
+			m_blobStr = serializer->getBlob().base64Str();
 		}
-		m_hash = MD5::FromText(String(U"{}{}{}{}{}{}"_fmt(m_author, m_stageName, m_numberOfObjects, m_totalLength, m_blobStr, Unicode::Widen(secret))).toUTF8());
+		m_hash = MD5::FromText(String(U"{};{};{};{};{};{};{}"_fmt(m_stageName, m_numberOfObjects, m_totalLength, m_blobStr, m_snapshot.version, Unicode::Widen(secret), m_author)).toUTF8());
 	}
 	catch (...) {
 		m_hash = MD5Value{};
@@ -660,7 +672,7 @@ void StageRecord::fromJSON(const JSON& json)
 	}
 }
 
-void StageRecord::createPostTask()
+AsyncHTTPTask StageRecord::createPostTask(bool persistent)
 {
 	const std::string url{ SIV3D_OBFUSCATE(LEADERBOARD_URL) };
 	URL requestURL = Unicode::Widen(url);
@@ -673,37 +685,20 @@ void StageRecord::createPostTask()
 	calculateHash();
 
 	JSON json{};
+	json[U"version"] = m_snapshot.version;
 	json[U"sc1"] = m_numberOfObjects;
 	json[U"sc2"] = m_totalLength;
 	json[U"username"] = m_author;
 	json[U"stagename"] = m_stageName;
 	json[U"data"] = m_blobStr;
 	json[U"sig"] = m_hash.asString();
+	json[U"persistent"] = persistent;
 
 	Console << json;
 
 	auto code = json.formatUTF8Minimum();
 
-	m_postTask = SimpleHTTP::PostAsync(requestURL, {}, code.data(), code.length() * sizeof(std::string::value_type), U"Temp/Ballgorithm/{}.json"_fmt(Time::GetMillisecSinceEpoch()));
-}
-
-String StageRecord::processPostTask()
-{
-	try {
-		const auto& response = m_postTask.getResponse();
-
-		if (!response.isOK()) {
-			return {};
-		}
-
-		JSON json = m_postTask.getAsJSON();
-		m_shareCode = json[U"id"].getString();
-
-		return m_shareCode;
-	}
-	catch (...) {
-		return {};
-	}
+	return SimpleHTTP::PostAsync(requestURL, {}, code.data(), code.length() * sizeof(std::string::value_type), U"Temp/Ballgorithm/{}.json"_fmt(Time::GetMillisecSinceEpoch()));
 }
 
 AsyncHTTPTask StageRecord::createGetTask(String shareCode)
@@ -718,6 +713,31 @@ AsyncHTTPTask StageRecord::createGetLeaderboradTask(String stageName)
 	const std::string url{ SIV3D_OBFUSCATE(LEADERBOARD_URL) };
 	URL requestURL = U"{}?leaderboard={}"_fmt(Unicode::Widen(url), stageName);
 	return SimpleHTTP::GetAsync(requestURL, {}, U"Temp/Ballgorithm/{}.json"_fmt(Time::GetMillisecSinceEpoch()));
+}
+
+String StageRecord::processPostTask(AsyncHTTPTask& task)
+{
+	try {
+		const auto& response = task.getResponse();
+
+		if (!response.isOK()) {
+			return U"";
+		}
+
+		if (task.isFile())
+		{
+			JSON json = task.getAsJSON();
+			FileSystem::Remove(task.getFilePath());
+			return json[U"id"].getString();
+		}
+		else
+		{
+			return U"";
+		}
+	}
+	catch (...) {
+		return {};
+	}
 }
 
 StageRecord StageRecord::processGetTask(AsyncHTTPTask& task)

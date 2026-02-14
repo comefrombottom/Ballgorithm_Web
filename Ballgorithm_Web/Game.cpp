@@ -15,38 +15,23 @@ Game::Game()
 		m_stageNameToIndex.emplace(m_stages[i]->m_name, i);
 	}
 
-	// Ballagorithmがある場合BallgorithmにコピーしてBallagorithmを削除
-	if (FileSystem::Exists(U"Ballagorithm")) {
-		FileSystem::Copy(U"Ballagorithm", U"Ballgorithm");
-		FileSystem::Remove(U"Ballagorithm");
+	// 旧セーブの削除
+	FileSystem::Remove(U"Ballagorithm");
+	FileSystem::Remove(U"Ballgorithm/Stages");
+	FileSystem::Remove(U"Temp/Ballgorithm");
 
-# if SIV3D_PLATFORM(WEB)
-		s3d::Platform::Web::IndexedDB::Save();
-# endif
-	}
-
-
-
-	for (auto& file : FileSystem::DirectoryContents(U"Ballgorithm/Stages")) {
-		if (!m_stageNameToIndex.contains(FileSystem::BaseName(file))) {
-			continue;
-		}
-
-		Deserializer<BinaryReader> deserializer{ file };
-		auto& stage = m_stages[m_stageNameToIndex[FileSystem::BaseName(file)]];
-
-		StageSnapshot snapshot{};
-		deserializer(snapshot);
-		deserializer(stage->m_queryCompleted);
-		deserializer(stage->m_queryFailed);
-		deserializer(stage->m_isCleared);
-		stage->restoreSnapshot(snapshot);
+	for (const auto& stage : m_stages) {
+		stage->load();
 	}
 
 	m_stageUI = std::make_unique<StageUI>();
 	m_stageSelectScene = std::make_unique<StageSelectScene>();
 	m_titleScene = std::make_unique<TitleScene>();
 	m_leaderboardScene = std::make_unique<LeaderboardScene>();
+
+# if SIV3D_PLATFORM(WEB)
+	s3d::Platform::Web::IndexedDB::SaveAsync();
+# endif
 }
 
 Game::~Game() = default;
@@ -211,6 +196,12 @@ void Game::onTransitionFinished()
 void Game::update()
 {
 	double dt = Scene::DeltaTime();
+
+	if (m_postTask.isReady())
+	{
+		StageRecord::processPostTask(m_postTask);
+		m_postTask = AsyncHTTPTask();
+	}
 
 	// 遷移更新
 	if (m_transitionState != TransitionState::None)

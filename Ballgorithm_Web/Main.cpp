@@ -31,6 +31,8 @@ void Main()
 	Window::Resize(1280, 720);
 
 # if SIV3D_PLATFORM(WEB)
+	System::SetTerminationTriggers(UserAction::NoAction);
+
 	setupMultiTouchHandler();
 
 	EM_ASM({
