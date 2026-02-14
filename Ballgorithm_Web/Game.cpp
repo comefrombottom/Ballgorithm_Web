@@ -2,6 +2,7 @@
 # include "StageSelectScene.hpp"
 # include "TitleScene.hpp"
 # include "LeaderboardScene.hpp"
+# include "NameInputScene.hpp"
 # include "Game_StagesConstruct.h"
 # include "IndexedDB.hpp"
 
@@ -28,6 +29,7 @@ Game::Game()
 	m_stageSelectScene = std::make_unique<StageSelectScene>();
 	m_titleScene = std::make_unique<TitleScene>();
 	m_leaderboardScene = std::make_unique<LeaderboardScene>();
+	m_nameInputScene = std::make_unique<NameInputScene>();
 
 # if SIV3D_PLATFORM(WEB)
 	s3d::Platform::Web::IndexedDB::SaveAsync();
@@ -35,6 +37,26 @@ Game::Game()
 }
 
 Game::~Game() = default;
+
+void Game::resetAllStages()
+{
+	// Stages フォルダを丸ごと削除
+	FileSystem::Remove(U"Ballgorithm/Stages", AllowUndo::No);
+
+#if SIV3D_PLATFORM(WEB)
+	Platform::Web::IndexedDB::Save();
+#endif
+
+	// 全ステージを再構築
+	m_stages.clear();
+	m_stageNameToIndex.clear();
+	stagesConstruct(m_stages);
+	for (int i = 0; i < m_stages.size(); i++) {
+		m_stageNameToIndex.emplace(m_stages[i]->m_name, i);
+	}
+	m_selectedStageIndex = 0;
+	m_currentStageIndex.reset();
+}
 
 void Game::startTransition(GameState nextState)
 {
@@ -64,6 +86,26 @@ void Game::goToNextStage()
 void Game::goToStageSelect()
 {
 	startTransition(GameState::StageSelect);
+}
+
+void Game::goToNameInput()
+{
+	if (not m_username.isEmpty())
+	{
+		goToStageSelect();
+	}
+	else
+	{
+		startTransition(GameState::NameInput);
+	}
+}
+
+void Game::skipNameInputIfNeeded()
+{
+	if (not m_username.isEmpty())
+	{
+		goToStageSelect();
+	}
 }
 
 void Game::selectStage(int32 index)
@@ -240,6 +282,9 @@ void Game::update()
 	case GameState::Title:
 		m_titleScene->update(*this);
 		break;
+	case GameState::NameInput:
+		m_nameInputScene->update(*this);
+		break;
 	case GameState::StageSelect:
 		m_stageSelectScene->update(*this, dt);
 		break;
@@ -260,6 +305,9 @@ void Game::draw() const
 	{
 	case GameState::Title:
 		m_titleScene->draw();
+		break;
+	case GameState::NameInput:
+		m_nameInputScene->draw();
 		break;
 	case GameState::StageSelect:
 		m_stageSelectScene->draw(*this);

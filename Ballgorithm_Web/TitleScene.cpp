@@ -7,7 +7,7 @@ void TitleScene::update(Game& game)
 
 	if ((not KeyAlt.pressed() and KeyEnter.down()) || (Cursor::Pos().intersects(Scene::Rect()) and MouseL.down()))
 	{
-		game.goToStageSelect();
+		game.goToNameInput();
 	}
 }
 

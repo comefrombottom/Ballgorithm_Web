@@ -38,6 +38,14 @@ StageUI::StageUI() {
 		x += m_simulationStopButtonRect.w + gap;
 		m_simulationFastForwardButtonRect = RectF{ x, btnY, 60, btnH };
 
+		const double iconBtnSize = 36;
+		const double iconBtnGap = 10;
+		const double iconBtnY = 22;
+		double rightX = Scene::Width() - padding - iconBtnSize;
+		m_shareButtonRect = RectF{ rightX, iconBtnY, iconBtnSize, iconBtnSize };
+		rightX -= iconBtnSize + iconBtnGap;
+		m_leaderboardButtonRect = RectF{ rightX, iconBtnY, iconBtnSize, iconBtnSize };
+
 		// query panel: top-right
 		const double panelMargin = 20;
 		const double panelW = 260;
@@ -280,6 +288,25 @@ bool StageUI::hasSameObjectWithClipboard(const Stage& stage) const
 
 void StageUI::update(Game& game, Stage& stage, double dt)
 {
+	{
+		const double padding = 20.0;
+		const double iconBtnSize = 36.0;
+		const double iconBtnGap = 10.0;
+		const double iconBtnY = 22.0;
+		double rightX = Scene::Width() - padding - iconBtnSize;
+		m_shareButtonRect = RectF{ rightX, iconBtnY, iconBtnSize, iconBtnSize };
+		rightX -= iconBtnSize + iconBtnGap;
+		m_leaderboardButtonRect = RectF{ rightX, iconBtnY, iconBtnSize, iconBtnSize };
+	}
+
+	for (auto& record : stage.m_snapshotRecords)
+	{
+		if (record.m_postTask.isReady())
+		{
+			record.processPostTask();
+		}
+	}
+
 	// ダブルクリック検出（最初に行う）
 	bool isDoubleClicked = false;
 	if (MouseL.down()) {
@@ -752,6 +779,26 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 			Cursor::RequestStyle(CursorStyle::Hand);
 		}
 	}
+
+	if (stage.m_isCleared && !stage.m_isSimulationRunning) {
+		// Leaderboard ボタン
+		if (m_cursorPos.intersects_use(m_leaderboardButtonRect)) {
+			if (MouseL.down()) {
+				if (game.m_stageNameToIndex.contains(stage.m_name)) {
+					game.enterLeaderboard(game.m_stageNameToIndex[stage.m_name]);
+				}
+			}
+			Cursor::RequestStyle(CursorStyle::Hand);
+		}
+
+		// Share ボタン（実装は空）
+		if (m_cursorPos.intersects_use(m_shareButtonRect)) {
+			if (MouseL.down()) {
+				// TODO: share implementation
+			}
+			Cursor::RequestStyle(CursorStyle::Hand);
+		}
+	}
 	
 	//// グループ化ボタン
 	//if (m_cursorPos.intersects_use(m_groupingButtonRect)) {
@@ -1099,6 +1146,41 @@ void StageUI::draw(const Stage& stage) const
 
 		// world draw (edit or simulation)
 		m_editUI.drawWorld(stage, m_camera);
+
+		// Straight ステージ向けライン作成ガイド
+		if (stage.m_name == U"Straight" && !stage.m_isSimulationRunning and not stage.m_isCleared)
+		{
+			const Vec2 startPos{ 80, 240 };
+			const Vec2 endPos{ 500, 380 };
+			const double cycle = 3.0;
+			double phase = Math::Fmod(Scene::Time(), cycle);
+
+			const ColorF guideColor{ 0.35, 0.7, 1.0, 0.8 };
+			const ColorF guideShadow{ 0.0, 0.35 };
+
+			if (phase < 0.6)
+			{
+				double blink = (Sin(phase * Math::TwoPi * 2.0) + 1.0) * 0.5;
+				Circle{ startPos, 12 }.draw(guideShadow);
+				Circle{ startPos, 10 }.draw(guideColor.withAlpha(blink));
+			}
+			else if (phase < 2.2)
+			{
+				double dragT = (phase - 0.6) / 1.6;
+				Vec2 current = startPos.lerp(endPos, dragT);
+				Line{ startPos, current }.draw(6, guideShadow);
+				Line{ startPos, current }.draw(4, guideColor);
+				Circle{ startPos, 9 }.draw(guideColor);
+				Circle{ current, 9 }.draw(guideColor);
+			}
+			else if (phase < 2.6)
+			{
+				Line{ startPos, endPos }.draw(6, guideShadow);
+				Line{ startPos, endPos }.draw(4, guideColor);
+				Circle{ endPos, 11 }.draw(guideColor.withAlpha(0.8));
+				Circle{ startPos, 9 }.draw(guideColor);
+			}
+		}
 	}
 
 	// ツールバー背景
@@ -1110,7 +1192,7 @@ void StageUI::draw(const Stage& stage) const
 	{
 		const Font& font = FontAsset(U"Regular");
 		const double left = m_simulationFastForwardButtonRect.x + m_simulationFastForwardButtonRect.w + 10;
-		const double right = Scene::Width() - 10.0;
+		const double right = Min(Scene::Width() - 10.0, m_leaderboardButtonRect.x - 10.0);
 		const double w = Max(0.0, right - left);
 		RectF nameBg{ left, 23, w, 44 };
 		nameBg.rounded(8).draw(ColorF(0.0, 0.25));
@@ -1142,6 +1224,22 @@ void StageUI::draw(const Stage& stage) const
 		iconFont(icon).draw(18, Arg::leftCenter = Vec2(rect.center().x - width / 2, rect.center().y), textColor);
 		textFont(text).draw(textSize, Arg::leftCenter = Vec2(rect.center().x - width / 2 + iconWidth + 8, rect.center().y), textColor);
 
+	};
+
+	auto drawIconButton = [&](const RectF& rect, const String& icon, ColorF baseColor, bool enabled, bool hovered) {
+		ColorF bg = enabled ? baseColor : ColorF(0.25, 0.28, 0.32);
+		if (hovered && enabled) {
+			bg = baseColor.lerp(ColorF(1.0), 0.2);
+		}
+
+		RectF shadow = rect.movedBy(2, 2);
+		shadow.rounded(8).draw(ColorF(0.0, 0.3));
+		rect.rounded(8).draw(bg);
+		rect.rounded(8).drawFrame(1, ColorF(1.0, 0.1));
+
+		const Font& iconFont = FontAsset(U"Icon");
+		const ColorF iconColor = enabled ? ColorF(1.0) : ColorF(0.6, 0.65, 0.7);
+		iconFont(icon).drawAt(18, rect.center(), iconColor);
 	};
 
 	// Home
@@ -1204,6 +1302,15 @@ void StageUI::draw(const Stage& stage) const
 	String ffText = U"{}x"_fmt(static_cast<int>(stage.m_simulationSpeed));
 	ColorF ffColor = stage.m_simulationSpeed > 1.5 ? ColorF(0.3, 0.6, 0.8) : ColorF(0.4, 0.5, 0.6);
 	drawButton(m_simulationFastForwardButtonRect, ffText, U"\uF04E", ffColor, true, ffHovered);
+
+	// Leaderboard / Share icon buttons
+	{
+		const bool iconEnabled = stage.m_isCleared && !stage.m_isSimulationRunning;
+		bool leaderboardHovered = m_leaderboardButtonRect.mouseOver();
+		bool shareHovered = m_shareButtonRect.mouseOver();
+		drawIconButton(m_leaderboardButtonRect, U"\uF091", ColorF(0.3, 0.45, 0.65), iconEnabled, leaderboardHovered);
+		drawIconButton(m_shareButtonRect, U"\uF1E0", ColorF(0.3, 0.45, 0.65), iconEnabled, shareHovered);
+	}
 
 	// Inventory bar (no simulation)
 	if (!stage.m_isSimulationRunning) {

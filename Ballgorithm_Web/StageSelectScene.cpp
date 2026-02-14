@@ -1,7 +1,9 @@
 ﻿# include "StageSelectScene.hpp"
 # include "Game.hpp"
+# include "IndexedDB.hpp"
 
 StageSelectScene::StageSelectScene()
+	: m_usernameTextBox(Vec2{ 0, 0 }, 200)
 {
 	// スクロールバーの初期化（ページ高さは後で更新される）
 	m_scrollBar = ScrollBar(
@@ -9,6 +11,7 @@ StageSelectScene::StageSelectScene()
 		Scene::Height() - CardStartY - 20,  // viewHeight
 		RectF{ Arg::topRight(Scene::Width() - 2, CardStartY), 16, Scene::Height() - CardStartY - 20 }
 	);
+	m_usernameTextBox = TextBox(Vec2{ 15, 5 }, 200);
 }
 
 RectF StageSelectScene::getCardRect(int32 index) const
@@ -47,11 +50,11 @@ void StageSelectScene::drawTitle() const
 	const Font& font = FontAsset(U"Regular");
 	const String title = U"SELECT STAGE";
 
-	RectF titleBg{ 0, 30, Scene::Width(), 80 };
+	RectF titleBg{ 0, 35, Scene::Width(), 80 };
 	titleBg.draw(ColorF(0.0, 0.25));
 
 	const double titleWidth = font(title).region(40).w;
-	const Vec2 titlePos{ Scene::Width() / 2.0 - titleWidth / 2.0, 70 };
+	const Vec2 titlePos{ Scene::Width() / 2.0 - titleWidth / 2.0, 75 };
 	font(title).draw(40, Arg::leftCenter = titlePos, ColorF(0.95));
 
 }
@@ -103,28 +106,28 @@ void StageSelectScene::drawCard(int32 index, const String& name, bool isCleared,
 	
 	// ステージ名
 	double nameX = rect.x + 60;
-	font(name).draw(22, Vec2{ nameX, rect.y + 20 }, Palette::White);
+	font(name).draw(22, Arg::leftCenter=Vec2{ nameX, rect.centerY() }, Palette::White);
 	
-	// クエリ進捗バー
-	if (queryCount > 0) {
-		double barX = nameX;
-		double barY = rect.y + 55;
-		double barWidth = 150;
-		double barHeight = 8;
-		double progress = static_cast<double>(completedCount) / queryCount;
-		
-		// バー背景
-		RectF{ barX, barY, barWidth, barHeight }.rounded(4).draw(ColorF(0.2, 0.2, 0.3));
-		// バー進捗
-		if (progress > 0) {
-			RectF{ barX, barY, barWidth * progress, barHeight }.rounded(4).draw(
-				isCleared ? ColorF(0.3, 0.8, 0.4) : ColorF(0.6, 0.6, 0.2)
-			);
-		}
-		
-		// 進捗テキスト
-		font(U"{}/{}"_fmt(completedCount, queryCount)).draw(12, Vec2{ barX + barWidth + 10, barY - 2 }, ColorF(0.8));
-	}
+	//// クエリ進捗バー
+	//if (queryCount > 0) {
+	//	double barX = nameX;
+	//	double barY = rect.y + 55;
+	//	double barWidth = 150;
+	//	double barHeight = 8;
+	//	double progress = static_cast<double>(completedCount) / queryCount;
+	//	
+	//	// バー背景
+	//	RectF{ barX, barY, barWidth, barHeight }.rounded(4).draw(ColorF(0.2, 0.2, 0.3));
+	//	// バー進捗
+	//	if (progress > 0) {
+	//		RectF{ barX, barY, barWidth * progress, barHeight }.rounded(4).draw(
+	//			isCleared ? ColorF(0.3, 0.8, 0.4) : ColorF(0.6, 0.6, 0.2)
+	//		);
+	//	}
+	//	
+	//	// 進捗テキスト
+	//	font(U"{}/{}"_fmt(completedCount, queryCount)).draw(12, Vec2{ barX + barWidth + 10, barY - 2 }, ColorF(0.8));
+	//}
 	
 	// クリア済みチェックマーク
 	if (isCleared) {
@@ -156,6 +159,140 @@ void StageSelectScene::drawCard(int32 index, const String& name, bool isCleared,
 void StageSelectScene::update(Game& game, double dt)
 {
 	m_cursorPos.init();
+
+	// リセット確認ダイアログ処理
+	if (m_showResetConfirm)
+	{
+		const double dlgW = 360;
+		const double dlgH = 160;
+		const double dlgX = (Scene::Width() - dlgW) / 2.0;
+		const double dlgY = (Scene::Height() - dlgH) / 2.0;
+
+		const double btnW = 100;
+		const double btnH = 36;
+		const double btnY = dlgY + dlgH - btnH - 20;
+		RectF yesBtn{ dlgX + dlgW / 2.0 - btnW - 15, btnY, btnW, btnH };
+		RectF noBtn{ dlgX + dlgW / 2.0 + 15, btnY, btnW, btnH };
+
+		if (m_cursorPos) {
+			if (yesBtn.mouseOver() || noBtn.mouseOver())
+			{
+				Cursor::RequestStyle(CursorStyle::Hand);
+				m_cursorPos.use();
+			}
+
+			if (MouseL.down())
+			{
+				if (yesBtn.contains(Cursor::PosF()))
+				{
+					game.resetAllStages();
+					m_showResetConfirm = false;
+				}
+				else if (noBtn.contains(Cursor::PosF()))
+				{
+					m_showResetConfirm = false;
+				}
+			}
+		}
+
+		if (KeyEscape.down())
+		{
+			m_showResetConfirm = false;
+		}
+
+		return;
+	}
+
+	// ユーザー名編集処理
+	if (m_isEditingUsername)
+	{
+		auto commitUsername = [&]()
+		{
+			String newName = m_usernameTextBox.editableText.text.trimmed();
+			newName.remove_if([](char32 ch) { return (ch < 0x20) || (ch > 0x7E); });
+			if (newName.isEmpty())
+			{
+				newName = game.m_username;
+			}
+			else
+			{
+				game.m_username = newName;
+
+				JSON profile = JSON::Load(U"Ballgorithm/profile.json");
+				if (not profile) {
+					profile = JSON();
+				}
+				profile[U"username"] = game.m_username;
+				profile.saveMinimum(U"Ballgorithm/profile.json");
+
+# if SIV3D_PLATFORM(WEB)
+				Platform::Web::IndexedDB::SaveAsync();
+# endif
+			}
+
+			m_isEditingUsername = false;
+			m_usernameTextBox.editableText.isFocused = false;
+		};
+
+		m_usernameTextBox.update();
+		if (m_usernameTextBox.editableText.text.size() > 20)
+		{
+			m_usernameTextBox.editableText.text.resize(20);
+			m_usernameTextBox.editableText.caretIndex = Min(m_usernameTextBox.editableText.caretIndex, 20);
+			m_usernameTextBox.editableText.selectionEndIndex = Min(m_usernameTextBox.editableText.selectionEndIndex, 20);
+		}
+
+		if (not KeyAlt.pressed() and KeyEnter.down() and m_usernameTextBox.editableText.editingText.empty())
+		{
+			commitUsername();
+		}
+
+		if (MouseL.down() && not m_usernameTextBox.body.rect.contains(Cursor::PosF()))
+		{
+			commitUsername();
+		}
+
+		if (KeyEscape.down())
+		{
+			m_isEditingUsername = false;
+			m_usernameTextBox.editableText.isFocused = false;
+		}
+
+		return;
+	}
+
+	// Editボタン
+	{
+		const Font& font = FontAsset(U"Regular");
+		double usernameWidth = font(game.m_username).region(18).w;
+		RectF editBtn{ 20 + usernameWidth + 10, 5, 50, 28 };
+		if (editBtn.mouseOver())
+		{
+			Cursor::RequestStyle(CursorStyle::Hand);
+		}
+		if (editBtn.leftClicked())
+		{
+			m_isEditingUsername = true;
+			m_usernameTextBox.editableText.text = game.m_username;
+			m_usernameTextBox.editableText.isFocused = true;
+			m_usernameTextBox.editableText.selectAll();
+			return;
+		}
+	}
+
+	// Reset ボタン
+	{
+		RectF resetBtn{ Scene::Width() - 90, 5, 70, 28 };
+		if (resetBtn.mouseOver())
+		{
+			Cursor::RequestStyle(CursorStyle::Hand);
+		}
+		if (resetBtn.leftClicked())
+		{
+			m_showResetConfirm = true;
+			return;
+		}
+	}
 
 	const auto& stages = game.getStages();
 	int32 stageCount = stages.size();
@@ -233,7 +370,7 @@ void StageSelectScene::update(Game& game, double dt)
 	}
 
 	bool clickInput = false;
-	if (MouseL.up()) {
+	if (MouseL.up() and m_mousePressPos) {
 		if (not m_isDragging) {
 			clickInput = true;
 		}
@@ -311,10 +448,18 @@ void StageSelectScene::draw(const Game& game) const
 {
 	const auto& stages = game.getStages();
 	int32 selected = game.getSelectedStageIndex();
+	int32 clearedCount = 0;
+	for (const auto& stage : stages)
+	{
+		if (stage->m_isCleared)
+		{
+			++clearedCount;
+		}
+	}
 	
 	// 背景描画
 	drawBackground();
-	
+
 	// スクロール領域のクリッピング
 	{
 		// スクロールバーのTransformerを使用
@@ -347,7 +492,89 @@ void StageSelectScene::draw(const Game& game) const
 	
 	// タイトル描画（カードの上に）
 	drawTitle();
+
+
+	// クリアステージ数表示（タイトル横）
+	{
+		const Font& font = FontAsset(U"Regular");
+		const String progressText = U"Cleared: {}/{}"_fmt(clearedCount, stages.size());
+		font(progressText).draw(28, Arg::rightCenter = Vec2{ Scene::Width() - 30, 75 }, ColorF(0.85, 0.9, 0.95));
+	}
+
 	
 	// スクロールバー描画
 	m_scrollBar.draw(ColorF(0.5, 0.6, 0.7, 0.6));
+
+	// ユーザー名表示
+	{
+		const Font& font = FontAsset(U"Regular");
+
+		if (m_isEditingUsername)
+		{
+			m_usernameTextBox.draw();
+			{
+				const String countText = U"{}/20"_fmt(m_usernameTextBox.editableText.text.size());
+				font(countText).draw(12, Arg::leftCenter = Vec2{ m_usernameTextBox.body.rect.x + m_usernameTextBox.body.rect.w - 30, m_usernameTextBox.body.rect.y - 6 }, ColorF(0.7, 0.8, 0.9, 0.7));
+			}
+		}
+		else
+		{
+			font(game.m_username).draw(18, Arg::leftCenter = Vec2{ 20, 19 }, ColorF(0.85, 0.9, 0.95));
+
+			double usernameWidth = font(game.m_username).region(18).w;
+			RectF editBtn{ 20 + usernameWidth + 10, 5, 50, 28 };
+			bool hovered = editBtn.mouseOver();
+			editBtn.rounded(6).draw(hovered ? ColorF(0.3, 0.45, 0.65) : ColorF(0.2, 0.3, 0.45));
+			editBtn.rounded(6).drawFrame(1, ColorF(0.4, 0.5, 0.6, 0.5));
+			font(U"Edit").draw(14, Arg::center = editBtn.center(), ColorF(0.9));
+		}
+	}
+
+	// Reset ボタン描画
+	{
+		const Font& font = FontAsset(U"Regular");
+		RectF resetBtn{ Scene::Width() - 90, 5, 70, 28 };
+		bool hovered = resetBtn.mouseOver();
+		resetBtn.rounded(6).draw(hovered ? ColorF(0.6, 0.3, 0.3) : ColorF(0.45, 0.2, 0.2));
+		resetBtn.rounded(6).drawFrame(1, ColorF(0.6, 0.3, 0.3, 0.5));
+		font(U"Reset").draw(14, Arg::center = resetBtn.center(), ColorF(0.9));
+	}
+
+	// リセット確認ダイアログ
+	if (m_showResetConfirm)
+	{
+		const Font& font = FontAsset(U"Regular");
+
+		// 半透明オーバーレイ
+		Rect{ 0, 0, Scene::Width(), Scene::Height() }.draw(ColorF(0.0, 0.6));
+
+		const double dlgW = 360;
+		const double dlgH = 160;
+		const double dlgX = (Scene::Width() - dlgW) / 2.0;
+		const double dlgY = (Scene::Height() - dlgH) / 2.0;
+		RectF dlg{ dlgX, dlgY, dlgW, dlgH };
+
+		dlg.movedBy(4, 4).rounded(12).draw(ColorF(0.0, 0.4));
+		dlg.rounded(12).draw(ColorF(0.12, 0.14, 0.2));
+		dlg.rounded(12).drawFrame(2, ColorF(0.4, 0.5, 0.7, 0.8));
+
+		font(U"ステージ情報を全て削除しますか？").draw(18, Arg::center = Vec2{ dlgX + dlgW / 2.0, dlgY + 50 }, ColorF(0.95));
+
+		const double btnW = 100;
+		const double btnH = 36;
+		const double btnY = dlgY + dlgH - btnH - 20;
+
+		RectF yesBtn{ dlgX + dlgW / 2.0 - btnW - 15, btnY, btnW, btnH };
+		RectF noBtn{ dlgX + dlgW / 2.0 + 15, btnY, btnW, btnH };
+
+		bool yesHovered = yesBtn.mouseOver();
+		yesBtn.rounded(8).draw(yesHovered ? ColorF(0.7, 0.3, 0.3) : ColorF(0.55, 0.2, 0.2));
+		yesBtn.rounded(8).drawFrame(1, ColorF(0.8, 0.4, 0.4, 0.5));
+		font(U"はい").draw(16, Arg::center = yesBtn.center(), ColorF(0.95));
+
+		bool noHovered = noBtn.mouseOver();
+		noBtn.rounded(8).draw(noHovered ? ColorF(0.35, 0.45, 0.6) : ColorF(0.25, 0.3, 0.45));
+		noBtn.rounded(8).drawFrame(1, ColorF(0.4, 0.5, 0.6, 0.5));
+		font(U"いいえ").draw(16, Arg::center = noBtn.center(), ColorF(0.95));
+	}
 }

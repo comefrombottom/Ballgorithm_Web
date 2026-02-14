@@ -7,10 +7,12 @@
 class StageSelectScene;
 class TitleScene;
 class LeaderboardScene;
+class NameInputScene;
 
 enum class GameState
 {
 	Title,
+	NameInput,
 	StageSelect,
 	Playing,
 	Leaderboard
@@ -35,6 +37,7 @@ public:
 	std::unique_ptr<StageSelectScene> m_stageSelectScene;
 	std::unique_ptr<TitleScene> m_titleScene;
 	std::unique_ptr<LeaderboardScene> m_leaderboardScene;
+	std::unique_ptr<NameInputScene> m_nameInputScene;
 	GameState m_state = GameState::Title;
 
 	// 画面遷移用
@@ -47,6 +50,8 @@ public:
 
 	void startTransition(GameState nextState);
 	void onTransitionFinished();
+	void goToNameInput();
+	void skipNameInputIfNeeded();
 
 	Game();
 	~Game();
@@ -62,6 +67,7 @@ public:
 	void loadLeaderboardSolution();
 	const Array<std::unique_ptr<Stage>>& getStages() const { return m_stages; }
 	int32 getSelectedStageIndex() const { return m_selectedStageIndex; }
+	void resetAllStages();
 	void update();
 	void draw() const;
 };
