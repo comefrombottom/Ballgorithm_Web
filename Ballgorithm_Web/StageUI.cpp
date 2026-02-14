@@ -72,6 +72,7 @@ void StageUI::onStageEnter(Stage& stage, bool isSameWithLastStage)
 	m_editUI.resetTransientState();
 	m_draggingBall.reset();
 	m_cursorPos.release();
+	m_wasLineCreateMode = false;
 	
 	// クリア演出をリセット
 	m_showClearEffect = false;
@@ -120,6 +121,7 @@ void StageUI::onStageExit(Stage& stage)
 	m_draggingBall.reset();
 	m_cursorPos.release();
 	m_singleQueryMode = false;
+	m_wasLineCreateMode = false;
 	
 	// 十字キーUIを非表示
 	m_dpadUI.setVisible(false);
@@ -421,9 +423,9 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 		bool canGroup = m_editUI.canGroup(stage) && !stage.m_isSimulationRunning;
 		bool canUngroup = m_editUI.canUngroup(stage) && !stage.m_isSimulationRunning;
 		
-		bool canPaste = not m_clipboard.empty();
+		bool canPaste = not m_clipboard.empty() && !stage.m_isSimulationRunning;
 		bool hasSelection = !m_editUI.selectedIDs().empty();
-		bool canCopy = hasSelection;
+		bool canCopy = hasSelection && !stage.m_isSimulationRunning;
 		
 		auto selectedItem = m_contextMenu.update(m_cursorPos, hasSelection, canGroup, canUngroup, canPaste, canCopy, stage.m_isSimulationRunning);
 		if (selectedItem) {
@@ -679,13 +681,13 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 	}
 
 	// Ctrl + A で全選択
-	if (KeyControl.pressed() and KeyA.down()) {
+	if (KeyControl.pressed() and KeyA.down() and not stage.m_isSimulationRunning) {
 		m_editUI.selectedIDs().selectAllObjects(stage);
 	}
 	
 	// Ctrl+C / Ctrl+V でコピー＆ペースト
-	if (KeyControl.pressed() and KeyC.down()) { m_clipboard = stage.copySelectedObjects(m_editUI.selectedIDs().m_ids); }
-	if (KeyControl.pressed() and KeyV.down()) {
+	if (KeyControl.pressed() and KeyC.down() and not stage.m_isSimulationRunning) { m_clipboard = stage.copySelectedObjects(m_editUI.selectedIDs().m_ids); }
+	if (KeyControl.pressed() and KeyV.down() and not stage.m_isSimulationRunning) {
 		pasteFromClipboard(stage);
 	}
 
@@ -1039,6 +1041,27 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 			};
 			
 			m_editUI.update(stage, isDoubleClicked, m_cursorPos, m_camera, [this](Stage& s) { onStageEdited(s); }, m_draggingBall, openContextMenuCallback, !m_dragModeToggle.isRangeSelectLeft(), hasTwoFingerTouch);
+
+			const bool isLineCreateMode = m_editUI.isLineCreateMode();
+			if (!m_wasLineCreateMode && isLineCreateMode) {
+				m_contextMenu.close();
+			}
+			m_wasLineCreateMode = isLineCreateMode;
+
+			if (MouseL.down()) {
+				bool selectionChanged = (prevSelectionCount != m_editUI.selectedIDs().size());
+				if (!selectionChanged && prevSelectionCount > 0) {
+					for (const auto& id : m_editUI.selectedIDs().m_ids) {
+						if (!prevSelection.contains(id)) {
+							selectionChanged = true;
+							break;
+						}
+					}
+				}
+				if (selectionChanged && !m_editUI.selectedIDs().empty()) {
+					m_timeAfterObjectClicked.restart();
+				}
+			}
 		}
 				
 
@@ -1299,7 +1322,7 @@ void StageUI::draw(const Stage& stage) const
 
 
 	// コンテキストメニュー描画
-	if (m_timeAfterMouseLDown.elapsed() > 0.30s) {
+	if (m_timeAfterObjectClicked.elapsed() > 0.30s) {
 		m_contextMenu.draw();
 	}
 

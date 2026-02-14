@@ -38,6 +38,7 @@ public:
 
 	const SelectedIDSet& selectedIDs() const { return m_selectedIDs; }
 	SelectedIDSet& selectedIDs() { return m_selectedIDs; }
+	bool isLineCreateMode() const { return m_lineCreateStart.has_value(); }
 
 	// edit actions
 	bool eraseSelection(Stage& stage);

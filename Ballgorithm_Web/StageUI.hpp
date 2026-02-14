@@ -84,8 +84,10 @@ private:
 	MyCamera2D m_camera{ Vec2(400, 300), 1.0, CameraControl::Wheel };
 	SingleUseCursorPos m_cursorPos;
 	SimpleWatch m_timeAfterMouseLDown;
+	SimpleWatch m_timeAfterObjectClicked;
 	bool m_isFirstMouseLDown = false;
 	Vec2 m_preMouseLDownPos{};
+	bool m_wasLineCreateMode = false;
 	SimpleWatch m_contextMenuDelayTimer;
 	bool m_delayContextMenuDraw = false;
 

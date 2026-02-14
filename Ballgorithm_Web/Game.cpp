@@ -3,6 +3,7 @@
 # include "TitleScene.hpp"
 # include "LeaderboardScene.hpp"
 # include "Game_StagesConstruct.h"
+# include "IndexedDB.hpp"
 
 Game::Game()
 {
@@ -13,6 +14,18 @@ Game::Game()
 	for (int i = 0; i < m_stages.size(); i++) {
 		m_stageNameToIndex.emplace(m_stages[i]->m_name, i);
 	}
+
+	// Ballagorithmがある場合BallgorithmにコピーしてBallagorithmを削除
+	if (FileSystem::Exists(U"Ballagorithm")) {
+		FileSystem::Copy(U"Ballagorithm", U"Ballgorithm");
+		FileSystem::Remove(U"Ballagorithm");
+
+# if SIV3D_PLATFORM(WEB)
+		s3d::Platform::Web::IndexedDB::Save();
+# endif
+	}
+
+
 
 	for (auto& file : FileSystem::DirectoryContents(U"Ballgorithm/Stages")) {
 		if (!m_stageNameToIndex.contains(FileSystem::BaseName(file))) {
