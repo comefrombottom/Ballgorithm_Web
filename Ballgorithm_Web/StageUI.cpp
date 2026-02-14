@@ -223,7 +223,7 @@ void StageUI::pasteFromClipboard(Stage& stage)
 		// 配置可能な場合のみステージに追加
 		if (canPlace) {
 			stage.addPlacedBall(placedBall);
-			sel.insert(SelectedID{ SelectType::PlacedBall, stage.m_placedBalls.size() - 1 });
+			sel.insert(SelectedID{ SelectType::PlacedBall, static_cast<int32>(stage.m_placedBalls.size()) - 1});
 		}
 	}
 
@@ -646,7 +646,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 			// 配置したボールを選択状態にする
 			auto& sel = m_editUI.selectedIDs();
 			sel.clear();
-			sel.insert(SelectedID{ SelectType::PlacedBall, stage.m_placedBalls.size() - 1 });
+			sel.insert(SelectedID{ SelectType::PlacedBall, static_cast<int32>(stage.m_placedBalls.size()) - 1});
 
 			onStageEdited(stage);  // 編集検出
 

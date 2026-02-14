@@ -70,7 +70,7 @@ double MultiPhaseQuery::drawPanelContent(const RectF& queryRect, bool isActive) 
 	int32 numStartCircles = 0;
 	for (const auto& phase : m_phases) {
 		for (const auto& release : phase.releases) {
-			numStartCircles = Max(numStartCircles, release.startBalls.size());
+			numStartCircles = Max(numStartCircles, static_cast<int32>(release.startBalls.size()));
 		}
 	}
 
@@ -509,7 +509,7 @@ double SequentialQuery::drawPanelContent(const RectF& queryRect, bool isActive) 
 	// StartCircleの数を取得（最初の放出イベントから）
 	int32 numStartCircles = 0;
 	for (const auto& release : m_releases) {
-		numStartCircles = Max(numStartCircles, release.startBalls.size());
+		numStartCircles = Max(numStartCircles, static_cast<int32>(release.startBalls.size()));
 	}
 	
 	int32 sequenceLength = m_releases.size();
@@ -1073,7 +1073,7 @@ double MultiGoalSequentialQuery::drawPanelContent(const RectF& queryRect, bool i
 	// StartCircleの数を取得
 	int32 numStartCircles = 0;
 	for (const auto& release : m_releases) {
-		numStartCircles = Max(numStartCircles, release.startBalls.size());
+		numStartCircles = Max(numStartCircles, static_cast<int32>(release.startBalls.size()));
 	}
 	
 	int32 sequenceLength = m_releases.size();
