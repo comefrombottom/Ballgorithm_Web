@@ -131,14 +131,14 @@ Optional<ContextMenuItemType> ContextMenu::update(SingleUseCursorPos& cursorPos,
 			cursorPos.use();
 		}
 		Cursor::RequestStyle(CursorStyle::Hand);
-		if (MouseL.down()) {
+		if (MouseL.up()) {
 			close();
 			return none;
 		}
 	}
 
 	// メニュー外をクリックで閉じる
-	if (MouseL.down() || MouseR.down()) {
+	if (MouseL.up() || MouseR.up()) {
 		if (!hitTest(Cursor::PosF())) {
 			close();
 			return none;
@@ -156,7 +156,7 @@ Optional<ContextMenuItemType> ContextMenu::update(SingleUseCursorPos& cursorPos,
 			}
 			Cursor::RequestStyle(CursorStyle::Hand);
 
-			if (MouseL.down() && m_items[i].enabled) {
+			if (MouseL.up() && m_items[i].enabled) {
 				ContextMenuItemType selectedType = m_items[i].type;
 				close();
 				return selectedType;

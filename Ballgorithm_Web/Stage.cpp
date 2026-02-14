@@ -611,41 +611,51 @@ bool StageRecord::isValid() const
 
 void StageRecord::calculateHash()
 {
-	const std::string secret{ SIV3D_OBFUSCATE(SECRET_KEY) };
-	if (m_blobStr.isEmpty()) {
-		Serializer<BinaryWriter> serializer{ U"Temp/Ballgorithm/record.bin" };
-		serializer(m_snapshot);
-		serializer->close();
-		m_blobStr = Blob{ U"Temp/Ballgorithm/record.bin" }.base64Str();
+	try {
+		const std::string secret{ SIV3D_OBFUSCATE(SECRET_KEY) };
+		if (m_blobStr.isEmpty()) {
+			Serializer<BinaryWriter> serializer{ U"Temp/Ballgorithm/record.bin" };
+			serializer(m_snapshot);
+			serializer->close();
+			m_blobStr = Blob{ U"Temp/Ballgorithm/record.bin" }.base64Str();
+		}
+		m_hash = MD5::FromText(String(U"{}{}{}{}{}{}"_fmt(m_author, m_stageName, m_numberOfObjects, m_totalLength, m_blobStr, Unicode::Widen(secret))).toUTF8());
 	}
-	m_hash = MD5::FromText(String(U"{}{}{}{}{}{}"_fmt(m_author, m_stageName, m_numberOfObjects, m_totalLength, m_blobStr, Unicode::Widen(secret))).toUTF8());
+	catch (...) {
+		m_hash = MD5Value{};
+	}
 }
 
 void StageRecord::fromJSON(const JSON& json)
 {
-	m_stageName = json[U"stagename"].getString();
-	m_author = json[U"username"].getString();
-	m_numberOfObjects = json[U"sc1"].get<int32>();
-	m_totalLength = json[U"sc2"].get<int32>();
-	m_blobStr = json[U"data"].getString();
-	calculateHash();
-	MD5Value sig;
-	{
-		auto md5Str = json[U"sig"].getString();
-		std::array<uint8, 16> md5Array;
-		// MD5値(String)をuint8のarrayに変換
-		for (int i = 0; i < 16; i++) {
-			md5Array[i] = ParseInt<uint8>(md5Str.substrView(i * 2, 2), Arg::radix = 16);
+	try {
+		m_stageName = json[U"stagename"].getString();
+		m_author = json[U"username"].getString();
+		m_numberOfObjects = json[U"sc1"].get<int32>();
+		m_totalLength = json[U"sc2"].get<int32>();
+		m_blobStr = json[U"data"].getString();
+		calculateHash();
+		MD5Value sig;
+		{
+			auto md5Str = json[U"sig"].getString();
+			std::array<uint8, 16> md5Array;
+			// MD5値(String)をuint8のarrayに変換
+			for (int i = 0; i < 16; i++) {
+				md5Array[i] = ParseInt<uint8>(md5Str.substrView(i * 2, 2), Arg::radix = 16);
+			}
+			sig = MD5Value{ md5Array };
 		}
-		sig = MD5Value{ md5Array };
+		// Console << sig;
+		// Console << m_hash;
+		if (sig == m_hash) {
+			Deserializer<MemoryReader> deserializer{ Base64::Decode(m_blobStr) };
+			deserializer(m_snapshot);
+		}
+		else {
+			m_hash = MD5Value{};
+		}
 	}
-	// Console << sig;
-	// Console << m_hash;
-	if (sig == m_hash) {
-		Deserializer<MemoryReader> deserializer{ Base64::Decode(m_blobStr) };
-		deserializer(m_snapshot);
-	}
-	else {
+	catch (...) {
 		m_hash = MD5Value{};
 	}
 }
@@ -670,6 +680,8 @@ void StageRecord::createPostTask()
 	json[U"data"] = m_blobStr;
 	json[U"sig"] = m_hash.asString();
 
+	Console << json;
+
 	auto code = json.formatUTF8Minimum();
 
 	m_postTask = SimpleHTTP::PostAsync(requestURL, {}, code.data(), code.length() * sizeof(std::string::value_type), U"Temp/Ballgorithm/{}.json"_fmt(Time::GetMillisecSinceEpoch()));
@@ -677,16 +689,21 @@ void StageRecord::createPostTask()
 
 String StageRecord::processPostTask()
 {
-	const auto& response = m_postTask.getResponse();
+	try {
+		const auto& response = m_postTask.getResponse();
 
-	if (!response.isOK()) {
+		if (!response.isOK()) {
+			return {};
+		}
+
+		JSON json = m_postTask.getAsJSON();
+		m_shareCode = json[U"id"].getString();
+
+		return m_shareCode;
+	}
+	catch (...) {
 		return {};
 	}
-
-	JSON json = m_postTask.getAsJSON();
-	m_shareCode = json[U"id"].getString();
-
-	return m_shareCode;
 }
 
 AsyncHTTPTask StageRecord::createGetTask(String shareCode)
@@ -705,35 +722,46 @@ AsyncHTTPTask StageRecord::createGetLeaderboradTask(String stageName)
 
 StageRecord StageRecord::processGetTask(AsyncHTTPTask& task)
 {
-	const auto& response = task.getResponse();
-	if (!response.isOK()) {
+	try {
+		const auto& response = task.getResponse();
+		if (!response.isOK()) {
+			return {};
+		}
+
+		StageRecord record;
+		
+		record.fromJSON(task.getAsJSON());
+
+		return record;
+	}
+	catch (...) {
 		return {};
 	}
-
-	StageRecord record;
-	
-	record.fromJSON(task.getAsJSON());
-
-	return record;
 }
 
 Array<StageRecord> StageRecord::processGetLeaderboardTask(AsyncHTTPTask& task)
 {
 	Array<StageRecord> records;
 
-	const auto& response = task.getResponse();
-	if (!response.isOK()) {
+	try {
+		const auto& response = task.getResponse();
+		if (!response.isOK()) {
+			return records;
+		}
+
+		JSON json = task.getAsJSON();
+
+		for (const auto& item : json[U"records"]) {
+			records.push_back(StageRecord());
+			records.back().fromJSON(item.value);
+			if (!records.back().isValid()) {
+				records.pop_back();
+			}
+		}
+
 		return records;
 	}
-	
-	JSON json = task.getAsJSON();
-	
-	for (const auto& item : json[U"records"]) {
-		records.push_back(StageRecord());
-		records.back().fromJSON(item.value);
-		if (!records.back().isValid()) {
-			records.pop_back();
-		}
+	catch (...) {
+		return records;
 	}
-	return records;
 }
