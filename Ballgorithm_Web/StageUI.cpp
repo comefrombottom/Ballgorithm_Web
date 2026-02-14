@@ -299,14 +299,6 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 		m_leaderboardButtonRect = RectF{ rightX, iconBtnY, iconBtnSize, iconBtnSize };
 	}
 
-	for (auto& record : stage.m_snapshotRecords)
-	{
-		if (record.m_postTask.isReady())
-		{
-			record.processPostTask();
-		}
-	}
-
 	// ダブルクリック検出（最初に行う）
 	bool isDoubleClicked = false;
 	if (MouseL.down()) {
@@ -794,7 +786,9 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 		// Share ボタン（実装は空）
 		if (m_cursorPos.intersects_use(m_shareButtonRect)) {
 			if (MouseL.down()) {
-				// TODO: share implementation
+				auto record = StageRecord(stage, game.m_username);
+				game.m_postTask = record.createPostTask(true);
+				game.m_receivingShareCode = true;
 			}
 			Cursor::RequestStyle(CursorStyle::Hand);
 		}
