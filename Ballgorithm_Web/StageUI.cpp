@@ -891,7 +891,9 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 
 					// TODO 
 					stage.save();
+#if SIV3D_PLATFORM(WEB)
 					Platform::Web::IndexedDB::SaveAsync();
+#endif // SIV3D_PLATFORM(WEB)
 					stage.m_snapshotRecords.push_back(StageRecord(stage, game.m_username));
 					stage.m_snapshotRecords.back().createPostTask();
 				}
@@ -1093,7 +1095,7 @@ void StageUI::draw(const Stage& stage) const
 		const double left = m_simulationFastForwardButtonRect.x + m_simulationFastForwardButtonRect.w + 10;
 		const double right = Scene::Width() - 10.0;
 		const double w = Max(0.0, right - left);
-		RectF nameBg{ left, 18, w, 44 };
+		RectF nameBg{ left, 23, w, 44 };
 		nameBg.rounded(8).draw(ColorF(0.0, 0.25));
 		font(stage.m_name).draw(20, Vec2{ nameBg.x + 12, nameBg.y + 10 }, ColorF(0.95));
 	}

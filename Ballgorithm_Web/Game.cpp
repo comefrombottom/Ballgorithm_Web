@@ -1,6 +1,7 @@
 ﻿# include "Game.hpp"
 # include "StageSelectScene.hpp"
 # include "TitleScene.hpp"
+# include "LeaderboardScene.hpp"
 # include "Game_StagesConstruct.h"
 
 Game::Game()
@@ -13,7 +14,7 @@ Game::Game()
 		m_stageNameToIndex.emplace(m_stages[i]->m_name, i);
 	}
 
-	for (auto& file : FileSystem::DirectoryContents(U"Ballagorithm/Stages")) {
+	for (auto& file : FileSystem::DirectoryContents(U"Ballgorithm/Stages")) {
 		if (!m_stageNameToIndex.contains(FileSystem::BaseName(file))) {
 			continue;
 		}
@@ -32,6 +33,7 @@ Game::Game()
 	m_stageUI = std::make_unique<StageUI>();
 	m_stageSelectScene = std::make_unique<StageSelectScene>();
 	m_titleScene = std::make_unique<TitleScene>();
+	m_leaderboardScene = std::make_unique<LeaderboardScene>();
 }
 
 Game::~Game() = default;
@@ -118,6 +120,25 @@ void Game::exitStage()
 	startTransition(GameState::StageSelect);
 }
 
+void Game::enterLeaderboard(size_t stageIndex)
+{
+	if (m_transitionState != TransitionState::None) return;
+	m_selectedStageIndex = stageIndex;
+	startTransition(GameState::Leaderboard);
+}
+
+void Game::exitLeaderboard()
+{
+	startTransition(GameState::StageSelect);
+}
+
+void Game::loadLeaderboardSolution()
+{
+	if (m_transitionState != TransitionState::None) return;
+	// 現在のスナップショットはそのまま残してPlayingへ遷移
+	startTransition(GameState::Playing);
+}
+
 void Game::onTransitionFinished()
 {
 	// 状態切り替え時のロジック
@@ -130,12 +151,18 @@ void Game::onTransitionFinished()
 			m_currentStageIndex.reset();
 		}
 
+		// Leaderboard -> Playing（他者の解法をロードして遷移）
+		if (m_state == GameState::Leaderboard)
+		{
+			m_leaderboardScene->exit();
+		}
+
 		// ステージ開始
 		if (m_selectedStageIndex < m_stages.size())
 		{
 
 			m_currentStageIndex = m_selectedStageIndex;
-			m_stageUI->onStageEnter(*m_stages[m_selectedStageIndex], m_lastStageIndex == m_selectedStageIndex);
+			m_stageUI->onStageEnter(*m_stages[m_selectedStageIndex], m_state != GameState::Leaderboard && m_lastStageIndex == m_selectedStageIndex);
 			m_lastStageIndex = m_selectedStageIndex;
 		}
 	}
@@ -147,8 +174,23 @@ void Game::onTransitionFinished()
 			m_stageUI->onStageExit(*m_stages[*m_currentStageIndex]);
 			m_currentStageIndex.reset();
 		}
+		// Leaderboard -> StageSelect
+		if (m_state == GameState::Leaderboard)
+		{
+			m_leaderboardScene->exit();
+		}
 	}
-	
+	else if (m_nextState == GameState::Leaderboard)
+	{
+		// Playing -> Leaderboard
+		if (m_state == GameState::Playing && m_currentStageIndex)
+		{
+			m_stageUI->onStageExit(*m_stages[*m_currentStageIndex]);
+			m_currentStageIndex.reset();
+		}
+		m_leaderboardScene->enter(*this, m_selectedStageIndex);
+	}
+
 	// 状態更新
 	m_state = m_nextState;
 }
@@ -202,6 +244,9 @@ void Game::update()
 			m_stageUI->update(*this, *m_stages[*m_currentStageIndex], dt);
 		}
 		break;
+	case GameState::Leaderboard:
+		m_leaderboardScene->update(*this, dt);
+		break;
 	}
 }
 
@@ -219,6 +264,9 @@ void Game::draw() const
 		if (m_currentStageIndex) {
 			m_stageUI->draw(*m_stages[*m_currentStageIndex]);
 		}
+		break;
+	case GameState::Leaderboard:
+		m_leaderboardScene->draw(*this);
 		break;
 	}
 

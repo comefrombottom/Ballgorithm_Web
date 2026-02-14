@@ -11,6 +11,7 @@ class StageSelectScene {
 	Array<double> m_cardScales;  // カードのスケールアニメーション
 	Array<double> m_cardOffsets;  // カードの横オフセット
 	Optional<size_t> m_hoveredIndex;  // ホバー中のカード
+	Optional<size_t> m_hoveredLeaderboardIndex;  // ホバー中のリーダーボードボタン
 	ScrollBar m_scrollBar;  // スクロールバー
 
 	double m_arrowKeyAccumulate = 0.0;
