@@ -65,6 +65,7 @@ public:
 	void loadLeaderboardSolution();
 	const Array<std::unique_ptr<Stage>>& getStages() const { return m_stages; }
 	int32 getSelectedStageIndex() const { return m_selectedStageIndex; }
+	void resetAllStages();
 	void update();
 	void draw() const;
 };

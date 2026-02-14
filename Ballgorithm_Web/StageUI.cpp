@@ -1144,6 +1144,41 @@ void StageUI::draw(const Stage& stage) const
 
 		// world draw (edit or simulation)
 		m_editUI.drawWorld(stage, m_camera);
+
+		// Straight ステージ向けライン作成ガイド
+		if (stage.m_name == U"Straight" && !stage.m_isSimulationRunning and not stage.m_isCleared)
+		{
+			const Vec2 startPos{ 80, 240 };
+			const Vec2 endPos{ 500, 380 };
+			const double cycle = 3.0;
+			double phase = Math::Fmod(Scene::Time(), cycle);
+
+			const ColorF guideColor{ 0.35, 0.7, 1.0, 0.8 };
+			const ColorF guideShadow{ 0.0, 0.35 };
+
+			if (phase < 0.6)
+			{
+				double blink = (Sin(phase * Math::TwoPi * 2.0) + 1.0) * 0.5;
+				Circle{ startPos, 12 }.draw(guideShadow);
+				Circle{ startPos, 10 }.draw(guideColor.withAlpha(blink));
+			}
+			else if (phase < 2.2)
+			{
+				double dragT = (phase - 0.6) / 1.6;
+				Vec2 current = startPos.lerp(endPos, dragT);
+				Line{ startPos, current }.draw(6, guideShadow);
+				Line{ startPos, current }.draw(4, guideColor);
+				Circle{ startPos, 9 }.draw(guideColor);
+				Circle{ current, 9 }.draw(guideColor);
+			}
+			else if (phase < 2.6)
+			{
+				Line{ startPos, endPos }.draw(6, guideShadow);
+				Line{ startPos, endPos }.draw(4, guideColor);
+				Circle{ endPos, 11 }.draw(guideColor.withAlpha(0.8));
+				Circle{ startPos, 9 }.draw(guideColor);
+			}
+		}
 	}
 
 	// ツールバー背景

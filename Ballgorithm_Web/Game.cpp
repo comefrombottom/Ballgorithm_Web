@@ -53,6 +53,26 @@ Game::Game()
 
 Game::~Game() = default;
 
+void Game::resetAllStages()
+{
+	// Stages フォルダを丸ごと削除
+	FileSystem::Remove(U"Ballgorithm/Stages", AllowUndo::No);
+
+#if SIV3D_PLATFORM(WEB)
+	Platform::Web::IndexedDB::Save();
+#endif
+
+	// 全ステージを再構築
+	m_stages.clear();
+	m_stageNameToIndex.clear();
+	stagesConstruct(m_stages);
+	for (int i = 0; i < m_stages.size(); i++) {
+		m_stageNameToIndex.emplace(m_stages[i]->m_name, i);
+	}
+	m_selectedStageIndex = 0;
+	m_currentStageIndex.reset();
+}
+
 void Game::startTransition(GameState nextState)
 {
 	if (m_transitionState == TransitionState::None)

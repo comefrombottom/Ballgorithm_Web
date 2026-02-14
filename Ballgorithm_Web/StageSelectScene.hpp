@@ -26,8 +26,10 @@ class StageSelectScene {
 	bool m_isEditingUsername = false;
 	mutable TextBox m_usernameTextBox;
 
+	bool m_showResetConfirm = false;
+
 	static constexpr double CardWidth = 360.0;
-	static constexpr double CardHeight = 100.0;
+	static constexpr double CardHeight = 80.0;
 	static constexpr double CardSpacing = 20.0;
 	static constexpr double CardStartY = 180.0;
 	
