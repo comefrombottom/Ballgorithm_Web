@@ -1,7 +1,7 @@
 ﻿#include "Domain.hpp"
 #include "Stage.hpp"
 
-bool SelectedIDSet::isSelectedPoint(const Stage& stage, size_t pointId) const
+bool SelectedIDSet::isSelectedPoint(const Stage& stage, int32 pointId) const
 {
 	if (m_ids.contains(SelectedID{ SelectType::Point, pointId })) return true;
 	for (const auto& s : m_ids) {
@@ -12,7 +12,7 @@ bool SelectedIDSet::isSelectedPoint(const Stage& stage, size_t pointId) const
 	return false;
 }
 
-bool SelectedIDSet::isSelectedEdge(const Stage& stage, size_t index) const
+bool SelectedIDSet::isSelectedEdge(const Stage& stage, int32 index) const
 {
 	bool hasEdge_0 = m_ids.contains(SelectedID{ SelectType::Point, stage.m_edges[index][0] });
 	bool hasEdge_1 = m_ids.contains(SelectedID{ SelectType::Point, stage.m_edges[index][1] });
@@ -30,12 +30,12 @@ bool SelectedIDSet::isSelectedEdge(const Stage& stage, size_t index) const
 	return false;
 }
 
-bool SelectedIDSet::isSelectedStartCircle(size_t index) const
+bool SelectedIDSet::isSelectedStartCircle(int32 index) const
 {
 	return m_ids.contains(SelectedID{ SelectType::StartCircle, index });
 }
 
-bool SelectedIDSet::isSelectedStartCircle(const Stage& stage, size_t index) const
+bool SelectedIDSet::isSelectedStartCircle(const Stage& stage, int32 index) const
 {
 	if (m_ids.contains(SelectedID{ SelectType::StartCircle, index })) return true;
 	for (const auto& s : m_ids) {
@@ -46,12 +46,12 @@ bool SelectedIDSet::isSelectedStartCircle(const Stage& stage, size_t index) cons
 	return false;
 }
 
-bool SelectedIDSet::isSelectedGoalArea(size_t index) const
+bool SelectedIDSet::isSelectedGoalArea(int32 index) const
 {
 	return m_ids.contains(SelectedID{ SelectType::GoalArea, index });
 }
 
-bool SelectedIDSet::isSelectedGoalArea(const Stage& stage, size_t index) const
+bool SelectedIDSet::isSelectedGoalArea(const Stage& stage, int32 index) const
 {
 	if (m_ids.contains(SelectedID{ SelectType::GoalArea, index })) return true;
 	for (const auto& s : m_ids) {
@@ -62,7 +62,7 @@ bool SelectedIDSet::isSelectedGoalArea(const Stage& stage, size_t index) const
 	return false;
 }
 
-bool SelectedIDSet::isSelectedPlacedBall(const Stage& stage, size_t index) const
+bool SelectedIDSet::isSelectedPlacedBall(const Stage& stage, int32 index) const
 {
 	if (m_ids.contains(SelectedID{ SelectType::PlacedBall, index })) return true;
 	for (const auto& s : m_ids) {
@@ -172,7 +172,7 @@ bool SelectedIDSet::isMovedSelectedNotInNonEditableArea(const Stage& stage, cons
 	}
 
 	// Collect point ids that will move (selected points + points in selected groups)
-	HashSet<size_t> movedPointIds;
+	HashSet<int32> movedPointIds;
 	for (const auto& s : m_ids) {
 		if (s.type == SelectType::Point) {
 			movedPointIds.insert(s.id);
@@ -290,7 +290,7 @@ void SelectedIDSet::selectAllObjects(Stage& stage)
 	m_ids.clear();
 
 	// ロックされている対象は Ctrl+A の対象外
-	HashSet<size_t> lockedPointIds;
+	HashSet<int32> lockedPointIds;
 	for (const auto& e : stage.m_edges) {
 		if (e.isLocked) {
 			lockedPointIds.insert(e[0]);
@@ -308,24 +308,24 @@ void SelectedIDSet::selectAllObjects(Stage& stage)
 			m_ids.insert(SelectedID{ SelectType::Group, groupId });
 		}
 	}
-	for (size_t i = 0; i < stage.m_startCircles.size(); ++i) {
+	for (int32 i = 0; i < stage.m_startCircles.size(); ++i) {
 		if (!stage.m_startCircles[i].isLocked) {
 			m_ids.insert(SelectedID{ SelectType::StartCircle, i });
 		}
 	}
-	for (size_t i = 0; i < stage.m_goalAreas.size(); ++i) {
+	for (int32 i = 0; i < stage.m_goalAreas.size(); ++i) {
 		if (!stage.m_goalAreas[i].isLocked) {
 			m_ids.insert(SelectedID{ SelectType::GoalArea, i });
 		}
 	}
-	for (size_t i = 0; i < stage.m_placedBalls.size(); ++i) {
+	for (int32 i = 0; i < stage.m_placedBalls.size(); ++i) {
 		m_ids.insert(SelectedID{ SelectType::PlacedBall, i });
 	}
 }
 
-void SelectedIDSet::selectObjectsByPoints(Stage& stage, const HashSet<size_t>& pointIds)
+void SelectedIDSet::selectObjectsByPoints(Stage& stage, const HashSet<int32>& pointIds)
 {
-	HashSet<size_t> group_candidates;
+	HashSet<int32> group_candidates;
 	for (auto pointId : pointIds) {
 		if (auto topGroupId = stage.findTopGroup(pointId)) group_candidates.insert(*topGroupId);
 		else m_ids.insert(SelectedID{ SelectType::Point, pointId });
@@ -341,9 +341,9 @@ void SelectedIDSet::selectObjectsByPoints(Stage& stage, const HashSet<size_t>& p
 	}
 }
 
-void SelectedIDSet::selectPlacedBallsByIds(Stage& stage, const HashSet<size_t>& ballIds)
+void SelectedIDSet::selectPlacedBallsByIds(Stage& stage, const HashSet<int32>& ballIds)
 {
-	HashSet<size_t> group_candidates;
+	HashSet<int32> group_candidates;
 	for (auto ballId : ballIds) {
 		if (auto topGroupId = stage.findTopGroupForPlacedBall(ballId)) group_candidates.insert(*topGroupId);
 		else m_ids.insert(SelectedID{ SelectType::PlacedBall, ballId });
@@ -361,11 +361,11 @@ void SelectedIDSet::selectPlacedBallsByIds(Stage& stage, const HashSet<size_t>& 
 
 void SelectedIDSet::selectObjectsInArea(Stage& stage, const RectF& area)
 {
-	Array<size_t> areaPointIds;
-	Array<size_t> areaStartCircleIds;
-	Array<size_t> areaGoalAreaIds;
-	Array<size_t> areaPlacedBallIds;
-	HashSet<size_t> group_candidates;
+	Array<int32> areaPointIds;
+	Array<int32> areaStartCircleIds;
+	Array<int32> areaGoalAreaIds;
+	Array<int32> areaPlacedBallIds;
+	HashSet<int32> group_candidates;
 
 	for (const auto& edge : stage.m_edges) {
 		if (edge.isLocked) continue;
@@ -376,7 +376,7 @@ void SelectedIDSet::selectObjectsInArea(Stage& stage, const RectF& area)
 			}
 		}
 	}
-	for (size_t i = 0; i < stage.m_startCircles.size(); ++i) {
+	for (int32 i = 0; i < stage.m_startCircles.size(); ++i) {
 		if (stage.m_startCircles[i].isLocked) continue;
 		if (area.intersects(stage.m_startCircles[i].circle.center)) {
 			// グループに属している場合はグループ候補に追加
@@ -388,7 +388,7 @@ void SelectedIDSet::selectObjectsInArea(Stage& stage, const RectF& area)
 			}
 		}
 	}
-	for (size_t i = 0; i < stage.m_goalAreas.size(); ++i) {
+	for (int32 i = 0; i < stage.m_goalAreas.size(); ++i) {
 		if (stage.m_goalAreas[i].isLocked) continue;
 		if (area.intersects(stage.m_goalAreas[i].rect.center())) {
 			// グループに属している場合はグループ候補に追加
@@ -400,7 +400,7 @@ void SelectedIDSet::selectObjectsInArea(Stage& stage, const RectF& area)
 			}
 		}
 	}
-	for (size_t i = 0; i < stage.m_placedBalls.size(); ++i) {
+	for (int32 i = 0; i < stage.m_placedBalls.size(); ++i) {
 		if (area.intersects(stage.m_placedBalls[i].circle.center)) {
 			// グループに属している場合はグループ候補に追加
 			if (auto topGroupId = stage.findTopGroupForPlacedBall(i)) {
@@ -411,7 +411,7 @@ void SelectedIDSet::selectObjectsInArea(Stage& stage, const RectF& area)
 			}
 		}
 	}
-	Array<size_t> areaGroupIds;
+	Array<int32> areaGroupIds;
 	for (const auto& groupId : group_candidates) {
 		const auto& group = stage.m_groups.at(groupId);
 		bool allMembersInArea = true;

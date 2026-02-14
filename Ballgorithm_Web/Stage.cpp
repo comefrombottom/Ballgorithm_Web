@@ -7,37 +7,37 @@ Stage::Stage()
 {
 }
 
-size_t Stage::addLine(const Line& line, bool isLocked)
+int32 Stage::addLine(const Line& line, bool isLocked)
 {
-	size_t id1 = m_nextPointId++;
-	size_t id2 = m_nextPointId++;
+	int32 id1 = m_nextPointId++;
+	int32 id2 = m_nextPointId++;
 	m_points[id1] = line.begin;
 	m_points[id2] = line.end;
-	size_t edgeIndex = m_edges.size();
+	int32 edgeIndex = m_edges.size();
 	m_edges.push_back(Edge{ { id1, id2 }, isLocked });
 	m_layerOrder.push_back(LayerObject{ LayerObjectType::Edge, edgeIndex });
 	return edgeIndex;
 }
 
-size_t Stage::addStartCircle(const StartCircle& startCircle)
+int32 Stage::addStartCircle(const StartCircle& startCircle)
 {
-	size_t index = m_startCircles.size();
+	int32 index = m_startCircles.size();
 	m_startCircles.push_back(startCircle);
 	m_layerOrder.push_back(LayerObject{ LayerObjectType::StartCircle, index });
 	return index;
 }
 
-size_t Stage::addGoalArea(const GoalArea& goalArea)
+int32 Stage::addGoalArea(const GoalArea& goalArea)
 {
-	size_t index = m_goalAreas.size();
+	int32 index = m_goalAreas.size();
 	m_goalAreas.push_back(goalArea);
 	m_layerOrder.push_back(LayerObject{ LayerObjectType::GoalArea, index });
 	return index;
 }
 
-size_t Stage::addPlacedBall(const PlacedBall& placedBall)
+int32 Stage::addPlacedBall(const PlacedBall& placedBall)
 {
-	size_t index = m_placedBalls.size();
+	int32 index = m_placedBalls.size();
 	m_placedBalls.push_back(placedBall);
 	m_layerOrder.push_back(LayerObject{ LayerObjectType::PlacedBall, index });
 	return index;
@@ -55,7 +55,7 @@ void Stage::removeFromLayerOrder(LayerObject obj)
 	m_layerOrder.remove(obj);
 }
 
-void Stage::updateLayerOrderAfterRemoval(LayerObjectType type, size_t removedId)
+void Stage::updateLayerOrderAfterRemoval(LayerObjectType type, int32 removedId)
 {
 	// 削除されたオブジェクトをレイヤー順序から除去
 	m_layerOrder.remove(LayerObject{ type, removedId });
@@ -68,7 +68,7 @@ void Stage::updateLayerOrderAfterRemoval(LayerObjectType type, size_t removedId)
 	}
 }
 
-void Stage::removePlacedBall(size_t index)
+void Stage::removePlacedBall(int32 index)
 {
 	if (index >= m_placedBalls.size()) return;
 	m_placedBalls.remove_at(index);
@@ -78,14 +78,14 @@ void Stage::removePlacedBall(size_t index)
 void Stage::createGroup(const Group& group)
 {
 	if (group.size() >= 2) {
-		size_t newGroupId = m_nextGroupId++;
+		int32 newGroupId = m_nextGroupId++;
 		m_groups[newGroupId] = group;
 	}
 }
 
-size_t Stage::createLockedGroup(const Group& group)
+int32 Stage::createLockedGroup(const Group& group)
 {
-	size_t newGroupId = m_nextGroupId++;
+	int32 newGroupId = m_nextGroupId++;
 	Group lockedGroup = group;
 	lockedGroup.isLocked = true;
 	m_groups[newGroupId] = lockedGroup;
@@ -95,10 +95,10 @@ size_t Stage::createLockedGroup(const Group& group)
 void Stage::createGroupFromSelection(HashSet<SelectedID>& selectedIDs)
 {
 	Group newGroup;
-	HashSet<size_t> addPointIds;
-	HashSet<size_t> addPlacedBallIds;
-	HashSet<size_t> addStartCircleIds;
-	HashSet<size_t> addGoalAreaIds;
+	HashSet<int32> addPointIds;
+	HashSet<int32> addPlacedBallIds;
+	HashSet<int32> addStartCircleIds;
+	HashSet<int32> addGoalAreaIds;
 	
 	for (const auto& s : selectedIDs) {
 		if (s.type == SelectType::Point) {
@@ -150,11 +150,11 @@ void Stage::createGroupFromSelection(HashSet<SelectedID>& selectedIDs)
 	selectedIDs.clear();
 }
 
-void Stage::ungroup(size_t groupId)
+void Stage::ungroup(int32 groupId)
 {
 	const auto& group = m_groups.at(groupId);
 	for (const auto& g : group.m_groups) {
-		size_t newGroupId = m_nextGroupId++;
+		int32 newGroupId = m_nextGroupId++;
 		m_groups[newGroupId] = g;
 	}
 	m_groups.erase(groupId);
@@ -180,7 +180,7 @@ Vec2 Stage::getBeginPointOfGroup(const Group& group) const
 	return Vec2(0, 0);
 }
 
-Optional<size_t> Stage::findTopGroup(size_t pointId) const
+Optional<int32> Stage::findTopGroup(int32 pointId) const
 {
 	for (const auto& [groupId, group] : m_groups) {
 		if (group.containsPointRecursive(pointId)) {
@@ -190,7 +190,7 @@ Optional<size_t> Stage::findTopGroup(size_t pointId) const
 	return none;
 }
 
-Optional<size_t> Stage::findTopGroupForPlacedBall(size_t placedBallId) const
+Optional<int32> Stage::findTopGroupForPlacedBall(int32 placedBallId) const
 {
 	for (const auto& [groupId, group] : m_groups) {
 		if (group.containsPlacedBallRecursive(placedBallId)) {
@@ -200,7 +200,7 @@ Optional<size_t> Stage::findTopGroupForPlacedBall(size_t placedBallId) const
 	return none;
 }
 
-Optional<size_t> Stage::findTopGroupForStartCircle(size_t startCircleId) const
+Optional<int32> Stage::findTopGroupForStartCircle(int32 startCircleId) const
 {
 	for (const auto& [groupId, group] : m_groups) {
 		if (group.containsStartCircleRecursive(startCircleId)) {
@@ -210,7 +210,7 @@ Optional<size_t> Stage::findTopGroupForStartCircle(size_t startCircleId) const
 	return none;
 }
 
-Optional<size_t> Stage::findTopGroupForGoalArea(size_t goalAreaId) const
+Optional<int32> Stage::findTopGroupForGoalArea(int32 goalAreaId) const
 {
 	for (const auto& [groupId, group] : m_groups) {
 		if (group.containsGoalAreaRecursive(goalAreaId)) {
@@ -220,7 +220,7 @@ Optional<size_t> Stage::findTopGroupForGoalArea(size_t goalAreaId) const
 	return none;
 }
 
-Group Stage::mapGroupIDs(const Group& group, const HashTable<size_t, size_t>& idMapping) const
+Group Stage::mapGroupIDs(const Group& group, const HashTable<int32, int32>& idMapping) const
 {
 	Group newGroup;
 	for (auto pointId : group.m_pointIds) {
@@ -235,7 +235,7 @@ Group Stage::mapGroupIDs(const Group& group, const HashTable<size_t, size_t>& id
 PointEdgeGroup Stage::copySelectedObjects(const HashSet<SelectedID>& selectedIDs) const
 {
 	PointEdgeGroup result;
-	HashSet<size_t> allSelectedPointIds;
+	HashSet<int32> allSelectedPointIds;
 	for (const auto& s : selectedIDs) {
 		if (s.type == SelectType::Point) allSelectedPointIds.insert(s.id);
 		else if (s.type == SelectType::Group) allSelectedPointIds.merge(m_groups.at(s.id).getAllPointIds());
@@ -284,8 +284,8 @@ void Stage::deltaMoveGroup(const Group& group, const Vec2& deltaMove)
 
 void Stage::eraseSelectedPoints(const HashSet<SelectedID>& selectedIDs)
 {
-	HashSet<size_t> pointsToErase;
-	Array<size_t> placedBallsToErase;
+	HashSet<int32> pointsToErase;
+	Array<int32> placedBallsToErase;
 	
 	for (const auto& s : selectedIDs) {
 		if (s.type == SelectType::Point) pointsToErase.insert(s.id);
@@ -304,14 +304,14 @@ void Stage::eraseSelectedPoints(const HashSet<SelectedID>& selectedIDs)
 	}
 	
 	// PlacedBall を削除（インデックスが大きい順に削除）
-	std::sort(placedBallsToErase.begin(), placedBallsToErase.end(), std::greater<size_t>());
+	std::sort(placedBallsToErase.begin(), placedBallsToErase.end(), std::greater<int32>());
 	for (auto idx : placedBallsToErase) {
 		m_placedBalls.remove_at(idx);
 		updateLayerOrderAfterRemoval(LayerObjectType::PlacedBall, idx);
 	}
 	
-	Array<size_t> edgesToErase;
-	for (size_t i = 0; i < m_edges.size(); ++i) {
+	Array<int32> edgesToErase;
+	for (int32 i = 0; i < m_edges.size(); ++i) {
 		const auto& edge = m_edges[i];
 		if (pointsToErase.contains(edge[0]) or pointsToErase.contains(edge[1])) {
 			edgesToErase.push_back(i);
@@ -320,7 +320,7 @@ void Stage::eraseSelectedPoints(const HashSet<SelectedID>& selectedIDs)
 		}
 	}
 	// Edge も大きい順に削除してレイヤー順序を更新
-	std::sort(edgesToErase.begin(), edgesToErase.end(), std::greater<size_t>());
+	std::sort(edgesToErase.begin(), edgesToErase.end(), std::greater<int32>());
 	for (auto idx : edgesToErase) {
 		m_edges.remove_at(idx);
 		updateLayerOrderAfterRemoval(LayerObjectType::Edge, idx);
@@ -414,18 +414,18 @@ double Stage::getLowestY() const
 	return lowestY;
 }
 
-void Stage::addInventorySlot(BallKind ballKind, Optional<size_t> maxCount)
+void Stage::addInventorySlot(BallKind ballKind, Optional<int32> maxCount)
 {
 	m_inventorySlots.push_back(InventorySlot::CreateBallSlot(ballKind, maxCount));
 }
 
-bool Stage::canPlaceFromSlot(size_t index) const
+bool Stage::canPlaceFromSlot(int32 index) const
 {
 	if (index >= m_inventorySlots.size()) return false;
 	return m_inventorySlots[index].hasRemaining();
 }
 
-void Stage::useFromSlot(size_t slotIndex)
+void Stage::useFromSlot(int32 slotIndex)
 {
 	if (slotIndex >= m_inventorySlots.size()) return;
 	auto& slot = m_inventorySlots[slotIndex];
@@ -458,7 +458,7 @@ void Stage::resetQueryProgress()
 	// m_isCleared = false;
 }
 
-void Stage::markQueryCompleted(size_t queryIndex)
+void Stage::markQueryCompleted(int32 queryIndex)
 {
 	if (queryIndex < m_queryCompleted.size()) {
 		m_queryCompleted[queryIndex] = true;
@@ -471,7 +471,7 @@ void Stage::markQueryCompleted(size_t queryIndex)
 	}
 }
 
-void Stage::markQueryFailed(size_t queryIndex)
+void Stage::markQueryFailed(int32 queryIndex)
 {
 	if (queryIndex < m_queryFailed.size()) {
 		m_queryFailed[queryIndex] = true;

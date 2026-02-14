@@ -27,11 +27,11 @@ class Game {
 public:
 	String m_username;
 	Array<std::unique_ptr<Stage>> m_stages;
-	HashTable<String, size_t> m_stageNameToIndex;
+	HashTable<String, int32> m_stageNameToIndex;
 	std::unique_ptr<StageUI> m_stageUI;
-	Optional<size_t> m_currentStageIndex;
-	size_t m_selectedStageIndex = 0;
-	size_t m_lastStageIndex = 0;
+	Optional<int32> m_currentStageIndex;
+	int32 m_selectedStageIndex = 0;
+	int32 m_lastStageIndex = 0;
 	std::unique_ptr<StageSelectScene> m_stageSelectScene;
 	std::unique_ptr<TitleScene> m_titleScene;
 	std::unique_ptr<LeaderboardScene> m_leaderboardScene;
@@ -48,18 +48,18 @@ public:
 
 	Game();
 	~Game();
-	void selectStage(size_t index);
+	void selectStage(int32 index);
 	void selectNextStage(bool isRepeated = true);
 	void selectPrevStage(bool isRepeated = true);
 	void enterSelectedStage();
 	void exitStage();
 	void goToStageSelect();
 	void goToNextStage();
-	void enterLeaderboard(size_t stageIndex);
+	void enterLeaderboard(int32 stageIndex);
 	void exitLeaderboard();
 	void loadLeaderboardSolution();
 	const Array<std::unique_ptr<Stage>>& getStages() const { return m_stages; }
-	size_t getSelectedStageIndex() const { return m_selectedStageIndex; }
+	int32 getSelectedStageIndex() const { return m_selectedStageIndex; }
 	void update();
 	void draw() const;
 };

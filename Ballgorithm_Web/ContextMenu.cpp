@@ -147,7 +147,7 @@ Optional<ContextMenuItemType> ContextMenu::update(SingleUseCursorPos& cursorPos,
 
 	// ホバー検出と選択
 	const Vec2 mousePos = Cursor::PosF();
-	for (size_t i = 0; i < m_items.size(); ++i) {
+	for (int32 i = 0; i < m_items.size(); ++i) {
 		RectF itemRect = getItemRect(i);
 		if (itemRect.contains(mousePos)) {
 			m_hoveredIndex = i;
@@ -198,7 +198,7 @@ void ContextMenu::draw() const
 	const Font& font = FontAsset(U"Regular");
 	const Font& iconFont = FontAsset(U"Icon");
 	iconFont(U"\uF00d").draw(14, Arg::center = closeCenter, ColorF(0.95));
-	for (size_t i = 0; i < m_items.size(); ++i) {
+	for (int32 i = 0; i < m_items.size(); ++i) {
 		const auto& item = m_items[i];
 		RectF itemRect = getItemRect(i);
 
@@ -266,7 +266,7 @@ RectF ContextMenu::getMenuRect() const
 	return RectF{ adjustedPos, width, height };
 }
 
-RectF ContextMenu::getItemRect(size_t index) const
+RectF ContextMenu::getItemRect(int32 index) const
 {
 	const RectF menuRect = getMenuRect();
 	return RectF{

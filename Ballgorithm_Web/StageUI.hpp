@@ -107,11 +107,11 @@ private:
 
 	Array<StageSnapshot> m_undoStack;
 	Array<StageSnapshot> m_redoStack;
-	static constexpr size_t MAX_UNDO_HISTORY = 50;
+	static constexpr int32 MAX_UNDO_HISTORY = 50;
 	
 	// チュートリアルテキスト表示用
 	Array<String> m_tutorialTexts;
-	size_t m_tutorialPageIndex = 0;
+	int32 m_tutorialPageIndex = 0;
 	double m_tutorialDisplayTime = 0.0;
 	bool m_tutorialWaitingForClick = false;
 	static constexpr double TutorialFadeInTime = 0.3;

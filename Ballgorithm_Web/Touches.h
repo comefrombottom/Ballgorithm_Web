@@ -131,7 +131,7 @@ public:
 	TouchInfo& front() const { return *m_iters.front(); }
 	TouchInfo& back()  const { return *m_iters.back(); }
 
-	size_t size() const { return m_iters.size(); }
+	int32 size() const { return m_iters.size(); }
 
 	// ===== 副作用 =====
 	void use() const

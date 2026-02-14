@@ -10,8 +10,8 @@ class StageSelectScene {
 	double m_titleWave = 0.0;  // タイトルアニメーション用
 	Array<double> m_cardScales;  // カードのスケールアニメーション
 	Array<double> m_cardOffsets;  // カードの横オフセット
-	Optional<size_t> m_hoveredIndex;  // ホバー中のカード
-	Optional<size_t> m_hoveredLeaderboardIndex;  // ホバー中のリーダーボードボタン
+	Optional<int32> m_hoveredIndex;  // ホバー中のカード
+	Optional<int32> m_hoveredLeaderboardIndex;  // ホバー中のリーダーボードボタン
 	ScrollBar m_scrollBar;  // スクロールバー
 
 	double m_arrowKeyAccumulate = 0.0;
@@ -27,8 +27,8 @@ class StageSelectScene {
 	static constexpr double CardSpacing = 20.0;
 	static constexpr double CardStartY = 180.0;
 	
-	RectF getCardRect(size_t index) const;
-	void drawCard(size_t index, const String& name, bool isCleared, bool isSelected, bool isHovered, size_t queryCount, size_t completedCount) const;
+	RectF getCardRect(int32 index) const;
+	void drawCard(int32 index, const String& name, bool isCleared, bool isSelected, bool isHovered, int32 queryCount, int32 completedCount) const;
 	void drawBackground() const;
 	void drawTitle() const;
 	

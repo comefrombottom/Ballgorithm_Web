@@ -155,12 +155,12 @@ void StageUI::pasteFromClipboard(Stage& stage)
 		}
 	}
 
-	HashSet<size_t> newSelectedPointIds;
-	HashTable<size_t, size_t> pointIdMapping;
-	HashSet<size_t> usedNewPointIds;
-	HashSet<size_t> usedOldPointIds;
+	HashSet<int32> newSelectedPointIds;
+	HashTable<int32, int32> pointIdMapping;
+	HashSet<int32> usedNewPointIds;
+	HashSet<int32> usedOldPointIds;
 	for (const auto& [oldPointId, pos] : m_clipboard.m_points) {
-		size_t newPointId = stage.m_nextPointId++;
+		int32 newPointId = stage.m_nextPointId++;
 		pointIdMapping[oldPointId] = newPointId;
 		stage.m_points[newPointId] = pos;
 		newSelectedPointIds.insert(newPointId);
@@ -173,7 +173,7 @@ void StageUI::pasteFromClipboard(Stage& stage)
 			continue;
 		}
 		Edge newEdge = { { pointIdMapping.at(edge[0]), pointIdMapping.at(edge[1]) } };
-		size_t edgeIndex = stage.m_edges.size();
+		int32 edgeIndex = stage.m_edges.size();
 		stage.m_edges.push_back(newEdge);
 		stage.m_layerOrder.push_back(LayerObject{ LayerObjectType::Edge, edgeIndex });
 		usedNewPointIds.insert(pointIdMapping.at(edge[0]));
@@ -210,7 +210,7 @@ void StageUI::pasteFromClipboard(Stage& stage)
 		bool canPlace = false;
 
 		// 対応するスロットを探して残数確認
-		for (size_t i = 0; i < stage.inventorySlots().size(); ++i) {
+		for (int32 i = 0; i < stage.inventorySlots().size(); ++i) {
 			const auto& slot = stage.inventorySlots()[i];
 			if (slot.kind == InventoryObjectKind::Ball && slot.ballKind == ballKind && stage.canPlaceFromSlot(i)) {
 				// 配置可能なのでインベントリから使用
@@ -371,7 +371,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 	}
 	
 	// 選択状態の変化を検出するために現在の選択状態を保存
-	const size_t prevSelectionCount = m_editUI.selectedIDs().size();
+	const int32 prevSelectionCount = m_editUI.selectedIDs().size();
 	HashSet<SelectedID> prevSelection;
 	if (!stage.m_isSimulationRunning) {
 		prevSelection = m_editUI.selectedIDs().m_ids;
@@ -876,7 +876,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 			
 			if (allFinished && hasFinishedReleasing) {
 				bool isSuccess = stage.checkSimulationResult();
-				size_t completedQueryIndex = stage.m_currentQueryIndex;
+				int32 completedQueryIndex = stage.m_currentQueryIndex;
 				
 				// クリア演出用：今回初めてクリアしたかを判定
 				bool wasAlreadyCleared = stage.m_isCleared;

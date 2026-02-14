@@ -11,11 +11,11 @@ class Game;
 
 // Undo/Redo用のステージスナップショット
 struct StageSnapshot {
-	HashTable<size_t, Vec2> points;
-	size_t nextPointId;
+	HashTable<int32, Vec2> points;
+	int32 nextPointId;
 	Array<Edge> edges;
-	HashTable<size_t, Group> groups;
-	size_t nextGroupId;
+	HashTable<int32, Group> groups;
+	int32 nextGroupId;
 	Array<PlacedBall> placedBalls;
 	Array<InventorySlot> inventorySlots;
 	Array<LayerObject> layerOrder;
@@ -78,11 +78,11 @@ public:
 	Array<String> m_tutorialTexts;
 
 	// ステージ固有データ
-	HashTable<size_t, Vec2> m_points;
-	size_t m_nextPointId = 0;
+	HashTable<int32, Vec2> m_points;
+	int32 m_nextPointId = 0;
 	Array<Edge> m_edges;
-	HashTable<size_t, Group> m_groups;
-	size_t m_nextGroupId = 0;
+	HashTable<int32, Group> m_groups;
+	int32 m_nextGroupId = 0;
 	Array<StartCircle> m_startCircles;
 	Array<GoalArea> m_goalAreas;
 	Array<PlacedBall> m_placedBalls; // プレイヤーが配置したボール
@@ -105,7 +105,7 @@ public:
 	bool m_isSimulationPaused = false;
 	double m_simulationSpeed = 1.0;  // 1.0 = 通常速度, 2.0以上 = 早送り
 	Array<std::unique_ptr<IQuery>> m_queries;
-	size_t m_currentQueryIndex = 0;
+	int32 m_currentQueryIndex = 0;
 	
 	// クエリ達成状況
 	Array<bool> m_queryCompleted;
@@ -121,32 +121,32 @@ public:
 	Stage();
 
 	// 各オブジェクトを追加し、追加されたエッジ/オブジェクトのインデックスを返す
-	size_t addLine(const Line& line, bool isLocked = false);
-	size_t addStartCircle(const StartCircle& startCircle);
-	size_t addGoalArea(const GoalArea& goalArea);
-	size_t addPlacedBall(const PlacedBall& placedBall);
+	int32 addLine(const Line& line, bool isLocked = false);
+	int32 addStartCircle(const StartCircle& startCircle);
+	int32 addGoalArea(const GoalArea& goalArea);
+	int32 addPlacedBall(const PlacedBall& placedBall);
 	
 	// エッジのポイントIDを取得
-	std::pair<size_t, size_t> getEdgePointIds(size_t edgeIndex) const {
+	std::pair<int32, int32> getEdgePointIds(int32 edgeIndex) const {
 		const auto& edge = m_edges[edgeIndex];
 		return { edge[0], edge[1] };
 	}
 	
 	void bringToFront(LayerObject obj);
 	void removeFromLayerOrder(LayerObject obj);
-	void updateLayerOrderAfterRemoval(LayerObjectType type, size_t removedId);
-	void removePlacedBall(size_t index);  // PlacedBallを削除し、レイヤー順序も更新
+	void updateLayerOrderAfterRemoval(LayerObjectType type, int32 removedId);
+	void removePlacedBall(int32 index);  // PlacedBallを削除し、レイヤー順序も更新
 	
 	void createGroup(const Group& group);
-	size_t createLockedGroup(const Group& group);  // isLocked=trueでグループ作成、IDを返す
+	int32 createLockedGroup(const Group& group);  // isLocked=trueでグループ作成、IDを返す
 	void createGroupFromSelection(HashSet<SelectedID>& selectedIDs);
-	void ungroup(size_t groupId);
+	void ungroup(int32 groupId);
 	Vec2 getBeginPointOfGroup(const Group& group) const;
-	Optional<size_t> findTopGroup(size_t pointId) const;
-	Optional<size_t> findTopGroupForPlacedBall(size_t placedBallId) const;
-	Optional<size_t> findTopGroupForStartCircle(size_t startCircleId) const;
-	Optional<size_t> findTopGroupForGoalArea(size_t goalAreaId) const;
-	Group mapGroupIDs(const Group& group, const HashTable<size_t, size_t>& idMapping) const;
+	Optional<int32> findTopGroup(int32 pointId) const;
+	Optional<int32> findTopGroupForPlacedBall(int32 placedBallId) const;
+	Optional<int32> findTopGroupForStartCircle(int32 startCircleId) const;
+	Optional<int32> findTopGroupForGoalArea(int32 goalAreaId) const;
+	Group mapGroupIDs(const Group& group, const HashTable<int32, int32>& idMapping) const;
 	PointEdgeGroup copySelectedObjects(const HashSet<SelectedID>& selectedIDs) const;
 	void deltaMoveGroup(const Group& group, const Vec2& deltaMove);
 	void eraseSelectedPoints(const HashSet<SelectedID>& selectedIDs);
@@ -156,16 +156,16 @@ public:
 	double getLowestY() const;
 	
 	// インベントリ操作
-	void addInventorySlot(BallKind ballKind, Optional<size_t> maxCount);
-	bool canPlaceFromSlot(size_t index) const;
-	void useFromSlot(size_t slotIndex);
+	void addInventorySlot(BallKind ballKind, Optional<int32> maxCount);
+	bool canPlaceFromSlot(int32 index) const;
+	void useFromSlot(int32 slotIndex);
 	void returnToInventory(BallKind ballKind);
 	const Array<InventorySlot>& inventorySlots() const { return m_inventorySlots; }
 	
 	// クエリ進捗管理
 	void resetQueryProgress();
-	void markQueryCompleted(size_t queryIndex);
-	void markQueryFailed(size_t queryIndex);
+	void markQueryCompleted(int32 queryIndex);
+	void markQueryFailed(int32 queryIndex);
 	bool isAllQueriesCompleted() const;
 	
 	// 編集不可エリア操作

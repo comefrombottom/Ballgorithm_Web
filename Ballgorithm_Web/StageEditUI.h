@@ -10,8 +10,8 @@ class MyCamera2D;
 // ドラッグ中のボール情報
 struct DraggingBallInfo {
 	BallKind kind;
-	size_t inventorySlotIndex;
-	Optional<size_t> placedBallId;
+	int32 inventorySlotIndex;
+	Optional<int32> placedBallId;
 	Vec2 grabOffset;
 	Vec2 dragStartPos;  // ドラッグ開始位置（ワールド座標）
 	Vec2 clickScreenPos;  // クリック時のスクリーン座標
@@ -75,11 +75,11 @@ private:
 	int32 getOneGridLength() const;
 	int32 getDrawOneGridLength() const;
 
-	bool isHoveredPoint(const Stage& stage, const Optional<HoverInfo>& hoverInfo, size_t pointId) const;
-	bool isHoveredStartCircle(const Stage& stage, size_t index) const;
-	bool isHoveredGoalArea(const Stage& stage, size_t index) const;
-	bool isHoveredPlacedBall(const Stage& stage, size_t index) const;
-	bool isHoveredEdge(const Stage& stage, size_t index) const;
+	bool isHoveredPoint(const Stage& stage, const Optional<HoverInfo>& hoverInfo, int32 pointId) const;
+	bool isHoveredStartCircle(const Stage& stage, int32 index) const;
+	bool isHoveredGoalArea(const Stage& stage, int32 index) const;
+	bool isHoveredPlacedBall(const Stage& stage, int32 index) const;
+	bool isHoveredEdge(const Stage& stage, int32 index) const;
 
 	void updateLineCreateMode(Stage& stage, bool isDoubleClicked, SingleUseCursorPos& cursorPos, const std::function<void(Stage&)>& onStageEdited);
 	void updateHoverInfo(Stage& stage, SingleUseCursorPos& cursorPos);

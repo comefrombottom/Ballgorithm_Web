@@ -11,7 +11,7 @@ StageSelectScene::StageSelectScene()
 	);
 }
 
-RectF StageSelectScene::getCardRect(size_t index) const
+RectF StageSelectScene::getCardRect(int32 index) const
 {
 	double x = (Scene::Width() - CardWidth) / 2.0;
 	double y = CardStartY + index * (CardHeight + CardSpacing);
@@ -56,7 +56,7 @@ void StageSelectScene::drawTitle() const
 
 }
 
-void StageSelectScene::drawCard(size_t index, const String& name, bool isCleared, bool isSelected, bool isHovered, size_t queryCount, size_t completedCount) const
+void StageSelectScene::drawCard(int32 index, const String& name, bool isCleared, bool isSelected, bool isHovered, int32 queryCount, int32 completedCount) const
 {
 	const Font& font = FontAsset(U"Regular");
 	RectF rect = getCardRect(index);
@@ -158,7 +158,7 @@ void StageSelectScene::update(Game& game, double dt)
 	m_cursorPos.init();
 
 	const auto& stages = game.getStages();
-	size_t stageCount = stages.size();
+	int32 stageCount = stages.size();
 
 	// タイトルアニメーション更新
 	m_titleWave += dt;
@@ -174,7 +174,7 @@ void StageSelectScene::update(Game& game, double dt)
 	m_scrollBar.pageHeight = pageHeight;
 
 	// 現在の選択インデックスを保存（変更検知用）
-	size_t prevSelected = game.getSelectedStageIndex();
+	int32 prevSelected = game.getSelectedStageIndex();
 
 	// キーボード入力
 	if (KeyDown.down()) {
@@ -246,7 +246,7 @@ void StageSelectScene::update(Game& game, double dt)
 	// ホバー検出とマウスクリック
 	m_hoveredIndex.reset();
 	m_hoveredLeaderboardIndex.reset();
-	for (size_t i = 0; i < stageCount; ++i) {
+	for (int32 i = 0; i < stageCount; ++i) {
 		RectF rect = getCardRect(i);
 		// スクロール位置を考慮したヒットテスト
 		RectF screenRect = rect.movedBy(0, -m_scrollBar.viewTop);
@@ -293,7 +293,7 @@ void StageSelectScene::update(Game& game, double dt)
 	
 
 	// 選択が変更された場合、選択カードが見えるようにスクロール
-	size_t currentSelected = game.getSelectedStageIndex();
+	int32 currentSelected = game.getSelectedStageIndex();
 	if (prevSelected != currentSelected) {
 		RectF cardRect = getCardRect(currentSelected);
 		// 上にはみ出ている場合
@@ -310,7 +310,7 @@ void StageSelectScene::update(Game& game, double dt)
 void StageSelectScene::draw(const Game& game) const
 {
 	const auto& stages = game.getStages();
-	size_t selected = game.getSelectedStageIndex();
+	int32 selected = game.getSelectedStageIndex();
 	
 	// 背景描画
 	drawBackground();
@@ -321,11 +321,11 @@ void StageSelectScene::draw(const Game& game) const
 		auto transformer = m_scrollBar.createTransformer();
 		
 		// カード描画
-		for (size_t i = 0; i < stages.size(); ++i) {
+		for (int32 i = 0; i < stages.size(); ++i) {
 			const auto& stage = stages[i];
-			size_t queryCount = stage->m_queries.size();
-			size_t completedCount = 0;
-			for (size_t j = 0; j < stage->m_queryCompleted.size(); ++j) {
+			int32 queryCount = stage->m_queries.size();
+			int32 completedCount = 0;
+			for (int32 j = 0; j < stage->m_queryCompleted.size(); ++j) {
 				if (stage->m_queryCompleted[j]) ++completedCount;
 			}
 			

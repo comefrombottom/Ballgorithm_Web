@@ -13,8 +13,8 @@ struct InventorySlot
 {
 	InventoryObjectKind kind{};
 	BallKind ballKind{};         // kind == Ball の場合、ボールの種類
-	Optional<size_t> maxCount;   // none = infinite
-	size_t usedCount = 0;
+	Optional<int32> maxCount;   // none = infinite
+	int32 usedCount = 0;
 
 	template<class Archive>
 	void SIV3D_SERIALIZE(Archive& archive)
@@ -27,18 +27,18 @@ struct InventorySlot
 		return (not maxCount) || (usedCount < *maxCount);
 	}
 
-	size_t remaining() const
+	int32 remaining() const
 	{
 		if (maxCount)
 		{
 			return *maxCount - usedCount;
 		}
 		// 無制限の場合は便宜上とても大きな値を返す
-		return static_cast<size_t>(std::numeric_limits<uint32>::max());
+		return static_cast<int32>(std::numeric_limits<uint32>::max());
 	}
 	
 	// ボールスロットを作成するヘルパー
-	static InventorySlot CreateBallSlot(BallKind ballKind, Optional<size_t> maxCount = none)
+	static InventorySlot CreateBallSlot(BallKind ballKind, Optional<int32> maxCount = none)
 	{
 		return InventorySlot{ InventoryObjectKind::Ball, ballKind, maxCount, 0 };
 	}
@@ -53,7 +53,7 @@ class InventoryUI
 	double m_slotHeight = 70.0;
 	double m_padding = 10.0;   // スロット間のパディング
 
-	RectF calcDrawRect(const size_t slotCount) const
+	RectF calcDrawRect(const int32 slotCount) const
 	{
 		// slotCount==0 の場合は「最低幅バー」として扱う
 		double totalContentWidth = (slotCount == 0)
@@ -81,13 +81,13 @@ public:
 	}
 
 	// インベントリバー全体の矩形内かどうかを判定（スロット数に応じた実際の描画矩形）
-	bool hitTestBar(const Vec2& pos, const size_t slotCount) const
+	bool hitTestBar(const Vec2& pos, const int32 slotCount) const
 	{
 		return calcDrawRect(slotCount).contains(pos);
 	}
 
 	// 画面上のどのスロットかを返す（バー外なら none）
-	Optional<size_t> hitTestSlot(const Vec2& pos, size_t slotCount) const
+	Optional<int32> hitTestSlot(const Vec2& pos, int32 slotCount) const
 	{
 		if (slotCount == 0) return none;
 
@@ -103,7 +103,7 @@ public:
 		double localX = pos.x - startX - m_padding;
 		if (localX < 0) return none; // 左端パディング
 
-		size_t index = static_cast<size_t>(localX / (m_slotWidth + m_padding));
+		int32 index = static_cast<int32>(localX / (m_slotWidth + m_padding));
 
 		// パディング部分をクリックした場合は無効
 		double offsetInSlot = localX - index * (m_slotWidth + m_padding);
@@ -133,7 +133,7 @@ public:
 		double startX = drawRect.x + (drawRect.w - totalContentWidth) / 2.0 + m_padding;
 		double startY = drawRect.y + (drawRect.h - m_slotHeight) / 2.0;
 
-		for (size_t i = 0; i < slots.size(); ++i)
+		for (int32 i = 0; i < slots.size(); ++i)
 		{
 			const auto& slot = slots[i];
 			RectF r{ startX + i * (m_slotWidth + m_padding), startY, m_slotWidth, m_slotHeight };

@@ -48,7 +48,7 @@ enum class LayerObjectType {
 
 struct LayerObject {
 	LayerObjectType type;
-	size_t id;
+	int32 id;
 
 	template<class Archive>
 	void SIV3D_SERIALIZE(Archive& archive)
@@ -111,7 +111,7 @@ inline void Formatter(FormatData& formatData, const HoverType& value)
 
 struct HoverInfo {
 	HoverType type;
-	size_t id; // 点・線・StartCircle・GoalArea・PlacedBall のインデックス
+	int32 id; // 点・線・StartCircle・GoalArea・PlacedBall のインデックス
 	bool operator==(const HoverInfo& other) const = default;
 	friend void Formatter(FormatData& formatData, const HoverInfo& value)
 	{
@@ -142,7 +142,7 @@ inline void Formatter(FormatData& formatData, const SelectType& value)
 
 struct SelectedID {
 	SelectType type;
-	size_t id;
+	int32 id;
 	bool operator==(const SelectedID&) const = default;
 	friend void Formatter(FormatData& formatData, const SelectedID& value)
 	{
@@ -164,8 +164,8 @@ namespace std {
 struct Group;
 
 struct PointEdgeGroup {
-	HashTable<size_t, Vec2> m_points;
-	Array<std::array<size_t, 2>> m_edges;
+	HashTable<int32, Vec2> m_points;
+	Array<std::array<int32, 2>> m_edges;
 	Array<struct Group> m_groups;
 	Array<PlacedBall> m_placedBalls;
 
@@ -198,10 +198,10 @@ struct PointEdgeGroup {
 };
 
 struct Group {
-	HashSet<size_t> m_pointIds; // 点のID
-	HashSet<size_t> m_placedBallIds; // PlacedBall のID
-	HashSet<size_t> m_startCircleIds; // StartCircle のID
-	HashSet<size_t> m_goalAreaIds; // GoalArea のID
+	HashSet<int32> m_pointIds; // 点のID
+	HashSet<int32> m_placedBallIds; // PlacedBall のID
+	HashSet<int32> m_startCircleIds; // StartCircle のID
+	HashSet<int32> m_goalAreaIds; // GoalArea のID
 	Array<Group> m_groups;
 	bool isLocked = false;  // グループ解除不可能フラグ
 
@@ -212,14 +212,14 @@ struct Group {
 	}
 
 	void insert(const Group& group) { m_groups.push_back(group); }
-	void insertPointId(size_t pointId) { m_pointIds.insert(pointId); }
-	void insertGoalAreaId(size_t goalAreaId) { m_goalAreaIds.insert(goalAreaId); }
-	void insertStartCircleId(size_t startCircleId) { m_startCircleIds.insert(startCircleId); }
-	void insertPlacedBallId(size_t placedBallId) { m_placedBallIds.insert(placedBallId); }
+	void insertPointId(int32 pointId) { m_pointIds.insert(pointId); }
+	void insertGoalAreaId(int32 goalAreaId) { m_goalAreaIds.insert(goalAreaId); }
+	void insertStartCircleId(int32 startCircleId) { m_startCircleIds.insert(startCircleId); }
+	void insertPlacedBallId(int32 placedBallId) { m_placedBallIds.insert(placedBallId); }
 
-	size_t size() const { return m_pointIds.size() + m_placedBallIds.size() + m_startCircleIds.size() + m_goalAreaIds.size() + m_groups.size(); }
+	int32 size() const { return m_pointIds.size() + m_placedBallIds.size() + m_startCircleIds.size() + m_goalAreaIds.size() + m_groups.size(); }
 
-	size_t getBeginPointId() const {
+	int32 getBeginPointId() const {
 		if (not m_pointIds.empty()) {
 			return *m_pointIds.begin();
 		}
@@ -229,7 +229,7 @@ struct Group {
 		throw std::runtime_error("Group is empty, no point ID available.");
 	}
 
-	bool containsPointRecursive(size_t pointId) const {
+	bool containsPointRecursive(int32 pointId) const {
 		if (m_pointIds.contains(pointId)) {
 			return true;
 		}
@@ -241,7 +241,7 @@ struct Group {
 		return false;
 	}
 	
-	bool containsPlacedBallRecursive(size_t placedBallId) const {
+	bool containsPlacedBallRecursive(int32 placedBallId) const {
 		if (m_placedBallIds.contains(placedBallId)) {
 			return true;
 		}
@@ -253,7 +253,7 @@ struct Group {
 		return false;
 	}
 	
-	bool containsStartCircleRecursive(size_t startCircleId) const {
+	bool containsStartCircleRecursive(int32 startCircleId) const {
 		if (m_startCircleIds.contains(startCircleId)) {
 			return true;
 		}
@@ -265,7 +265,7 @@ struct Group {
 		return false;
 	}
 	
-	bool containsGoalAreaRecursive(size_t goalAreaId) const {
+	bool containsGoalAreaRecursive(int32 goalAreaId) const {
 		if (m_goalAreaIds.contains(goalAreaId)) {
 			return true;
 		}
@@ -277,8 +277,8 @@ struct Group {
 		return false;
 	}
 
-	HashSet<size_t> getAllPointIds() const {
-		HashSet<size_t> allPointIds = m_pointIds;
+	HashSet<int32> getAllPointIds() const {
+		HashSet<int32> allPointIds = m_pointIds;
 		for (const auto& g : m_groups) {
 			auto subPointIds = g.getAllPointIds();
 			allPointIds.merge(subPointIds);
@@ -286,8 +286,8 @@ struct Group {
 		return allPointIds;
 	}
 	
-	HashSet<size_t> getAllPlacedBallIds() const {
-		HashSet<size_t> allPlacedBallIds = m_placedBallIds;
+	HashSet<int32> getAllPlacedBallIds() const {
+		HashSet<int32> allPlacedBallIds = m_placedBallIds;
 		for (const auto& g : m_groups) {
 			auto subPlacedBallIds = g.getAllPlacedBallIds();
 			allPlacedBallIds.merge(subPlacedBallIds);
@@ -295,8 +295,8 @@ struct Group {
 		return allPlacedBallIds;
 	}
 	
-	HashSet<size_t> getAllStartCircleIds() const {
-		HashSet<size_t> allStartCircleIds = m_startCircleIds;
+	HashSet<int32> getAllStartCircleIds() const {
+		HashSet<int32> allStartCircleIds = m_startCircleIds;
 		for (const auto& g : m_groups) {
 			auto subStartCircleIds = g.getAllStartCircleIds();
 			allStartCircleIds.merge(subStartCircleIds);
@@ -304,8 +304,8 @@ struct Group {
 		return allStartCircleIds;
 	}
 	
-	HashSet<size_t> getAllGoalAreaIds() const {
-		HashSet<size_t> allGoalAreaIds = m_goalAreaIds;
+	HashSet<int32> getAllGoalAreaIds() const {
+		HashSet<int32> allGoalAreaIds = m_goalAreaIds;
 		for (const auto& g : m_groups) {
 			auto subGoalAreaIds = g.getAllGoalAreaIds();
 			allGoalAreaIds.merge(subGoalAreaIds);
@@ -337,11 +337,11 @@ struct StartCircle { Circle circle; bool isLocked = false; };
 struct GoalArea { RectF rect; bool isLocked = false; };
 
 struct Edge {
-	std::array<size_t, 2> ids; // 点のID
+	std::array<int32, 2> ids; // 点のID
 	bool isLocked = false;
 
-	[[nodiscard]] size_t& operator[](size_t i) { return ids[i]; }
-	[[nodiscard]] const size_t& operator[](size_t i) const { return ids[i]; }
+	[[nodiscard]] int32& operator[](int32 i) { return ids[i]; }
+	[[nodiscard]] const int32& operator[](int32 i) const { return ids[i]; }
 	bool operator==(const Edge& other) const = default;
 	friend void Formatter(FormatData& formatData, const Edge& value)
 	{
@@ -362,7 +362,7 @@ struct SelectedIDSet {
 	// HashSet<SelectedID> の基本操作をラップ
 	void clear() { m_ids.clear(); }
 	bool empty() const { return m_ids.empty(); }
-	size_t size() const { return m_ids.size(); }
+	int32 size() const { return m_ids.size(); }
 	void insert(const SelectedID& id) { m_ids.insert(id); }
 	void erase(const SelectedID& id) { m_ids.erase(id); }
 	bool contains(const SelectedID& id) const { return m_ids.contains(id); }
@@ -370,13 +370,13 @@ struct SelectedIDSet {
 	auto end() const { return m_ids.end(); }
 	
 	// 選択状態のチェック
-	bool isSelectedPoint(const Stage& stage, size_t pointId) const;
-	bool isSelectedEdge(const Stage& stage, size_t edgeIndex) const;
-	bool isSelectedStartCircle(size_t index) const;
-	bool isSelectedStartCircle(const Stage& stage, size_t index) const;
-	bool isSelectedGoalArea(size_t index) const;
-	bool isSelectedGoalArea(const Stage& stage, size_t index) const;
-	bool isSelectedPlacedBall(const Stage& stage, size_t index) const;
+	bool isSelectedPoint(const Stage& stage, int32 pointId) const;
+	bool isSelectedEdge(const Stage& stage, int32 edgeIndex) const;
+	bool isSelectedStartCircle(int32 index) const;
+	bool isSelectedStartCircle(const Stage& stage, int32 index) const;
+	bool isSelectedGoalArea(int32 index) const;
+	bool isSelectedGoalArea(const Stage& stage, int32 index) const;
+	bool isSelectedPlacedBall(const Stage& stage, int32 index) const;
 	
 	// 選択オブジェクトの操作
 	Optional<Vec2> getBeginPointOfSelectedObjects(const Stage& stage) const;
@@ -386,8 +386,8 @@ struct SelectedIDSet {
 	
 	// 選択操作
 	void selectAllObjects(Stage& stage);
-	void selectObjectsByPoints(Stage& stage, const HashSet<size_t>& pointIds);
-	void selectPlacedBallsByIds(Stage& stage, const HashSet<size_t>& ballIds);
+	void selectObjectsByPoints(Stage& stage, const HashSet<int32>& pointIds);
+	void selectPlacedBallsByIds(Stage& stage, const HashSet<int32>& ballIds);
 	void selectObjectsInArea(Stage& stage, const RectF& area);
 	
 	friend void Formatter(FormatData& formatData, const SelectedIDSet& value)

@@ -81,7 +81,7 @@ void Game::goToStageSelect()
 	startTransition(GameState::StageSelect);
 }
 
-void Game::selectStage(size_t index)
+void Game::selectStage(int32 index)
 {
 	if (index >= m_stages.size()) {
 		return;
@@ -133,7 +133,7 @@ void Game::exitStage()
 	startTransition(GameState::StageSelect);
 }
 
-void Game::enterLeaderboard(size_t stageIndex)
+void Game::enterLeaderboard(int32 stageIndex)
 {
 	if (m_transitionState != TransitionState::None) return;
 	m_selectedStageIndex = stageIndex;

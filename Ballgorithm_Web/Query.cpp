@@ -17,7 +17,7 @@ namespace {
 			return false;
 		}
 
-		for (size_t i = 0; i < goalRequirements.size(); ++i) {
+		for (int32 i = 0; i < goalRequirements.size(); ++i) {
 			if (!goalRequirements[i].isSatisfiedBy(reachedGoalAreas[i])) {
 				return false;
 			}
@@ -34,16 +34,16 @@ double MultiPhaseQuery::getPanelHeight() const
 	const double rowHeight = 20.0;
 
 	double total = 12.0; // top padding
-	for (size_t phaseIndex = 0; phaseIndex < m_phases.size(); ++phaseIndex) {
+	for (int32 phaseIndex = 0; phaseIndex < m_phases.size(); ++phaseIndex) {
 		const auto& phase = m_phases[phaseIndex];
-		const size_t sequenceLength = phase.releases.size();
-		const size_t rows = Max<size_t>(1, sequenceLength);
+		const int32 sequenceLength = phase.releases.size();
+		const int32 rows = Max<int32>(1, sequenceLength);
 
 		// IN block height
 		total += 34.0 + rowHeight * rows;
 
 		// OUT block height
-		size_t maxBallsInGoal = 0;
+		int32 maxBallsInGoal = 0;
 		for (const auto& req : phase.goalRequirements) {
 			maxBallsInGoal = Max(maxBallsInGoal, req.totalCount());
 		}
@@ -67,7 +67,7 @@ double MultiPhaseQuery::drawPanelContent(const RectF& queryRect, bool isActive) 
 	const double startX = labelX + 24;
 
 	// StartCircleの最大数（全フェーズ全イベントから）
-	size_t numStartCircles = 0;
+	int32 numStartCircles = 0;
 	for (const auto& phase : m_phases) {
 		for (const auto& release : phase.releases) {
 			numStartCircles = Max(numStartCircles, release.startBalls.size());
@@ -77,9 +77,9 @@ double MultiPhaseQuery::drawPanelContent(const RectF& queryRect, bool isActive) 
 	// フェーズごとに縦に描画
 	double yCursor = queryRect.y + 12;
 
-	for (size_t phaseIndex = 0; phaseIndex < m_phases.size(); ++phaseIndex) {
+	for (int32 phaseIndex = 0; phaseIndex < m_phases.size(); ++phaseIndex) {
 		const auto& phase = m_phases[phaseIndex];
-		const size_t sequenceLength = phase.releases.size();
+		const int32 sequenceLength = phase.releases.size();
 
 		// phase header removed
 
@@ -88,17 +88,17 @@ double MultiPhaseQuery::drawPanelContent(const RectF& queryRect, bool isActive) 
 		const double inStartY = inBlockTop + 12;
 
 		// "IN" label
-		double inLabelY = inStartY + (Max<size_t>(1, sequenceLength) * rowHeight) / 2.0;
+		double inLabelY = inStartY + (Max<int32>(1, sequenceLength) * rowHeight) / 2.0;
 		FontAsset(U"Regular")(U"IN").draw(9, Vec2(labelX, inLabelY - 5), ColorF(0.5, 0.55, 0.6));
 
 		// Header a,b,c...
-		for (size_t sc = 0; sc < numStartCircles; ++sc) {
+		for (int32 sc = 0; sc < numStartCircles; ++sc) {
 			double x = startX + sc * colWidth;
 			FontAsset(U"Regular")(U"{}"_fmt(static_cast<char32>(U'a' + sc))).drawAt(9, Vec2(x + 9, inStartY), ColorF(0.6, 0.7, 0.8));
 		}
 
 		// Active highlight for current phase/release
-		Optional<size_t> activeRow = none;
+		Optional<int32> activeRow = none;
 		if (isActive && phaseIndex == m_phaseIndex && (phase.releases.size() >= 2 or m_phases.size() >= 2)) {
 			if (m_nextReleaseIndex == 0) {
 				// none
@@ -113,7 +113,7 @@ double MultiPhaseQuery::drawPanelContent(const RectF& queryRect, bool isActive) 
 		const ColorF activeRowBg = ColorF(0.35, 0.45, 0.9, 0.12);
 		const ColorF activeRowFrame = ColorF(0.45, 0.6, 1.0, 0.55);
 
-		for (size_t row = 0; row < Max<size_t>(1, sequenceLength); ++row) {
+		for (int32 row = 0; row < Max<int32>(1, sequenceLength); ++row) {
 			double y = inStartY + 12 + row * rowHeight;
 
 			if (sequenceLength == 0) {
@@ -129,7 +129,7 @@ double MultiPhaseQuery::drawPanelContent(const RectF& queryRect, bool isActive) 
 				rowRect.rounded(4).drawFrame(1, activeRowFrame);
 			}
 
-			for (size_t sc = 0; sc < numStartCircles; ++sc) {
+			for (int32 sc = 0; sc < numStartCircles; ++sc) {
 				double x = startX + sc * colWidth;
 				if (sc < release.startBalls.size() && release.startBalls[sc].has_value()) {
 					const auto& ball = release.startBalls[sc].value();
@@ -166,10 +166,10 @@ double MultiPhaseQuery::drawPanelContent(const RectF& queryRect, bool isActive) 
 			}
 		}
 
-		yCursor = inStartY + 12 + Max<size_t>(1, sequenceLength) * rowHeight + 10;
+		yCursor = inStartY + 12 + Max<int32>(1, sequenceLength) * rowHeight + 10;
 
 		// --- OUT block (goal requirements)
-		size_t maxBallsInGoal = 0;
+		int32 maxBallsInGoal = 0;
 		for (const auto& req : phase.goalRequirements) {
 			maxBallsInGoal = Max(maxBallsInGoal, req.totalCount());
 		}
@@ -180,7 +180,7 @@ double MultiPhaseQuery::drawPanelContent(const RectF& queryRect, bool isActive) 
 		FontAsset(U"Regular")(U"OUT").draw(9, Vec2(reqX - 2, reqY + maxIconHeight / 2.0 - 5), ColorF(0.5, 0.55, 0.6));
 		reqX += 24;
 
-		for (size_t j = 0; j < phase.goalRequirements.size(); ++j) {
+		for (int32 j = 0; j < phase.goalRequirements.size(); ++j) {
 			const auto& req = phase.goalRequirements[j];
 			RectF goalIcon{ reqX, reqY, 18, maxIconHeight };
 			ColorF color = ColorF(0.2, 0.5, 0.3, 0.6);
@@ -202,7 +202,7 @@ double MultiPhaseQuery::drawPanelContent(const RectF& queryRect, bool isActive) 
 
 				double ballY = reqY + (maxIconHeight - totalBallHeight) / 2.0;
 				for (const auto& [kind, count] : req.ballCounts) {
-					for (size_t k = 0; k < count; ++k) {
+					for (int32 k = 0; k < count; ++k) {
 						double r = GetBallRadius(kind) * 0.3;
 						ColorF ballColor = GetBallColor(kind);
 						Circle(reqX + 9, ballY + r, r).draw(ballColor);
@@ -239,7 +239,7 @@ double MultiPhaseQuery::drawPanelContent(const RectF& queryRect, bool isActive) 
 
 void SampleQuery::startSimulation(Stage& stage)
 {
-	for (size_t i = 0; i < Min(m_startBalls.size(), stage.m_startCircles.size()); ++i) {
+	for (int32 i = 0; i < Min(m_startBalls.size(), stage.m_startCircles.size()); ++i) {
 		const auto& state = m_startBalls[i];
 		if (not state) continue;
 		const auto& pos = stage.m_startCircles[i].circle.center;
@@ -267,7 +267,7 @@ bool SampleQuery::checkSimulationResult(const Stage& stage)
 	}
 	if (reachedGoalAreas.size() == m_goalAreaToBeFilled.size()) {
 		bool allOk = true;
-		for (size_t i = 0; i < m_goalAreaToBeFilled.size(); ++i) {
+		for (int32 i = 0; i < m_goalAreaToBeFilled.size(); ++i) {
 			const auto& requiredKind = m_goalAreaToBeFilled[i];
 			const auto& reachedKinds = reachedGoalAreas[i];
 			if (requiredKind) {
@@ -328,7 +328,7 @@ double SampleQuery::drawPanelContent(const RectF& queryRect, bool isActive) cons
 	FontAsset(U"Regular")(U"OUT").draw(9, Vec2(reqX - 2, reqY + 2), ColorF(0.5, 0.55, 0.6));
 	reqX += 24;
 	
-	for (size_t j = 0; j < m_goalAreaToBeFilled.size(); ++j) {
+	for (int32 j = 0; j < m_goalAreaToBeFilled.size(); ++j) {
 		const auto& req = m_goalAreaToBeFilled[j];
 		// ゴールエリアアイコン
 		RectF goalIcon{ reqX, reqY, 18, 18 };
@@ -462,7 +462,7 @@ bool SequentialQuery::checkSimulationResult(const Stage& stage)
 	}
 	if (reachedGoalAreas.size() == m_goalAreaToBeFilled.size()) {
 		bool allOk = true;
-		for (size_t i = 0; i < m_goalAreaToBeFilled.size(); ++i) {
+		for (int32 i = 0; i < m_goalAreaToBeFilled.size(); ++i) {
 			const auto& requiredKind = m_goalAreaToBeFilled[i];
 			const auto& reachedKinds = reachedGoalAreas[i];
 			if (requiredKind) {
@@ -495,7 +495,7 @@ Array<Optional<StartBallState>> SequentialQuery::getStartBalls() const
 double SequentialQuery::getPanelHeight() const
 {
 	// 放出シーケンスの長さに基づいて高さを計算
-	size_t sequenceLength = m_releases.size();
+	int32 sequenceLength = m_releases.size();
 	
 	// 基本高さ + シーケンスの行数 * 行の高さ + 出力エリア
 	double rowHeight = 20.0;
@@ -507,12 +507,12 @@ double SequentialQuery::getPanelHeight() const
 double SequentialQuery::drawPanelContent(const RectF& queryRect, bool isActive) const
 {
 	// StartCircleの数を取得（最初の放出イベントから）
-	size_t numStartCircles = 0;
+	int32 numStartCircles = 0;
 	for (const auto& release : m_releases) {
 		numStartCircles = Max(numStartCircles, release.startBalls.size());
 	}
 	
-	size_t sequenceLength = m_releases.size();
+	int32 sequenceLength = m_releases.size();
 	
 	// StartCircleを横に並べる列幅（OUT の 26px 間隔に合わせる）
 	const double colWidth = 26.0;
@@ -522,7 +522,7 @@ double SequentialQuery::drawPanelContent(const RectF& queryRect, bool isActive) 
 	const double startY = queryRect.y + 18;
 
 	// 現在の段階（ボール放出中/待機中）の行を計算
-	Optional<size_t> activeRow = none;
+	Optional<int32> activeRow = none;
 	if (m_releases.size() >= 2 and isActive) {
 		if (m_nextReleaseIndex == 0) {
 			// activeRow = 0;
@@ -544,13 +544,13 @@ double SequentialQuery::drawPanelContent(const RectF& queryRect, bool isActive) 
 	FontAsset(U"Regular")(U"IN").draw(9, Vec2(labelX, inLabelY - 5), ColorF(0.5, 0.55, 0.6));
 	
 	// ヘッダー行: StartCircleラベル (a, b, c...) を横に並べる
-	for (size_t sc = 0; sc < numStartCircles; ++sc) {
+	for (int32 sc = 0; sc < numStartCircles; ++sc) {
 		double x = startX + sc * colWidth;
 		FontAsset(U"Regular")(U"{}"_fmt(static_cast<char32>(U'a' + sc))).drawAt(9, Vec2(x + 9, startY), ColorF(0.6, 0.7, 0.8));
 	}
 	
 	// シーケンスを縦に描画（各放出イベントは横に並ぶ）
-	for (size_t row = 0; row < sequenceLength; ++row) {
+	for (int32 row = 0; row < sequenceLength; ++row) {
 		double y = startY + 12 + row * rowHeight;
 		const auto& release = m_releases[row];
 
@@ -562,7 +562,7 @@ double SequentialQuery::drawPanelContent(const RectF& queryRect, bool isActive) 
 		}
 
 		
-		for (size_t sc = 0; sc < numStartCircles; ++sc) {
+		for (int32 sc = 0; sc < numStartCircles; ++sc) {
 			double x = startX + sc * colWidth;
 			
 			if (sc < release.startBalls.size() && release.startBalls[sc].has_value()) {
@@ -612,7 +612,7 @@ double SequentialQuery::drawPanelContent(const RectF& queryRect, bool isActive) 
 	FontAsset(U"Regular")(U"OUT").draw(9, Vec2(reqX - 2, reqY - 2), ColorF(0.5, 0.55, 0.6));
 	reqX += 24;
 	
-	for (size_t j = 0; j < m_goalAreaToBeFilled.size(); ++j) {
+	for (int32 j = 0; j < m_goalAreaToBeFilled.size(); ++j) {
 		const auto& req = m_goalAreaToBeFilled[j];
 		// ゴールエリアアイコン
 		RectF goalIcon{ reqX, reqY, 18, 18 };
@@ -645,13 +645,13 @@ bool SequentialQuery::hasFinishedReleasing() const
 	return m_nextReleaseIndex >= m_releases.size();
 }
 
-void SequentialQuery::releaseBalls(Stage& stage, size_t releaseIndex)
+void SequentialQuery::releaseBalls(Stage& stage, int32 releaseIndex)
 {
 	if (releaseIndex >= m_releases.size()) return;
 	
 	const auto& release = m_releases[releaseIndex];
 	
-	for (size_t sc = 0; sc < release.startBalls.size(); ++sc) {
+	for (int32 sc = 0; sc < release.startBalls.size(); ++sc) {
 		if (!release.startBalls[sc].has_value()) {
 			continue;
 		}
@@ -705,7 +705,7 @@ void MultiPhaseQuery::startSimulation(Stage& stage)
 	startPhase(stage, 0);
 }
 
-void MultiPhaseQuery::startPhase(Stage& stage, size_t phaseIndex)
+void MultiPhaseQuery::startPhase(Stage& stage, int32 phaseIndex)
 {
 	(void)stage;
 	m_phaseIndex = phaseIndex;
@@ -795,7 +795,7 @@ void MultiPhaseQuery::update(Stage& stage, double dt)
 	}
 
 	// 次フェーズへ
-	const size_t nextPhase = m_phaseIndex + 1;
+	const int32 nextPhase = m_phaseIndex + 1;
 	if (nextPhase < m_phases.size()) {
 		startPhase(stage, nextPhase);
 	}
@@ -804,7 +804,7 @@ void MultiPhaseQuery::update(Stage& stage, double dt)
 	}
 }
 
-bool MultiPhaseQuery::checkGoalForPhase(const Stage& stage, size_t phaseIndex) const
+bool MultiPhaseQuery::checkGoalForPhase(const Stage& stage, int32 phaseIndex) const
 {
 	if (phaseIndex >= m_phases.size()) {
 		return false;
@@ -869,14 +869,14 @@ Array<Optional<BallKind>> MultiPhaseQuery::getGoalRequirements() const
 	return result;
 }
 
-void MultiPhaseQuery::releaseBalls(Stage& stage, size_t phaseIndex, size_t releaseIndex)
+void MultiPhaseQuery::releaseBalls(Stage& stage, int32 phaseIndex, int32 releaseIndex)
 {
 	if (phaseIndex >= m_phases.size()) return;
 	const auto& releases = m_phases[phaseIndex].releases;
 	if (releaseIndex >= releases.size()) return;
 
 	const auto& release = releases[releaseIndex];
-	for (size_t sc = 0; sc < release.startBalls.size(); ++sc) {
+	for (int32 sc = 0; sc < release.startBalls.size(); ++sc) {
 		if (!release.startBalls[sc].has_value()) {
 			continue;
 		}
@@ -1008,7 +1008,7 @@ bool MultiGoalSequentialQuery::checkSimulationResult(const Stage& stage)
 	}
 	
 	// 各ゴールエリアの要件をチェック
-	for (size_t i = 0; i < m_goalRequirements.size(); ++i) {
+	for (int32 i = 0; i < m_goalRequirements.size(); ++i) {
 		if (!m_goalRequirements[i].isSatisfiedBy(reachedGoalAreas[i])) {
 			return false;
 		}
@@ -1050,10 +1050,10 @@ Array<Optional<BallKind>> MultiGoalSequentialQuery::getGoalRequirements() const
 double MultiGoalSequentialQuery::getPanelHeight() const
 {
 	// 入力シーケンスの長さ
-	size_t sequenceLength = m_releases.size();
+	int32 sequenceLength = m_releases.size();
 	
 	// 出力エリアの高さを計算（複数ボール表示用に増加）
-	size_t maxBallsInGoal = 0;
+	int32 maxBallsInGoal = 0;
 	for (const auto& req : m_goalRequirements) {
 		maxBallsInGoal = Max(maxBallsInGoal, req.totalCount());
 	}
@@ -1071,12 +1071,12 @@ double MultiGoalSequentialQuery::getPanelHeight() const
 double MultiGoalSequentialQuery::drawPanelContent(const RectF& queryRect, bool isActive) const
 {
 	// StartCircleの数を取得
-	size_t numStartCircles = 0;
+	int32 numStartCircles = 0;
 	for (const auto& release : m_releases) {
 		numStartCircles = Max(numStartCircles, release.startBalls.size());
 	}
 	
-	size_t sequenceLength = m_releases.size();
+	int32 sequenceLength = m_releases.size();
 	
 	const double colWidth = 26.0;
 	const double rowHeight = 20.0;
@@ -1085,7 +1085,7 @@ double MultiGoalSequentialQuery::drawPanelContent(const RectF& queryRect, bool i
 	const double startY = queryRect.y + 12;
 	
 	// 現在の段階（ボール放出中/待機中）の行を計算
-	Optional<size_t> activeRow = none;
+	Optional<int32> activeRow = none;
 	if (m_releases.size() >= 2 and isActive) {
 		if (m_nextReleaseIndex == 0) {
 			// activeRow = 0;
@@ -1106,13 +1106,13 @@ double MultiGoalSequentialQuery::drawPanelContent(const RectF& queryRect, bool i
 	FontAsset(U"Regular")(U"IN").draw(9, Vec2(labelX, inLabelY - 5), ColorF(0.5, 0.55, 0.6));
 	
 	// ヘッダー行: StartCircleラベル
-	for (size_t sc = 0; sc < numStartCircles; ++sc) {
+	for (int32 sc = 0; sc < numStartCircles; ++sc) {
 		double x = startX + sc * colWidth;
 		FontAsset(U"Regular")(U"{}"_fmt(static_cast<char32>(U'a' + sc))).drawAt(9, Vec2(x + 9, startY), ColorF(0.6, 0.7, 0.8));
 	}
 	
 	// シーケンスを縦に描画
-	for (size_t row = 0; row < sequenceLength; ++row) {
+	for (int32 row = 0; row < sequenceLength; ++row) {
 		double y = startY + 12 + row * rowHeight;
 		const auto& release = m_releases[row];
 		
@@ -1123,7 +1123,7 @@ double MultiGoalSequentialQuery::drawPanelContent(const RectF& queryRect, bool i
 			rowRect.rounded(4).drawFrame(1, activeRowFrame);
 		}
 		
-		for (size_t sc = 0; sc < numStartCircles; ++sc) {
+		for (int32 sc = 0; sc < numStartCircles; ++sc) {
 			double x = startX + sc * colWidth;
 			
 			if (sc < release.startBalls.size() && release.startBalls[sc].has_value()) {
@@ -1169,7 +1169,7 @@ double MultiGoalSequentialQuery::drawPanelContent(const RectF& queryRect, bool i
 	double reqY = startY + 12 + sequenceLength * rowHeight + 5;
 	
 	// 全ゴールの最大アイコン高さを事前計算
-	size_t maxBallsInGoal = 0;
+	int32 maxBallsInGoal = 0;
 	for (const auto& req : m_goalRequirements) {
 		maxBallsInGoal = Max(maxBallsInGoal, req.totalCount());
 	}
@@ -1179,7 +1179,7 @@ double MultiGoalSequentialQuery::drawPanelContent(const RectF& queryRect, bool i
 	FontAsset(U"Regular")(U"OUT").draw(9, Vec2(reqX - 2, reqY + maxIconHeight / 2.0 - 5), ColorF(0.5, 0.55, 0.6));
 	reqX += 24;
 	
-	for (size_t j = 0; j < m_goalRequirements.size(); ++j) {
+	for (int32 j = 0; j < m_goalRequirements.size(); ++j) {
 		const auto& req = m_goalRequirements[j];
 		
 		// ゴールエリアの枠サイズを計算（全て同じ高さに揃える）
@@ -1205,7 +1205,7 @@ double MultiGoalSequentialQuery::drawPanelContent(const RectF& queryRect, bool i
 			
 			double ballY = reqY + (maxIconHeight - totalBallHeight) / 2.0;
 			for (const auto& [kind, count] : req.ballCounts) {
-				for (size_t k = 0; k < count; ++k) {
+				for (int32 k = 0; k < count; ++k) {
 					double r = GetBallRadius(kind) * 0.3;
 					ColorF ballColor = GetBallColor(kind);
 					Circle(reqX + 9, ballY + r, r).draw(ballColor);
@@ -1223,13 +1223,13 @@ double MultiGoalSequentialQuery::drawPanelContent(const RectF& queryRect, bool i
 	return getPanelHeight();
 }
 
-void MultiGoalSequentialQuery::releaseBalls(Stage& stage, size_t releaseIndex)
+void MultiGoalSequentialQuery::releaseBalls(Stage& stage, int32 releaseIndex)
 {
 	if (releaseIndex >= m_releases.size()) return;
 	
 	const auto& release = m_releases[releaseIndex];
 	
-	for (size_t sc = 0; sc < release.startBalls.size(); ++sc) {
+	for (int32 sc = 0; sc < release.startBalls.size(); ++sc) {
 		if (!release.startBalls[sc].has_value()) {
 			continue;
 		}

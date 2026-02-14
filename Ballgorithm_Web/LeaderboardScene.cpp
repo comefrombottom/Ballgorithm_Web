@@ -10,7 +10,7 @@ LeaderboardScene::LeaderboardScene()
 	m_viewerCamera.setParameters(params);
 }
 
-void LeaderboardScene::enter(Game& game, size_t stageIndex)
+void LeaderboardScene::enter(Game& game, int32 stageIndex)
 {
 	m_stageIndex = stageIndex;
 	m_viewerActive = false;
@@ -73,7 +73,7 @@ void LeaderboardScene::layoutViewerUI()
 	m_loadButtonRect = RectF{ m_queryPanelRect.x, loadY, loadW, loadH };
 }
 
-void LeaderboardScene::enterViewer(Game& game, size_t recordIndex)
+void LeaderboardScene::enterViewer(Game& game, int32 recordIndex)
 {
 	auto& stage = *game.m_stages[m_stageIndex];
 
@@ -205,7 +205,7 @@ void LeaderboardScene::updateRanking(Game& game, double dt)
 	m_hoveredRecordIndex.reset();
 	if (!m_isLoading && !m_records.empty()) {
 		auto scrollTf = m_rankingScrollBar.createTransformer();
-		for (size_t i = 0; i < m_records.size(); ++i) {
+		for (int32 i = 0; i < m_records.size(); ++i) {
 			double x = (LeftPanelWidth - RankingRowWidth) / 2.0;
 			double y = RankingStartY + i * (RankingRowHeight + RankingRowSpacing);
 			RectF rowRect{ x, y, RankingRowWidth, RankingRowHeight };
@@ -287,7 +287,7 @@ void LeaderboardScene::drawRanking(const Game& game) const
 
 		auto scrollTf = m_rankingScrollBar.createTransformer();
 
-		for (size_t i = 0; i < m_records.size(); ++i) {
+		for (int32 i = 0; i < m_records.size(); ++i) {
 			double x = (LeftPanelWidth - RankingRowWidth) / 2.0;
 			double y = RankingStartY + i * (RankingRowHeight + RankingRowSpacing);
 			RectF rowRect{ x, y, RankingRowWidth, RankingRowHeight };
@@ -412,7 +412,7 @@ void LeaderboardScene::updateViewer(Game& game, double dt)
 
 		if (allFinished && hasFinishedReleasing) {
 			bool isSuccess = stage.checkSimulationResult();
-			size_t completedQueryIndex = stage.m_currentQueryIndex;
+			int32 completedQueryIndex = stage.m_currentQueryIndex;
 
 			if (isSuccess) {
 				stage.markQueryCompleted(completedQueryIndex);

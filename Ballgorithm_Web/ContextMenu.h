@@ -59,7 +59,7 @@ private:
 	bool m_isOpen = false;
 	Vec2 m_position{ 0, 0 };
 	Array<ContextMenuItem> m_items;
-	Optional<size_t> m_hoveredIndex;
+	Optional<int32> m_hoveredIndex;
 	bool m_alignRight = false;  // trueの場合、右揃え（右上が基準）
 
 	static constexpr double ItemWidth = 140.0;
@@ -70,5 +70,5 @@ private:
 
 	RectF getMenuRect() const;
 	RectF getCloseButtonRect() const;
-	RectF getItemRect(size_t index) const;
+	RectF getItemRect(int32 index) const;
 };

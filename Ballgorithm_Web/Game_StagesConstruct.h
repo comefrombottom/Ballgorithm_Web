@@ -7,12 +7,12 @@
 // GoalAreaと受け皿のlineを解除不可能なグループとして追加するヘルパー関数
 void addGoalAreaWithContainer(Stage& stage, const RectF& rect, bool isLocked = true)
 {
-	size_t goalAreaId = stage.addGoalArea({ rect, isLocked });
+	int32 goalAreaId = stage.addGoalArea({ rect, isLocked });
 
 	// 受け皿のline（左、下、右の3辺）
-	size_t edge1 = stage.addLine({ rect.bl(), rect.tl() }, isLocked);  // 左
-	size_t edge2 = stage.addLine({ rect.bl(), rect.br() }, isLocked);  // 下
-	size_t edge3 = stage.addLine({ rect.br(), rect.tr() }, isLocked);  // 右
+	int32 edge1 = stage.addLine({ rect.bl(), rect.tl() }, isLocked);  // 左
+	int32 edge2 = stage.addLine({ rect.bl(), rect.br() }, isLocked);  // 下
+	int32 edge3 = stage.addLine({ rect.br(), rect.tr() }, isLocked);  // 右
 
 	// グループを作成
 	Group group;
@@ -311,8 +311,8 @@ void stagestagesConstruct_0_2(Array<std::unique_ptr<Stage>>& m_stages) {
 		auto stage = std::make_unique<Stage>();
 		stage->m_name = U"Crossing";
 
-		size_t startCircle1 = stage->addStartCircle({ Circle{ 100, 200, 20 }, true });
-		size_t startCircle2 = stage->addStartCircle({ Circle{ 100, 300, 20 }, true });
+		int32 startCircle1 = stage->addStartCircle({ Circle{ 100, 200, 20 }, true });
+		int32 startCircle2 = stage->addStartCircle({ Circle{ 100, 300, 20 }, true });
 
 		Group startGroup;
 		startGroup.insertStartCircleId(startCircle1);
@@ -371,8 +371,8 @@ void stagestagesConstruct_0_2(Array<std::unique_ptr<Stage>>& m_stages) {
 		auto stage = std::make_unique<Stage>();
 		stage->m_name = U"Crossing (2)";
 
-		size_t startCircle1 = stage->addStartCircle({ Circle{ 100, 200, 20 }, true });
-		size_t startCircle2 = stage->addStartCircle({ Circle{ 540, 200, 20 }, true });
+		int32 startCircle1 = stage->addStartCircle({ Circle{ 100, 200, 20 }, true });
+		int32 startCircle2 = stage->addStartCircle({ Circle{ 540, 200, 20 }, true });
 
 		stage->addLine(Line({ 60, 220 }, { 60 + 80, 220 + 20 }), true);
 		stage->addLine(Line({ 580, 220 }, { 580 - 80, 220 + 5 }), true);
@@ -414,8 +414,8 @@ void stagestagesConstruct_0_2(Array<std::unique_ptr<Stage>>& m_stages) {
 		auto stage = std::make_unique<Stage>();
 		stage->m_name = U"Crossing (3)";
 
-		size_t startCircle1 = stage->addStartCircle({ Circle{ 100, 100, 20 }, true });
-		size_t startCircle2 = stage->addStartCircle({ Circle{ 100, 200, 20 }, true });
+		int32 startCircle1 = stage->addStartCircle({ Circle{ 100, 100, 20 }, true });
+		int32 startCircle2 = stage->addStartCircle({ Circle{ 100, 200, 20 }, true });
 
 		stage->addLine(Line({ 60, 120 }, { 140, 140 }), true);
 		stage->addLine(Line({ 60, 220 }, { 140, 240 }), true);

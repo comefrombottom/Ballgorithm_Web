@@ -69,7 +69,7 @@ bool QueryPanel::update(Stage& stage, SingleUseCursorPos& cursorPos, double dt)
 		auto scrollTf = m_scrollBar.createTransformer();
 		if (clickInput) {
 			double currentY = m_rect.y + headerH;
-			for (size_t i = 0; i < stage.m_queries.size(); ++i) {
+			for (int32 i = 0; i < stage.m_queries.size(); ++i) {
 				const auto& query = stage.m_queries[i];
 				const double queryHeight = query->getPanelHeight() + 5;
 				RectF queryRect{ m_rect.x + 8, currentY, m_rect.w - 16, queryHeight - 5 };
@@ -122,7 +122,7 @@ void QueryPanel::draw(const Stage& stage) const
 		const ScopedRenderStates2D rasterizer{ rs };
 		{
 			auto scrollTf = m_scrollBar.createTransformer();
-			for (size_t i = 0; i < stage.m_queries.size(); ++i) {
+			for (int32 i = 0; i < stage.m_queries.size(); ++i) {
 				const auto& query = stage.m_queries[i];
 				const double queryHeight = query->getPanelHeight() + 5;
 				RectF queryRect{ m_rect.x + 8, currentY, m_rect.w - 16, queryHeight - 5 };

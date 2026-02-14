@@ -15,14 +15,14 @@ public:
 	LeaderboardScene();
 
 	// ステージインデックスを指定して開く
-	void enter(Game& game, size_t stageIndex);
+	void enter(Game& game, int32 stageIndex);
 	void exit();
 
 	void update(Game& game, double dt = Scene::DeltaTime());
 	void draw(const Game& game) const;
 
 private:
-	size_t m_stageIndex = 0;
+	int32 m_stageIndex = 0;
 	bool m_viewerActive = false;  // 解法が選択されビュワーが有効か
 
 	// ランキングデータ
@@ -33,14 +33,14 @@ private:
 
 	// ランキング表UI
 	ScrollBar m_rankingScrollBar;
-	Optional<size_t> m_hoveredRecordIndex;
+	Optional<int32> m_hoveredRecordIndex;
 	SingleUseCursorPos m_cursorPos;
 
 	Optional<Vec2> m_mousePressPos;
 	bool m_isDragging = false;
 
 	// 解法閲覧用
-	Optional<size_t> m_selectedRecordIndex;
+	Optional<int32> m_selectedRecordIndex;
 	StageSnapshot m_viewerStageSnapshot;  // 閲覧前の元スナップショット（復元用）
 	StageEditUI m_viewerEditUI;
 	MyCamera2D m_viewerCamera{ Vec2(500, 300), 1.0, CameraControl::Wheel };
@@ -69,9 +69,9 @@ private:
 	void updateViewer(Game& game, double dt);
 	void drawViewer(const Game& game) const;
 
-	void enterViewer(Game& game, size_t recordIndex);
+	void enterViewer(Game& game, int32 recordIndex);
 	void exitViewer();
 	void layoutViewerUI();
 
-	void runSimulation(bool singleQuery, size_t queryIndex = 0);
+	void runSimulation(bool singleQuery, int32 queryIndex = 0);
 };

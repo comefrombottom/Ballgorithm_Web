@@ -32,8 +32,8 @@ bool StageEditUI::eraseSelection(Stage& stage)
 
 bool StageEditUI::canGroup(const Stage& stage) const
 {
-	HashSet<size_t> addedPointIds;
-	size_t selectedCount = 0;
+	HashSet<int32> addedPointIds;
+	int32 selectedCount = 0;
 	for (const auto& s : m_selectedIDs) {
 		if (s.type == SelectType::Point) {
 			addedPointIds.insert(s.id);
@@ -80,11 +80,11 @@ bool StageEditUI::groupSelection(Stage& stage)
 bool StageEditUI::ungroupSelection(Stage& stage)
 {
 	if (!canUngroup(stage)) return false;
-	size_t onlySelectedGroupId = m_selectedIDs.begin()->id;
+	int32 onlySelectedGroupId = m_selectedIDs.begin()->id;
 	auto& group = stage.m_groups.at(onlySelectedGroupId);
 	if (group.isLocked) return false;
 	for (auto& subGroup : group.m_groups) {
-		size_t newGroupId = stage.m_nextGroupId++;
+		int32 newGroupId = stage.m_nextGroupId++;
 		stage.m_groups[newGroupId] = subGroup;
 	}
 	stage.m_groups.erase(onlySelectedGroupId);
@@ -126,7 +126,7 @@ int32 StageEditUI::getDrawOneGridLength() const
 	return static_cast<int32>(Clamp(Math::Exp2(Round(Math::Log2(4.0 / Graphics2D::GetMaxScaling()))), 1.0, 16.0)) * 5;
 }
 
-bool StageEditUI::isHoveredPoint(const Stage& stage, const Optional<HoverInfo>& hoverInfo, size_t pointId) const
+bool StageEditUI::isHoveredPoint(const Stage& stage, const Optional<HoverInfo>& hoverInfo, int32 pointId) const
 {
 	if (not hoverInfo) return false;
 	if (hoverInfo->type == HoverType::Point && hoverInfo->id == pointId) return true;
@@ -145,7 +145,7 @@ bool StageEditUI::isHoveredPoint(const Stage& stage, const Optional<HoverInfo>& 
 	return false;
 }
 
-bool StageEditUI::isHoveredStartCircle(const Stage& stage, size_t index) const
+bool StageEditUI::isHoveredStartCircle(const Stage& stage, int32 index) const
 {
 	if (m_hoveredInfo && m_hoveredInfo->type == HoverType::StartCircle && m_hoveredInfo->id == index) return true;
 	if (m_hoveredInfo && m_hoveredInfo->type == HoverType::Group) {
@@ -154,7 +154,7 @@ bool StageEditUI::isHoveredStartCircle(const Stage& stage, size_t index) const
 	return false;
 }
 
-bool StageEditUI::isHoveredGoalArea(const Stage& stage, size_t index) const
+bool StageEditUI::isHoveredGoalArea(const Stage& stage, int32 index) const
 {
 	if (m_hoveredInfo && m_hoveredInfo->type == HoverType::GoalArea && m_hoveredInfo->id == index) return true;
 	if (m_hoveredInfo && m_hoveredInfo->type == HoverType::Group) {
@@ -163,7 +163,7 @@ bool StageEditUI::isHoveredGoalArea(const Stage& stage, size_t index) const
 	return false;
 }
 
-bool StageEditUI::isHoveredPlacedBall(const Stage& stage, size_t index) const
+bool StageEditUI::isHoveredPlacedBall(const Stage& stage, int32 index) const
 {
 	if (m_hoveredInfo && m_hoveredInfo->type == HoverType::PlacedBall && m_hoveredInfo->id == index) return true;
 	if (m_hoveredInfo && m_hoveredInfo->type == HoverType::Group) {
@@ -172,7 +172,7 @@ bool StageEditUI::isHoveredPlacedBall(const Stage& stage, size_t index) const
 	return false;
 }
 
-bool StageEditUI::isHoveredEdge(const Stage& stage, size_t index) const
+bool StageEditUI::isHoveredEdge(const Stage& stage, int32 index) const
 {
 	if (m_hoveredInfo && m_hoveredInfo->type == HoverType::Edge && m_hoveredInfo->id == index) return true;
 	if (m_hoveredInfo && m_hoveredInfo->type == HoverType::Group) {
@@ -239,7 +239,7 @@ void StageEditUI::updateHoverInfo(Stage& stage, SingleUseCursorPos& cursorPos)
 			const Vec2& p1 = stage.m_points.at(edge[0]);
 			const Vec2& p2 = stage.m_points.at(edge[1]);
 
-			for (size_t j = 0; j < edge.ids.size(); ++j) {
+			for (int32 j = 0; j < edge.ids.size(); ++j) {
 				auto point_id = edge.ids[edge.ids.size() - 1 - j];
 				if (stage.findTopGroup(point_id).has_value()) continue;
 
@@ -256,7 +256,7 @@ void StageEditUI::updateHoverInfo(Stage& stage, SingleUseCursorPos& cursorPos)
 			if (distance <= HOVER_THRESHOLD) {
 				cursorPos.reset();
 				bool anyPointInGroup = false;
-				Optional<size_t> groupId;
+				Optional<int32> groupId;
 				for (const auto& e : edge.ids) {
 					if (auto topGroup = stage.findTopGroup(e)) {
 						anyPointInGroup = true;
@@ -288,7 +288,7 @@ void StageEditUI::updateDragObject(Stage& stage, SingleUseCursorPos& cursorPos, 
 			bool selectSingleLine = false;
 
 			if (m_hoveredInfo->type == HoverType::PlacedBall) {
-				size_t placedBallId = m_hoveredInfo->id;
+				int32 placedBallId = m_hoveredInfo->id;
 
 				if (auto topGroupId = stage.findTopGroupForPlacedBall(placedBallId)) {
 					SelectedID sid{ SelectType::Group, *topGroupId };
@@ -374,7 +374,7 @@ void StageEditUI::updateDragObject(Stage& stage, SingleUseCursorPos& cursorPos, 
 				m_didDragMove = false;
 			}
 			else if (m_hoveredInfo->type == HoverType::Point) {
-				size_t pointId = m_hoveredInfo->id;
+				int32 pointId = m_hoveredInfo->id;
 				SelectedID sid{ SelectType::Point, pointId };
 				if (KeyShift.pressed()) {
 					if (m_selectedIDs.contains(sid)) m_selectedIDs.erase(sid); else m_selectedIDs.insert(sid);
@@ -398,8 +398,8 @@ void StageEditUI::updateDragObject(Stage& stage, SingleUseCursorPos& cursorPos, 
 			}
 			else if (m_hoveredInfo->type == HoverType::Edge) {
 				auto& edge = stage.m_edges[m_hoveredInfo->id];
-				Array<size_t> insertPointIds;
-				Array<size_t> insertGroupIds;
+				Array<int32> insertPointIds;
+				Array<int32> insertGroupIds;
 				for (auto pointId : edge.ids) {
 					if (auto topGroup = stage.findTopGroup(pointId)) {
 						if (not insertGroupIds.contains(*topGroup)) insertGroupIds.push_back(*topGroup);
@@ -442,7 +442,7 @@ void StageEditUI::updateDragObject(Stage& stage, SingleUseCursorPos& cursorPos, 
 				m_didDragMove = false;
 			}
 			else if (m_hoveredInfo->type == HoverType::Group) {
-				size_t groupId = m_hoveredInfo->id;
+				int32 groupId = m_hoveredInfo->id;
 				SelectedID sid{ SelectType::Group, groupId };
 				if (KeyShift.pressed()) {
 					if (m_selectedIDs.contains(sid)) m_selectedIDs.erase(sid); else m_selectedIDs.insert(sid);
@@ -646,7 +646,7 @@ void StageEditUI::drawWorld(const Stage& stage, const MyCamera2D& camera) const
 			const auto& obj = *it;
 			switch (obj.type) {
 			case LayerObjectType::GoalArea: {
-				size_t i = obj.id;
+				int32 i = obj.id;
 				const auto& r = stage.m_goalAreas[i];
 				ColorF color = ColorF(0.2, 0.65, 0.3, 0.5);
 				ColorF frameColor = ColorF(0.3, 0.75, 0.4, 0.7);
@@ -656,7 +656,7 @@ void StageEditUI::drawWorld(const Stage& stage, const MyCamera2D& camera) const
 				break;
 			}
 			case LayerObjectType::StartCircle: {
-				size_t i = obj.id;
+				int32 i = obj.id;
 				const auto& c = stage.m_startCircles[i];
 				ColorF color = ColorF(0.2, 0.65, 0.3, 0.5);
 				ColorF frameColor = ColorF(0.3, 0.75, 0.4, 0.7);
@@ -670,7 +670,7 @@ void StageEditUI::drawWorld(const Stage& stage, const MyCamera2D& camera) const
 				break;
 			}
 			case LayerObjectType::Edge: {
-				size_t i = obj.id;
+				int32 i = obj.id;
 				const auto& edge = stage.m_edges[i];
 				const Vec2& p1 = stage.m_points.at(edge[0]);
 				const Vec2& p2 = stage.m_points.at(edge[1]);
@@ -726,7 +726,7 @@ void StageEditUI::drawWorld(const Stage& stage, const MyCamera2D& camera) const
 		const auto& obj = *it;
 		switch (obj.type) {
 		case LayerObjectType::GoalArea: {
-			size_t i = obj.id;
+			int32 i = obj.id;
 			const auto& r = stage.m_goalAreas[i];
 			ColorF color = ColorF(0.2, 0.65, 0.3, 0.5);
 			ColorF frameColor = ColorF(0.3, 0.75, 0.4, 0.7);
@@ -744,7 +744,7 @@ void StageEditUI::drawWorld(const Stage& stage, const MyCamera2D& camera) const
 			break;
 		}
 		case LayerObjectType::StartCircle: {
-			size_t i = obj.id;
+			int32 i = obj.id;
 			const auto& c = stage.m_startCircles[i];
 			ColorF color = ColorF(0.2, 0.65, 0.3, 0.5);
 			ColorF frameColor = ColorF(0.3, 0.75, 0.4, 0.7);
@@ -762,7 +762,7 @@ void StageEditUI::drawWorld(const Stage& stage, const MyCamera2D& camera) const
 			break;
 		}
 		case LayerObjectType::PlacedBall: {
-			size_t i = obj.id;
+			int32 i = obj.id;
 			const auto& placedBall = stage.m_placedBalls[i];
 			ColorF color = GetBallColor(placedBall.kind);
 			ColorF frameColor = ColorF(1.0, 1.0, 1.0, 0.8);
@@ -784,7 +784,7 @@ void StageEditUI::drawWorld(const Stage& stage, const MyCamera2D& camera) const
 			break;
 		}
 		case LayerObjectType::Edge: {
-			size_t i = obj.id;
+			int32 i = obj.id;
 			const auto& edge = stage.m_edges[i];
 			const Vec2& p1 = stage.m_points.at(edge[0]);
 			const Vec2& p2 = stage.m_points.at(edge[1]);
@@ -796,7 +796,7 @@ void StageEditUI::drawWorld(const Stage& stage, const MyCamera2D& camera) const
 			Line(p1 + Vec2{ 2, 2 }, p2 + Vec2{ 2, 2 }).draw(3.0 / Graphics2D::GetMaxScaling(), ColorF(0.0, 0.2));
 			Line(p1, p2).draw(2.5 / Graphics2D::GetMaxScaling(), lineColor);
 
-			auto drawEdgeEndpointHighlight = [&](size_t pointId, size_t otherPointId) {
+			auto drawEdgeEndpointHighlight = [&](int32 pointId, int32 otherPointId) {
 				const bool isPointSelected = m_selectedIDs.isSelectedPoint(stage, pointId);
 				const bool isPointHovered = isHoveredPoint(stage, m_hoveredInfo, pointId);
 				if (!isPointSelected && !isPointHovered) {
@@ -821,8 +821,8 @@ void StageEditUI::drawWorld(const Stage& stage, const MyCamera2D& camera) const
 			drawEdgeEndpointHighlight(edge[1], edge[0]);
 
 			for (auto j : step(2)) {
-				size_t pointId = edge[j];
-				size_t otherPointId = edge[1 - j];
+				int32 pointId = edge[j];
+				int32 otherPointId = edge[1 - j];
 				Vec2 pointPos = stage.m_points.at(pointId);
 
 				bool isInGroup = stage.findTopGroup(pointId).has_value();

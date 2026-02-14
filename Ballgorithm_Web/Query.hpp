@@ -34,7 +34,7 @@ struct DelayedBallRelease {
 // ゴールエリアに入れるべきボールの要件（複数ボール対応）
 // 例: {Small: 1, Large: 2} のような指定が可能
 struct GoalRequirement {
-	HashTable<BallKind, size_t> ballCounts;  // 各ボール種類の必要個数
+	HashTable<BallKind, int32> ballCounts;  // 各ボール種類の必要個数
 	
 	// 空の要件（何も入れてはいけない）
 	static GoalRequirement empty() { return GoalRequirement{}; }
@@ -47,7 +47,7 @@ struct GoalRequirement {
 	}
 	
 	// 複数ボールの要件
-	static GoalRequirement multi(std::initializer_list<std::pair<BallKind, size_t>> counts) {
+	static GoalRequirement multi(std::initializer_list<std::pair<BallKind, int32>> counts) {
 		GoalRequirement req;
 		for (const auto& [kind, count] : counts) {
 			if (count > 0) {
@@ -61,8 +61,8 @@ struct GoalRequirement {
 	bool isEmpty() const { return ballCounts.empty(); }
 	
 	// 合計ボール数
-	size_t totalCount() const {
-		size_t total = 0;
+	int32 totalCount() const {
+		int32 total = 0;
 		for (const auto& [kind, count] : ballCounts) {
 			total += count;
 		}
@@ -70,7 +70,7 @@ struct GoalRequirement {
 	}
 	
 	// 指定したボール種類の必要個数
-	size_t countOf(BallKind kind) const {
+	int32 countOf(BallKind kind) const {
 		auto it = ballCounts.find(kind);
 		return (it != ballCounts.end()) ? it->second : 0;
 	}
@@ -78,7 +78,7 @@ struct GoalRequirement {
 	// 実際に入っているボールが要件を満たすかチェック
 	bool isSatisfiedBy(const Array<BallKind>& actualBalls) const {
 		// 実際のボール数をカウント
-		HashTable<BallKind, size_t> actualCounts;
+		HashTable<BallKind, int32> actualCounts;
 		for (const auto& kind : actualBalls) {
 			actualCounts[kind]++;
 		}
@@ -87,7 +87,7 @@ struct GoalRequirement {
 		// 1. 要件にある全ての種類について、正確な個数が必要
 		for (const auto& [kind, requiredCount] : ballCounts) {
 			auto it = actualCounts.find(kind);
-			size_t actualCount = (it != actualCounts.end()) ? it->second : 0;
+			int32 actualCount = (it != actualCounts.end()) ? it->second : 0;
 			if (actualCount != requiredCount) {
 				return false;
 			}
@@ -178,11 +178,11 @@ private:
 	Array<Optional<BallKind>> m_goalAreaToBeFilled;
 	
 	// シミュレーション状態
-	size_t m_nextReleaseIndex = 0;          // 次の放出インデックス
+	int32 m_nextReleaseIndex = 0;          // 次の放出インデックス
 	double m_timeSinceLastRelease = 0.0;    // 最後の放出からの経過時間
 	bool m_waitingForAllStopped = false;    // 全ボール停止待ちかどうか
 	
-	void releaseBalls(Stage& stage, size_t releaseIndex);
+	void releaseBalls(Stage& stage, int32 releaseIndex);
 	bool areAllBallsStopped(const Stage& stage) const;
 };
 
@@ -213,18 +213,18 @@ private:
 	Array<Phase> m_phases;
 
 	// フェーズ進行状態
-	size_t m_phaseIndex = 0;
-	size_t m_nextReleaseIndex = 0;
+	int32 m_phaseIndex = 0;
+	int32 m_nextReleaseIndex = 0;
 	double m_timeSinceLastRelease = 0.0;
 	bool m_waitingForAllStopped = false;
 
 	// フェーズごとのゴール確認結果
 	Array<Optional<bool>> m_phaseResults;
 
-	void startPhase(Stage& stage, size_t phaseIndex);
-	void releaseBalls(Stage& stage, size_t phaseIndex, size_t releaseIndex);
+	void startPhase(Stage& stage, int32 phaseIndex);
+	void releaseBalls(Stage& stage, int32 phaseIndex, int32 releaseIndex);
 	bool areAllBallsStopped(const Stage& stage) const;
-	bool checkGoalForPhase(const Stage& stage, size_t phaseIndex) const;
+	bool checkGoalForPhase(const Stage& stage, int32 phaseIndex) const;
 };
 
 // SequentialQueryを発展させ、ゴールに複数のボールを指定できるクエリ
@@ -258,10 +258,10 @@ private:
 	Array<GoalRequirement> m_goalRequirements;
 	
 	// シミュレーション状態
-	size_t m_nextReleaseIndex = 0;
+	int32 m_nextReleaseIndex = 0;
 	double m_timeSinceLastRelease = 0.0;
 	bool m_waitingForAllStopped = false;
 	
-	void releaseBalls(Stage& stage, size_t releaseIndex);
+	void releaseBalls(Stage& stage, int32 releaseIndex);
 	bool areAllBallsStopped(const Stage& stage) const;
 };
