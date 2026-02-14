@@ -92,12 +92,6 @@ void Main()
 	if (profile.contains(U"username") && profile[U"username"].isString()) {
 		game.m_username = profile[U"username"].getString();
 	}
-	else {
-		game.m_username = U"Player#{}"_fmt(ToHex(RandomUint16()));
-		profile[U"username"] = game.m_username;
-	}
-
-	profile.saveMinimum(U"Ballgorithm/profile.json");
 
 	StageRecord stageToLoad;
 

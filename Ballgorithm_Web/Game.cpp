@@ -2,6 +2,7 @@
 # include "StageSelectScene.hpp"
 # include "TitleScene.hpp"
 # include "LeaderboardScene.hpp"
+# include "NameInputScene.hpp"
 # include "Game_StagesConstruct.h"
 # include "IndexedDB.hpp"
 
@@ -47,6 +48,7 @@ Game::Game()
 	m_stageSelectScene = std::make_unique<StageSelectScene>();
 	m_titleScene = std::make_unique<TitleScene>();
 	m_leaderboardScene = std::make_unique<LeaderboardScene>();
+	m_nameInputScene = std::make_unique<NameInputScene>();
 }
 
 Game::~Game() = default;
@@ -79,6 +81,26 @@ void Game::goToNextStage()
 void Game::goToStageSelect()
 {
 	startTransition(GameState::StageSelect);
+}
+
+void Game::goToNameInput()
+{
+	if (not m_username.isEmpty())
+	{
+		goToStageSelect();
+	}
+	else
+	{
+		startTransition(GameState::NameInput);
+	}
+}
+
+void Game::skipNameInputIfNeeded()
+{
+	if (not m_username.isEmpty())
+	{
+		goToStageSelect();
+	}
 }
 
 void Game::selectStage(int32 index)
@@ -249,6 +271,9 @@ void Game::update()
 	case GameState::Title:
 		m_titleScene->update(*this);
 		break;
+	case GameState::NameInput:
+		m_nameInputScene->update(*this);
+		break;
 	case GameState::StageSelect:
 		m_stageSelectScene->update(*this, dt);
 		break;
@@ -269,6 +294,9 @@ void Game::draw() const
 	{
 	case GameState::Title:
 		m_titleScene->draw();
+		break;
+	case GameState::NameInput:
+		m_nameInputScene->draw();
 		break;
 	case GameState::StageSelect:
 		m_stageSelectScene->draw(*this);

@@ -58,6 +58,8 @@ private:
 	RectF m_simulationStopButtonRect{ 560, 20, 80, 50 };
 	RectF m_simulationFastForwardButtonRect{ 650, 20, 50, 50 };
 	RectF m_nextStageButtonRect{ 720, 20, 110, 50 };
+	RectF m_leaderboardButtonRect{ 0, 0, 0, 0 };
+	RectF m_shareButtonRect{ 0, 0, 0, 0 };
 	RectF m_queryPanelRect{ 650, 80, 140, 500 };  // クエリパネル領域
 	InventoryUI m_inventoryUI{ RectF{ 0, 540, 800, 60 } };
 

@@ -3,6 +3,7 @@
 # include <Siv3D.hpp>
 # include "ScrollBar.h"
 # include "InputUtils.hpp"
+# include "TextBox.h"
 
 class Game;
 
@@ -21,6 +22,9 @@ class StageSelectScene {
 
 	Optional<Vec2> m_mousePressPos;  // マウス押下位置（ドラッグ判定用）
 	bool m_isDragging = false;
+
+	bool m_isEditingUsername = false;
+	mutable TextBox m_usernameTextBox;
 
 	static constexpr double CardWidth = 360.0;
 	static constexpr double CardHeight = 100.0;

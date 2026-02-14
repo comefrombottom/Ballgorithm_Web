@@ -1,7 +1,9 @@
 ﻿# include "StageSelectScene.hpp"
 # include "Game.hpp"
+# include "IndexedDB.hpp"
 
 StageSelectScene::StageSelectScene()
+	: m_usernameTextBox(Vec2{ 0, 0 }, 200)
 {
 	// スクロールバーの初期化（ページ高さは後で更新される）
 	m_scrollBar = ScrollBar(
@@ -9,6 +11,7 @@ StageSelectScene::StageSelectScene()
 		Scene::Height() - CardStartY - 20,  // viewHeight
 		RectF{ Arg::topRight(Scene::Width() - 2, CardStartY), 16, Scene::Height() - CardStartY - 20 }
 	);
+	m_usernameTextBox = TextBox(Vec2{ 15, 5 }, 200);
 }
 
 RectF StageSelectScene::getCardRect(int32 index) const
@@ -156,6 +159,83 @@ void StageSelectScene::drawCard(int32 index, const String& name, bool isCleared,
 void StageSelectScene::update(Game& game, double dt)
 {
 	m_cursorPos.init();
+
+	// ユーザー名編集処理
+	if (m_isEditingUsername)
+	{
+		auto commitUsername = [&]()
+		{
+			String newName = m_usernameTextBox.editableText.text.trimmed();
+			newName.remove_if([](char32 ch) { return (ch < 0x20) || (ch > 0x7E); });
+			if (newName.isEmpty())
+			{
+				newName = game.m_username;
+			}
+			else
+			{
+				game.m_username = newName;
+
+				JSON profile = JSON::Load(U"Ballgorithm/profile.json");
+				if (not profile) {
+					profile = JSON();
+				}
+				profile[U"username"] = game.m_username;
+				profile.saveMinimum(U"Ballgorithm/profile.json");
+
+# if SIV3D_PLATFORM(WEB)
+				Platform::Web::IndexedDB::SaveAsync();
+# endif
+			}
+
+			m_isEditingUsername = false;
+			m_usernameTextBox.editableText.isFocused = false;
+		};
+
+		m_usernameTextBox.update();
+		if (m_usernameTextBox.editableText.text.size() > 20)
+		{
+			m_usernameTextBox.editableText.text.resize(20);
+			m_usernameTextBox.editableText.caretIndex = Min(m_usernameTextBox.editableText.caretIndex, 20);
+			m_usernameTextBox.editableText.selectionEndIndex = Min(m_usernameTextBox.editableText.selectionEndIndex, 20);
+		}
+
+		if (not KeyAlt.pressed() and KeyEnter.down() and m_usernameTextBox.editableText.editingText.empty())
+		{
+			commitUsername();
+		}
+
+		if (MouseL.down() && not m_usernameTextBox.body.rect.contains(Cursor::PosF()))
+		{
+			commitUsername();
+		}
+
+		if (KeyEscape.down())
+		{
+			m_isEditingUsername = false;
+			m_usernameTextBox.editableText.isFocused = false;
+		}
+
+		return;
+	}
+
+	// Editボタン
+	{
+		const Font& font = FontAsset(U"Regular");
+		double usernameWidth = font(game.m_username).region(18).w;
+		RectF editBtn{ 20 + usernameWidth + 10, 5, 50, 28 };
+		if (editBtn.mouseOver())
+		{
+			Cursor::RequestStyle(CursorStyle::Hand);
+		}
+		if (editBtn.leftClicked())
+		{
+			m_isEditingUsername = true;
+			m_usernameTextBox.editableText.text = game.m_username;
+			m_usernameTextBox.editableText.isFocused = true;
+			m_usernameTextBox.editableText.selectAll();
+			return;
+		}
+	}
 
 	const auto& stages = game.getStages();
 	int32 stageCount = stages.size();
@@ -311,10 +391,18 @@ void StageSelectScene::draw(const Game& game) const
 {
 	const auto& stages = game.getStages();
 	int32 selected = game.getSelectedStageIndex();
+	int32 clearedCount = 0;
+	for (const auto& stage : stages)
+	{
+		if (stage->m_isCleared)
+		{
+			++clearedCount;
+		}
+	}
 	
 	// 背景描画
 	drawBackground();
-	
+
 	// スクロール領域のクリッピング
 	{
 		// スクロールバーのTransformerを使用
@@ -347,7 +435,41 @@ void StageSelectScene::draw(const Game& game) const
 	
 	// タイトル描画（カードの上に）
 	drawTitle();
+
+
+	// クリアステージ数表示
+	{
+		const Font& font = FontAsset(U"Regular");
+		const String progressText = U"Cleared: {}/{}"_fmt(clearedCount, stages.size());
+		font(progressText).draw(18, Arg::rightCenter = Vec2{ Scene::Width() - 20, 20 }, ColorF(0.85, 0.9, 0.95));
+	}
+
 	
 	// スクロールバー描画
 	m_scrollBar.draw(ColorF(0.5, 0.6, 0.7, 0.6));
+
+	// ユーザー名表示
+	{
+		const Font& font = FontAsset(U"Regular");
+
+		if (m_isEditingUsername)
+		{
+			m_usernameTextBox.draw();
+			{
+				const String countText = U"{}/20"_fmt(m_usernameTextBox.editableText.text.size());
+				font(countText).draw(12, Arg::leftCenter = Vec2{ m_usernameTextBox.body.rect.x + m_usernameTextBox.body.rect.w - 30, m_usernameTextBox.body.rect.y - 6 }, ColorF(0.7, 0.8, 0.9, 0.7));
+			}
+		}
+		else
+		{
+			font(game.m_username).draw(18, Arg::leftCenter = Vec2{ 20, 19 }, ColorF(0.85, 0.9, 0.95));
+
+			double usernameWidth = font(game.m_username).region(18).w;
+			RectF editBtn{ 20 + usernameWidth + 10, 5, 50, 28 };
+			bool hovered = editBtn.mouseOver();
+			editBtn.rounded(6).draw(hovered ? ColorF(0.3, 0.45, 0.65) : ColorF(0.2, 0.3, 0.45));
+			editBtn.rounded(6).drawFrame(1, ColorF(0.4, 0.5, 0.6, 0.5));
+			font(U"Edit").draw(14, Arg::center = editBtn.center(), ColorF(0.9));
+		}
+	}
 }
