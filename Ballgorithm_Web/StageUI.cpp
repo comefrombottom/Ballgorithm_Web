@@ -783,12 +783,11 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 			Cursor::RequestStyle(CursorStyle::Hand);
 		}
 
-		// Share ボタン（実装は空）
+		// Share ボタン
 		if (m_cursorPos.intersects_use(m_shareButtonRect)) {
 			if (MouseL.down()) {
 				auto record = StageRecord(stage, game.m_username);
-				game.m_postTask = record.createPostTask(true);
-				game.m_receivingShareCode = true;
+				game.m_postTaskToShare = record.createPostTask(true);
 			}
 			Cursor::RequestStyle(CursorStyle::Hand);
 		}
@@ -832,7 +831,8 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 				stage.m_currentQueryIndex = 0;
 				m_singleQueryMode = false;
 				stage.startSimulation();
-				// Console << U"Simulation Start!";
+				// 
+				// << U"Simulation Start!";
 			}
 		}
 		Cursor::RequestStyle(CursorStyle::Hand);

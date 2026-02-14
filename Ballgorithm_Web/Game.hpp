@@ -46,8 +46,8 @@ public:
 	double m_transitionTimer = 0.0;
 	static constexpr double TransitionTime = 0.4; // 秒
 
-	bool m_receivingShareCode;
 	AsyncHTTPTask m_postTask;
+	AsyncHTTPTask m_postTaskToShare;
 
 	void startTransition(GameState nextState);
 	void onTransitionFinished();

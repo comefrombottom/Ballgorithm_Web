@@ -41,10 +41,10 @@ Game::~Game() = default;
 void Game::resetAllStages()
 {
 	// Stages フォルダを丸ごと削除
-	FileSystem::Remove(U"Ballgorithm/Stages", AllowUndo::No);
+	FileSystem::Remove(U"Ballgorithm/VStages", AllowUndo::No);
 
 #if SIV3D_PLATFORM(WEB)
-	Platform::Web::IndexedDB::Save();
+	Platform::Web::IndexedDB::SaveAsync();
 #endif
 
 	// 全ステージを再構築
@@ -241,12 +241,15 @@ void Game::update()
 
 	if (m_postTask.isReady())
 	{
-		auto code = StageRecord::processPostTask(m_postTask);
-		if (m_receivingShareCode)
-		{
-			Clipboard::SetText(U"https://comefrombottom.github.io/Ballgorithm_Web?share={}"_fmt(code));
-		}
+		StageRecord::processPostTask(m_postTask);
 		m_postTask = AsyncHTTPTask();
+	}
+
+	if (m_postTaskToShare.isReady())
+	{
+		auto code = StageRecord::processPostTask(m_postTaskToShare);
+		Clipboard::SetText(U"https://comefrombottom.github.io/Ballgorithm_Web?share={}"_fmt(code));
+		m_postTaskToShare = AsyncHTTPTask();
 	}
 
 	// 遷移更新

@@ -627,7 +627,7 @@ void StageRecord::calculateHash()
 	try {
 		const std::string secret{ SIV3D_OBFUSCATE(SECRET_KEY) };
 		if (m_blobStr.isEmpty()) {
-			Serializer<MemoryWriter> serializer;;
+			Serializer<MemoryWriter> serializer;
 			serializer(m_snapshot);
 			m_blobStr = serializer->getBlob().base64Str();
 		}
@@ -646,6 +646,7 @@ void StageRecord::fromJSON(const JSON& json)
 		m_numberOfObjects = json[U"sc1"].get<int32>();
 		m_totalLength = json[U"sc2"].get<int32>();
 		m_blobStr = json[U"data"].getString();
+		m_snapshot.version = json[U"version"].get<int32>();
 		calculateHash();
 		MD5Value sig;
 		{
@@ -660,7 +661,8 @@ void StageRecord::fromJSON(const JSON& json)
 		// Console << sig;
 		// Console << m_hash;
 		if (sig == m_hash) {
-			Deserializer<MemoryReader> deserializer{ Base64::Decode(m_blobStr) };
+			const auto blob = Base64::Decode(m_blobStr);
+			Deserializer<MemoryReader> deserializer{ blob };
 			deserializer(m_snapshot);
 		}
 		else {
@@ -694,7 +696,7 @@ AsyncHTTPTask StageRecord::createPostTask(bool persistent)
 	json[U"sig"] = m_hash.asString();
 	json[U"persistent"] = persistent;
 
-	Console << json;
+	//Console << json;
 
 	auto code = json.formatUTF8Minimum();
 

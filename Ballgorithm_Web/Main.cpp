@@ -62,7 +62,7 @@ void Main()
 		});
 	});
 
-	auto task = Platform::Web::IndexedDB::InitAsync(U"Ballgorithm");
+	Platform::Web::IndexedDB::Init(U"Ballgorithm");
 # endif
 
 	Game game;
@@ -76,7 +76,6 @@ void Main()
 	Vec2 subTouchPos = Vec2::Zero();
 
 # if SIV3D_PLATFORM(WEB)
-	Platform::Web::System::AwaitAsyncTask(task);
 	AsyncHTTPTask getTask;
 	auto params = Platform::Web::System::GetURLParameters();
 	if (params.contains(U"share"))
@@ -116,6 +115,10 @@ void Main()
 	}*/
 # endif
 
+	//ConsoleDebug(stageToLoad.isValid())
+	//ConsoleDebug(game.m_stageNameToIndex)
+	//
+	// Debug(stageToLoad.m_stageName)
 	if (stageToLoad.isValid() && game.m_stageNameToIndex.contains(stageToLoad.m_stageName))
 	{
 		auto index = game.m_stageNameToIndex[stageToLoad.m_stageName];
