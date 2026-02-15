@@ -48,6 +48,7 @@ public:
 
 	AsyncHTTPTask m_postTask;
 	AsyncHTTPTask m_postTaskToShare;
+	String m_shareCode;
 
 	void startTransition(GameState nextState);
 	void onTransitionFinished();

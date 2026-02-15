@@ -118,7 +118,8 @@ private:
 	static constexpr double TutorialFadeInTime = 0.3;
 	
 	// Share ボタン状態
-	enum class ShareStatus { Idle, Sending, Done } m_shareStatus = ShareStatus::Idle;
+	enum class ShareStatus { Idle, Sending, Ready, Done } m_shareStatus = ShareStatus::Idle;
+	String m_shareURL;
 
 	// クリア演出用
 	bool m_showClearEffect = false;

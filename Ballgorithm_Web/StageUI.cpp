@@ -307,7 +307,8 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 
 	// Share タスク完了チェック
 	if (m_shareStatus == ShareStatus::Sending && game.m_postTaskToShare.isEmpty()) {
-		m_shareStatus = ShareStatus::Done;
+		m_shareURL = U"https://comefrombottom.github.io/Ballgorithm_Web?share={}"_fmt(game.m_shareCode);
+		m_shareStatus = ShareStatus::Ready;
 	}
 
 	// ダブルクリック検出（最初に行う）
@@ -796,10 +797,15 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 
 		// Share ボタン
 		if (m_cursorPos.intersects_use(m_shareButtonRect)) {
-			if (MouseL.down() && m_shareStatus == ShareStatus::Idle) {
-				auto record = StageRecord(stage, game.m_username);
-				game.m_postTaskToShare = record.createPostTask(true);
-				m_shareStatus = ShareStatus::Sending;
+			if (MouseL.down()) {
+				if (m_shareStatus == ShareStatus::Idle) {
+					auto record = StageRecord(stage, game.m_username);
+					game.m_postTaskToShare = record.createPostTask(true);
+					m_shareStatus = ShareStatus::Sending;
+				} else if (m_shareStatus == ShareStatus::Ready) {
+					Clipboard::SetText(m_shareURL);
+					m_shareStatus = ShareStatus::Done;
+				}
 			}
 			Cursor::RequestStyle(CursorStyle::Hand);
 		}
@@ -1329,6 +1335,9 @@ void StageUI::draw(const Stage& stage) const
 				double alpha = (8 - i) / 8.0;
 				Circle{ c + Vec2{ Cos(a), Sin(a) } * r, 2.5 }.draw(ColorF(0.7, 0.85, 1.0, alpha));
 			}
+		} else if (m_shareStatus == ShareStatus::Ready) {
+			// コピーアイコン表示（URLコピー待ち）
+			drawIconButton(m_shareButtonRect, U"\uF0C5", ColorF(0.3, 0.55, 0.75), true, shareHovered);
 		} else if (m_shareStatus == ShareStatus::Done) {
 			// チェックマーク表示
 			drawIconButton(m_shareButtonRect, U"\uF00C", ColorF(0.2, 0.6, 0.3), true, shareHovered);

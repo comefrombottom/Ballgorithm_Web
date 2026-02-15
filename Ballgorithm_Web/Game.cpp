@@ -247,8 +247,7 @@ void Game::update()
 
 	if (m_postTaskToShare.isReady())
 	{
-		auto code = StageRecord::processPostTask(m_postTaskToShare);
-		Clipboard::SetText(U"https://comefrombottom.github.io/Ballgorithm_Web?share={}"_fmt(code));
+		m_shareCode = StageRecord::processPostTask(m_postTaskToShare);
 		m_postTaskToShare = AsyncHTTPTask();
 	}
 
