@@ -116,6 +116,9 @@ void StageUI::onStageEnter(Stage& stage, bool isSameWithLastStage)
 	
 	// 十字キーUIを非表示で初期化
 	m_dpadUI.setVisible(false);
+
+	// share status をリセット
+	m_shareStatus = ShareStatus::Idle;
 }
 
 void StageUI::onStageExit(Stage& stage)
@@ -430,7 +433,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 				}
 				// クリックを消費してステージ操作に影響しないようにする
 				m_cursorPos.use();
-				Print << U"(Tutorial) Click detected within tutorial text box.";
+				// Print << U"(Tutorial) Click detected within tutorial text box.";
 			}
 		}
 	}
@@ -933,14 +936,16 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 						startClearEffect();  // クリア演出を開始
 					}
 
-					// TODO 
-					stage.save();
+					if (stage.isAllQueriesCompleted()) {
+						// TODO 
+						stage.save();
 #if SIV3D_PLATFORM(WEB)
-					Platform::Web::IndexedDB::SaveAsync();
+						Platform::Web::IndexedDB::SaveAsync();
 #endif // SIV3D_PLATFORM(WEB)
-					if (game.m_postTask.isEmpty())
-					{
-						game.m_postTask = StageRecord(stage, game.m_username).createPostTask(false);
+						if (game.m_postTask.isEmpty())
+						{
+							game.m_postTask = StageRecord(stage, game.m_username).createPostTask(false);
+						}
 					}
 				}
 				else {

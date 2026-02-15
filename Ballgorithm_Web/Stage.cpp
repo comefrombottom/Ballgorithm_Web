@@ -606,9 +606,6 @@ int32 StageSnapshot::CalculateTotalLength() const
 
 StageRecord::StageRecord(const Stage& stage, String author)
 {
-	if (!stage.isAllQueriesCompleted()) {
-		return;
-	}
 	//const std::string secret{ SIV3D_OBFUSCATE(SECRET_KEY) };
 	m_stageName = stage.m_name;
 	m_snapshot = stage.createSnapshot();
