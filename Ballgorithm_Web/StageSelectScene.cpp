@@ -11,7 +11,7 @@ StageSelectScene::StageSelectScene()
 		Scene::Height() - CardStartY - 20,  // viewHeight
 		RectF{ Arg::topRight(Scene::Width() - 2, CardStartY), 16, Scene::Height() - CardStartY - 20 }
 	);
-	m_usernameTextBox = TextBox(Vec2{ 15, 5 }, 200);
+	m_usernameTextBox = TextBox(Vec2{ 15, 25 }, 200);
 }
 
 RectF StageSelectScene::getCardRect(int32 index) const
@@ -50,11 +50,11 @@ void StageSelectScene::drawTitle() const
 	const Font& font = FontAsset(U"Regular");
 	const String title = U"SELECT STAGE";
 
-	RectF titleBg{ 0, 35, Scene::Width(), 80 };
+	RectF titleBg{ 0, 75, Scene::Width(), 80 };
 	titleBg.draw(ColorF(0.0, 0.25));
 
 	const double titleWidth = font(title).region(40).w;
-	const Vec2 titlePos{ Scene::Width() / 2.0 - titleWidth / 2.0, 75 };
+	const Vec2 titlePos{ Scene::Width() / 2.0 - titleWidth / 2.0, 115 };
 	font(title).draw(40, Arg::leftCenter = titlePos, ColorF(0.95));
 
 }
@@ -265,7 +265,7 @@ void StageSelectScene::update(Game& game, double dt)
 	{
 		const Font& font = FontAsset(U"Regular");
 		double usernameWidth = font(game.m_username).region(18).w;
-		RectF editBtn{ 20 + usernameWidth + 10, 5, 50, 28 };
+		RectF editBtn{ 20 + usernameWidth + 10, 25, 50, 28 };
 		if (editBtn.mouseOver())
 		{
 			Cursor::RequestStyle(CursorStyle::Hand);
@@ -282,7 +282,7 @@ void StageSelectScene::update(Game& game, double dt)
 
 	// Reset ボタン
 	{
-		RectF resetBtn{ Scene::Width() - 90, 5, 70, 28 };
+		RectF resetBtn{ Scene::Width() - 90, 25, 70, 28 };
 		if (resetBtn.mouseOver())
 		{
 			Cursor::RequestStyle(CursorStyle::Hand);
@@ -307,7 +307,7 @@ void StageSelectScene::update(Game& game, double dt)
 	}
 
 	// スクロールバーのページ高さを更新
-	double pageHeight = CardStartY + stageCount * (CardHeight + CardSpacing) + 20;
+	double pageHeight = stageCount * (CardHeight + CardSpacing) + 20;
 	m_scrollBar.pageHeight = pageHeight;
 
 	// 現在の選択インデックスを保存（変更検知用）
@@ -498,7 +498,7 @@ void StageSelectScene::draw(const Game& game) const
 	{
 		const Font& font = FontAsset(U"Regular");
 		const String progressText = U"Cleared: {}/{}"_fmt(clearedCount, stages.size());
-		font(progressText).draw(28, Arg::rightCenter = Vec2{ Scene::Width() - 30, 75 }, ColorF(0.85, 0.9, 0.95));
+		font(progressText).draw(28, Arg::rightCenter = Vec2{ Scene::Width() - 30, 115 }, ColorF(0.85, 0.9, 0.95));
 	}
 
 	
@@ -519,10 +519,10 @@ void StageSelectScene::draw(const Game& game) const
 		}
 		else
 		{
-			font(game.m_username).draw(18, Arg::leftCenter = Vec2{ 20, 19 }, ColorF(0.85, 0.9, 0.95));
+			font(game.m_username).draw(18, Arg::leftCenter = Vec2{ 20, 39 }, ColorF(0.85, 0.9, 0.95));
 
 			double usernameWidth = font(game.m_username).region(18).w;
-			RectF editBtn{ 20 + usernameWidth + 10, 5, 50, 28 };
+			RectF editBtn{ 20 + usernameWidth + 10, 25, 50, 28 };
 			bool hovered = editBtn.mouseOver();
 			editBtn.rounded(6).draw(hovered ? ColorF(0.3, 0.45, 0.65) : ColorF(0.2, 0.3, 0.45));
 			editBtn.rounded(6).drawFrame(1, ColorF(0.4, 0.5, 0.6, 0.5));
@@ -533,7 +533,7 @@ void StageSelectScene::draw(const Game& game) const
 	// Reset ボタン描画
 	{
 		const Font& font = FontAsset(U"Regular");
-		RectF resetBtn{ Scene::Width() - 90, 5, 70, 28 };
+		RectF resetBtn{ Scene::Width() - 90, 25, 70, 28 };
 		bool hovered = resetBtn.mouseOver();
 		resetBtn.rounded(6).draw(hovered ? ColorF(0.6, 0.3, 0.3) : ColorF(0.45, 0.2, 0.2));
 		resetBtn.rounded(6).drawFrame(1, ColorF(0.6, 0.3, 0.3, 0.5));

@@ -121,7 +121,7 @@ void LeaderboardScene::update(Game& game, double dt)
 		m_isLoading = false;
 		m_loadFailed = m_records.empty();
 
-		double pageHeight = RankingStartY + m_records.size() * (RankingRowHeight + RankingRowSpacing) + 20;
+		double pageHeight = m_records.size() * (RankingRowHeight + RankingRowSpacing) + 20;
 		m_rankingScrollBar.pageHeight = pageHeight;
 	}
 
@@ -326,6 +326,72 @@ void LeaderboardScene::updateViewer(Game& game, double dt)
 {
 	auto& stage = *game.m_stages[m_stageIndex];
 
+
+	bool hasTwoFingerTouch = false;
+	// === 2本指タッチでカメラ操作（パン/ピンチ）===
+	// UI操作と衝突させないため、2本指がある間は cursorPos を消費してステージ編集入力を抑制する
+	{
+		auto touches = Touches.unused().presseds();
+		if (touches.size() >= 2)
+		{
+			hasTwoFingerTouch = true;
+			TouchInfo& t0 = touches.front();
+			TouchInfo& t1 = touches.back();
+
+			const Vec2 center = (t0.pos + t1.pos) * 0.5;
+			const double distance = (t0.pos - t1.pos).length();
+
+			const bool shouldStart = (!m_isTwoFingerGesturing)
+				|| (m_twoFingerId0 != t0.id)
+				|| (m_twoFingerId1 != t1.id);
+
+			if (shouldStart)
+			{
+				m_isTwoFingerGesturing = true;
+				m_twoFingerId0 = t0.id;
+				m_twoFingerId1 = t1.id;
+				m_prevTwoFingerCenter = center;
+				m_prevTwoFingerDistance = Max(10.0, distance);
+				m_twoFingerBaseDistance = Max(10.0, distance);
+				m_twoFingerBaseScale = m_viewerCamera.getScale();
+			}
+			else
+			{
+				// パン：中心の移動分だけカメラ中心を逆方向に動かす
+				const Vec2 deltaCenter = center - m_prevTwoFingerCenter;
+				if (deltaCenter != Vec2{ 0, 0 })
+				{
+					// deltaCenter はスクリーン座標なのでワールド座標に変換（scale に依存）
+					const Vec2 newCenter = m_viewerCamera.getCenter() - (deltaCenter / m_viewerCamera.getScale());
+					m_viewerCamera.setTargetCenter(newCenter);
+					m_viewerCamera.setCenter(newCenter);
+				}
+
+				// ピンチ：2点間距離の比率で scale 更新
+				const double safeBaseDist = Max(1.0, m_twoFingerBaseDistance);
+				const double ratio = Max(0.01, distance / safeBaseDist);
+				const double targetScale = m_twoFingerBaseScale * ratio;
+				m_viewerCamera.zoomAtImmediate(center, targetScale);
+
+				m_prevTwoFingerCenter = center;
+				m_prevTwoFingerDistance = Max(1.0, distance);
+			}
+
+			// 2本指ジェスチャー中は他の入力を抑制
+			t0.use();
+			t1.use();
+			// m_cursorPos.use();
+		}
+		else
+		{
+			m_isTwoFingerGesturing = false;
+			m_twoFingerId0 = -1;
+			m_twoFingerId1 = -1;
+			m_prevTwoFingerDistance = 0.0;
+			m_twoFingerBaseDistance = 1.0;
+		}
+	}
+
 	// クエリパネル更新
 	if (m_viewerQueryPanel.update(stage, m_cursorPos, dt)) {
 		m_singleQueryMode = true;
@@ -373,19 +439,19 @@ void LeaderboardScene::updateViewer(Game& game, double dt)
 		Cursor::RequestStyle(CursorStyle::Hand);
 	}
 
-	// Load ボタン
-	if (m_cursorPos.intersects_use(m_loadButtonRect)) {
-		if (MouseL.down() && !stage.m_isSimulationRunning) {
-			// 現在のスナップショット（他者の解法）をそのまま残してPlayingへ遷移
-			if (stage.m_isSimulationRunning) {
-				stage.endSimulation();
-			}
-			stage.resetQueryProgress();
-			game.loadLeaderboardSolution();
-			return;
-		}
-		Cursor::RequestStyle(CursorStyle::Hand);
-	}
+	//// Load ボタン
+	//if (m_cursorPos.intersects_use(m_loadButtonRect)) {
+	//	if (MouseL.down() && !stage.m_isSimulationRunning) {
+	//		// 現在のスナップショット（他者の解法）をそのまま残してPlayingへ遷移
+	//		if (stage.m_isSimulationRunning) {
+	//			stage.endSimulation();
+	//		}
+	//		stage.resetQueryProgress();
+	//		game.loadLeaderboardSolution();
+	//		return;
+	//	}
+	//	Cursor::RequestStyle(CursorStyle::Hand);
+	//}
 
 	// シミュレーション更新
 	if (stage.m_isSimulationRunning && !stage.m_isSimulationPaused) {
@@ -579,9 +645,9 @@ void LeaderboardScene::drawViewer(const Game& game) const
 	m_viewerQueryPanel.draw(stage);
 
 	// Load ボタン
-	{
+	/*{
 		bool enabled = !simRunning;
 		bool hovered = m_loadButtonRect.mouseOver();
 		drawButton(m_loadButtonRect, U"Load Solution", U"\uF019", ColorF(0.3, 0.5, 0.7), enabled, hovered, 14);
-	}
+	}*/
 }

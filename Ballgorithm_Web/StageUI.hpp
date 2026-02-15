@@ -85,12 +85,11 @@ private:
 
 	MyCamera2D m_camera{ Vec2(400, 300), 1.0, CameraControl::Wheel };
 	SingleUseCursorPos m_cursorPos;
-	SimpleWatch m_timeAfterMouseLDown;
-	SimpleWatch m_timeAfterObjectClicked;
+	SimpleWatch m_timeAfterMouseLDown{ 100s };
+	SimpleWatch m_timeAfterObjectClicked{ 100s };
 	bool m_isFirstMouseLDown = false;
 	Vec2 m_preMouseLDownPos{};
 	bool m_wasLineCreateMode = false;
-	SimpleWatch m_contextMenuDelayTimer;
 	bool m_delayContextMenuDraw = false;
 
 	double m_arrowKeyAccumulate = 0.0;
@@ -118,6 +117,9 @@ private:
 	bool m_tutorialWaitingForClick = false;
 	static constexpr double TutorialFadeInTime = 0.3;
 	
+	// Share ボタン状態
+	enum class ShareStatus { Idle, Sending, Done } m_shareStatus = ShareStatus::Idle;
+
 	// クリア演出用
 	bool m_showClearEffect = false;
 	double m_clearEffectTime = 0.0;

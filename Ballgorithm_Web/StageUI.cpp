@@ -149,6 +149,9 @@ void StageUI::onStageEdited(Stage& stage)
 	pushUndoState(stage);
 
 	stage.resetQueryProgress();
+
+	// Share 状態をリセット
+	m_shareStatus = ShareStatus::Idle;
 }
 
 void StageUI::pasteFromClipboard(Stage& stage)
@@ -297,6 +300,11 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 		m_shareButtonRect = RectF{ rightX, iconBtnY, iconBtnSize, iconBtnSize };
 		rightX -= iconBtnSize + iconBtnGap;
 		m_leaderboardButtonRect = RectF{ rightX, iconBtnY, iconBtnSize, iconBtnSize };
+	}
+
+	// Share タスク完了チェック
+	if (m_shareStatus == ShareStatus::Sending && game.m_postTaskToShare.isEmpty()) {
+		m_shareStatus = ShareStatus::Done;
 	}
 
 	// ダブルクリック検出（最初に行う）
@@ -785,9 +793,10 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 
 		// Share ボタン
 		if (m_cursorPos.intersects_use(m_shareButtonRect)) {
-			if (MouseL.down()) {
+			if (MouseL.down() && m_shareStatus == ShareStatus::Idle) {
 				auto record = StageRecord(stage, game.m_username);
 				game.m_postTaskToShare = record.createPostTask(true);
+				m_shareStatus = ShareStatus::Sending;
 			}
 			Cursor::RequestStyle(CursorStyle::Hand);
 		}
@@ -1303,7 +1312,24 @@ void StageUI::draw(const Stage& stage) const
 		bool leaderboardHovered = m_leaderboardButtonRect.mouseOver();
 		bool shareHovered = m_shareButtonRect.mouseOver();
 		drawIconButton(m_leaderboardButtonRect, U"\uF091", ColorF(0.3, 0.45, 0.65), iconEnabled, leaderboardHovered);
-		drawIconButton(m_shareButtonRect, U"\uF1E0", ColorF(0.3, 0.45, 0.65), iconEnabled, shareHovered);
+
+		if (m_shareStatus == ShareStatus::Sending) {
+			// スピナー表示
+			drawIconButton(m_shareButtonRect, U"\uF1E0", ColorF(0.3, 0.45, 0.65), false, false);
+			const double angle = Scene::Time() * 360.0;
+			const Vec2 c = m_shareButtonRect.center();
+			const double r = 12.0;
+			for (int i = 0; i < 8; ++i) {
+				double a = ToRadians(angle + i * 45.0);
+				double alpha = (8 - i) / 8.0;
+				Circle{ c + Vec2{ Cos(a), Sin(a) } * r, 2.5 }.draw(ColorF(0.7, 0.85, 1.0, alpha));
+			}
+		} else if (m_shareStatus == ShareStatus::Done) {
+			// チェックマーク表示
+			drawIconButton(m_shareButtonRect, U"\uF00C", ColorF(0.2, 0.6, 0.3), true, shareHovered);
+		} else {
+			drawIconButton(m_shareButtonRect, U"\uF1E0", ColorF(0.3, 0.45, 0.65), iconEnabled, shareHovered);
+		}
 	}
 
 	// Inventory bar (no simulation)

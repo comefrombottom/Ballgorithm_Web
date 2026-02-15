@@ -47,6 +47,15 @@ private:
 	QueryPanel m_viewerQueryPanel;
 	bool m_singleQueryMode = false;
 
+	// タッチ 2本指ジェスチャー（パン/ピンチ）
+	bool m_isTwoFingerGesturing = false;
+	int32 m_twoFingerId0 = -1;
+	int32 m_twoFingerId1 = -1;
+	Vec2 m_prevTwoFingerCenter{ 0, 0 };
+	double m_prevTwoFingerDistance = 0.0;
+	double m_twoFingerBaseScale = 1.0;
+	double m_twoFingerBaseDistance = 1.0;
+
 	// UI矩形
 	RectF m_backButtonRect{ 20, 10, 110, 50 };
 	RectF m_simulationStartButtonRect{ 0, 0, 0, 0 };
