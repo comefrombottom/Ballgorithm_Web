@@ -73,15 +73,21 @@ struct LayerObject {
 
 // プレイヤーが配置したボール（インベントリから）
 struct PlacedBall {
-	Circle circle;
+	Vec2 center;
 	BallKind kind;
+	bool isLocked = false;
+
+	PlacedBall() = default;
+
+	PlacedBall(const Vec2& center, BallKind kind, bool isLocked = false)
+		: center(center), kind(kind), isLocked(isLocked) {}
 
 	template <class Archive>
 	void SIV3D_SERIALIZE(Archive& archive)
 	{
-		archive(circle, kind);
+		archive(center, kind, isLocked);
 	}
-	
+
 	bool isSmall() const { return kind == BallKind::Small; }
 	bool isLarge() const { return kind == BallKind::Large; }
 };
@@ -175,7 +181,7 @@ struct PointEdgeGroup {
 			point += delta;
 		}
 		for (auto& placedBall : m_placedBalls) {
-			placedBall.circle.center += delta;
+			placedBall.center += delta;
 		}
 	}
 
@@ -194,6 +200,12 @@ struct PointEdgeGroup {
 		formatData.string += Format(value.m_groups);
 		formatData.string += U", PlacedBalls: ";
 		formatData.string += Format(value.m_placedBalls.size());
+	}
+
+	template <class Archive>
+	void SIV3D_SERIALIZE(Archive& archive)
+	{
+		archive(m_points, m_edges, m_groups, m_placedBalls);
 	}
 };
 
@@ -383,12 +395,13 @@ struct SelectedIDSet {
 	Vec2 getBottomRightOfSelectedObjects(const Stage& stage) const;
 	bool isMovedSelectedNotInNonEditableArea(const Stage& stage, const Vec2& delta) const;
 	void moveSelectedObjects(Stage& stage, const Vec2& delta) const;
+	void flipHorizontalSelectedObjects(Stage& stage) const;
 	
 	// 選択操作
-	void selectAllObjects(Stage& stage);
-	void selectObjectsByPoints(Stage& stage, const HashSet<int32>& pointIds);
-	void selectPlacedBallsByIds(Stage& stage, const HashSet<int32>& ballIds);
-	void selectObjectsInArea(Stage& stage, const RectF& area);
+	void selectAllObjects(const Stage& stage);
+	void selectObjectsByPoints(const Stage& stage, const HashSet<int32>& pointIds);
+	void selectPlacedBallsByIds(const Stage& stage, const HashSet<int32>& ballIds);
+	void selectObjectsInArea(const Stage& stage, const RectF& area);
 	
 	friend void Formatter(FormatData& formatData, const SelectedIDSet& value)
 	{

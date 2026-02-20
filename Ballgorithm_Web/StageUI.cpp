@@ -169,80 +169,9 @@ void StageUI::pasteFromClipboard(Stage& stage)
 		}
 	}
 
-	HashSet<int32> newSelectedPointIds;
-	HashTable<int32, int32> pointIdMapping;
-	HashSet<int32> usedNewPointIds;
-	HashSet<int32> usedOldPointIds;
-	for (const auto& [oldPointId, pos] : m_clipboard.m_points) {
-		int32 newPointId = stage.m_nextPointId++;
-		pointIdMapping[oldPointId] = newPointId;
-		stage.m_points[newPointId] = pos;
-		newSelectedPointIds.insert(newPointId);
-	}
-	for (const auto& edge : m_clipboard.m_edges) {
-		const Vec2 p1 = stage.m_points.at(pointIdMapping.at(edge[0]));
-		const Vec2 p2 = stage.m_points.at(pointIdMapping.at(edge[1]));
-		Line newLine{ p1, p2 };
-		if (!stage.isLineAllowedInEditableArea(newLine)) {
-			continue;
-		}
-		Edge newEdge = { { pointIdMapping.at(edge[0]), pointIdMapping.at(edge[1]) } };
-		int32 edgeIndex = stage.m_edges.size();
-		stage.m_edges.push_back(newEdge);
-		stage.m_layerOrder.push_back(LayerObject{ LayerObjectType::Edge, edgeIndex });
-		usedNewPointIds.insert(pointIdMapping.at(edge[0]));
-		usedNewPointIds.insert(pointIdMapping.at(edge[1]));
-		usedOldPointIds.insert(edge[0]);
-		usedOldPointIds.insert(edge[1]);
-	}
-	// エッジに使われなかったポイントは反映しない（編集不可エリアで弾かれて孤立するケース対策）
-	for (const auto& [oldPointId, newPointId] : pointIdMapping) {
-		if (!usedNewPointIds.contains(newPointId)) {
-			stage.m_points.erase(newPointId);
-			newSelectedPointIds.erase(newPointId);
-		}
-	}
-	for (const auto& group : m_clipboard.m_groups) {
-		// エッジ制限で消えたポイントを含むグループはスキップ
-		bool ok = true;
-		for (auto oldPid : group.getAllPointIds()) {
-			if (!usedOldPointIds.contains(oldPid)) {
-				ok = false;
-				break;
-			}
-		}
-		if (ok) {
-			stage.createGroup(stage.mapGroupIDs(group, pointIdMapping));
-		}
-	}
-
-	auto& sel = m_editUI.selectedIDs();
-	sel.clear();
-	for (const auto& placedBall : m_clipboard.m_placedBalls) {
-		// インベントリに残数があるかチェック
-		BallKind ballKind = placedBall.kind;
-		bool canPlace = false;
-
-		// 対応するスロットを探して残数確認
-		for (int32 i = 0; i < stage.inventorySlots().size(); ++i) {
-			const auto& slot = stage.inventorySlots()[i];
-			if (slot.kind == InventoryObjectKind::Ball && slot.ballKind == ballKind && stage.canPlaceFromSlot(i)) {
-				// 配置可能なのでインベントリから使用
-				stage.useFromSlot(i);
-				canPlace = true;
-				break;
-			}
-		}
-
-		// 配置可能な場合のみステージに追加
-		if (canPlace) {
-			stage.addPlacedBall(placedBall);
-			sel.insert(SelectedID{ SelectType::PlacedBall, static_cast<int32>(stage.m_placedBalls.size()) - 1});
-		}
-	}
+	stage.pastePointEdgeGroup(m_clipboard, m_editUI.selectedIDs());
 
 	m_clipboard = oldClipboard;
-	sel.selectObjectsByPoints(stage, newSelectedPointIds);
 	onStageEdited(stage);
 }
 
@@ -307,8 +236,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 
 	// Share タスク完了チェック
 	if (m_shareStatus == ShareStatus::Sending && game.m_postTaskToShare.isEmpty()) {
-		m_shareURL = U"https://comefrombottom.github.io/Ballgorithm_Web?share={}"_fmt(game.m_shareCode);
-		m_shareStatus = ShareStatus::Ready;
+		m_shareStatus = ShareStatus::Done;
 	}
 
 	// ダブルクリック検出（最初に行う）
@@ -356,7 +284,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 				m_twoFingerBaseDistance = Max(10.0, distance);
 				m_twoFingerBaseScale = m_camera.getScale();
 			}
-			else
+			
 			{
 				// パン：中心の移動分だけカメラ中心を逆方向に動かす
 				const Vec2 deltaCenter = center - m_prevTwoFingerCenter;
@@ -630,7 +558,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 					return;
 				}
 				// allowed のときのみ配置
-				stage.addPlacedBall(PlacedBall{ Circle{ requestedPos, r }, ballKind });
+				stage.addPlacedBall(PlacedBall{ requestedPos, ballKind });
 			}
 			else {
 				// 既にステージ上にあったボールは、他の選択オブジェクト同様に「有効な座標」を探し続ける
@@ -663,7 +591,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 					}
 				}
 
-				stage.addPlacedBall(PlacedBall{ Circle{ bestPos, r }, ballKind });
+				stage.addPlacedBall(PlacedBall{ bestPos, ballKind });
 			}
 
 			// 配置したボールを選択状態にする
@@ -797,15 +725,10 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 
 		// Share ボタン
 		if (m_cursorPos.intersects_use(m_shareButtonRect)) {
-			if (MouseL.down()) {
-				if (m_shareStatus == ShareStatus::Idle) {
-					auto record = StageRecord(stage, game.m_username);
-					game.m_postTaskToShare = record.createPostTask(true);
-					m_shareStatus = ShareStatus::Sending;
-				} else if (m_shareStatus == ShareStatus::Ready) {
-					Clipboard::SetText(m_shareURL);
-					m_shareStatus = ShareStatus::Done;
-				}
+			if (MouseL.down() && m_shareStatus == ShareStatus::Idle) {
+				auto record = StageRecord(stage, game.m_username);
+				game.m_postTaskToShare = record.createPostTask(true);
+				m_shareStatus = ShareStatus::Sending;
 			}
 			Cursor::RequestStyle(CursorStyle::Hand);
 		}
@@ -1094,7 +1017,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 					m_contextMenu.openWithSelection(screenPos);
 				}
 			};
-			
+			PrintDebug(Cursor::Pos());
 			m_editUI.update(stage, isDoubleClicked, m_cursorPos, m_camera, [this](Stage& s) { onStageEdited(s); }, m_draggingBall, openContextMenuCallback, !m_dragModeToggle.isRangeSelectLeft(), hasTwoFingerTouch);
 
 			const bool isLineCreateMode = m_editUI.isLineCreateMode();
@@ -1335,9 +1258,6 @@ void StageUI::draw(const Stage& stage) const
 				double alpha = (8 - i) / 8.0;
 				Circle{ c + Vec2{ Cos(a), Sin(a) } * r, 2.5 }.draw(ColorF(0.7, 0.85, 1.0, alpha));
 			}
-		} else if (m_shareStatus == ShareStatus::Ready) {
-			// コピーアイコン表示（URLコピー待ち）
-			drawIconButton(m_shareButtonRect, U"\uF0C5", ColorF(0.3, 0.55, 0.75), true, shareHovered);
 		} else if (m_shareStatus == ShareStatus::Done) {
 			// チェックマーク表示
 			drawIconButton(m_shareButtonRect, U"\uF00C", ColorF(0.2, 0.6, 0.3), true, shareHovered);

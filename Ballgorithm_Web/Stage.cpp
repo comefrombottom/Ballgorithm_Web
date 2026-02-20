@@ -166,7 +166,7 @@ Vec2 Stage::getBeginPointOfGroup(const Group& group) const
 		return m_points.at(group.getBeginPointId());
 	}
 	else if (not group.m_placedBallIds.empty()) {
-		return m_placedBalls[*group.m_placedBallIds.begin()].circle.center;
+		return m_placedBalls[*group.m_placedBallIds.begin()].center;
 	}
 	else if (not group.m_startCircleIds.empty()) {
 		return m_startCircles[*group.m_startCircleIds.begin()].circle.center;
@@ -268,7 +268,7 @@ void Stage::deltaMoveGroup(const Group& group, const Vec2& deltaMove)
 	
 	auto allPlacedBallIds = group.getAllPlacedBallIds();
 	for (auto ballId : allPlacedBallIds) {
-		m_placedBalls[ballId].circle.center += deltaMove;
+		m_placedBalls[ballId].center += deltaMove;
 	}
 	
 	auto allStartCircleIds = group.getAllStartCircleIds();
@@ -339,23 +339,65 @@ void Stage::startSimulation()
 	m_startBallsInWorld.clear();
 
 	auto saveTask = saveAsync();
-	
-	// 壁（エッジ）を物理世界に追加
-	for (const auto& edge : m_edges) {
-		const Vec2& p1 = m_points.at(edge[0]);
-		const Vec2& p2 = m_points.at(edge[1]);
-		auto lineBody = createLine(m_world, P2Static, Line(p1, p2));
+
+	if (isQueriesInitialState()) {
+
+
+		m_initialLines.clear();
+		m_initialBalls.clear();
+
+
+		// 壁（エッジ）を物理世界に追加
+		for (const auto& edge : m_edges) {
+			const Vec2& p1 = m_points.at(edge[0]);
+			const Vec2& p2 = m_points.at(edge[1]);
+			Line line(p1, p2);
+			if (edge.isLocked or isLineAllowedInEditableArea(line)) {
+				m_initialLines.push_back(line);
+
+				//auto lineBody = createLine(m_world, P2Static, line);
+				//m_linesInWorld.push_back(lineBody);
+			}
+		}
+
+		// プレイヤーが配置したボールを物理世界に追加
+		// 種類ごとに maxCount を超えないようにカウント
+		HashTable<BallKind, int32> kindCounts;
+		for (const auto& placedBall : m_placedBalls) {
+			if (placedBall.isLocked) {
+				m_initialBalls.push_back(placedBall);
+				//P2Body ballBody = createCircle(m_world, P2Dynamic, Circle(placedBall.center, GetBallRadius(placedBall.kind)));
+				//m_startBallsInWorld.push_back(Ball{ ballBody, placedBall.kind });
+				continue;
+			}
+			if (isPointInNonEditableArea(placedBall.center)) continue;
+
+			const BallKind kind = placedBall.kind;
+			bool withinLimit = true;
+			for (const auto& slot : m_inventorySlots) {
+				if (slot.kind == InventoryObjectKind::Ball && slot.ballKind == kind && slot.maxCount) {
+					withinLimit = (kindCounts[kind] < *slot.maxCount);
+					break;
+				}
+			}
+			if (not withinLimit) continue;
+
+			++kindCounts[kind];
+			m_initialBalls.push_back(placedBall);
+			// P2Body ballBody = createCircle(m_world, P2Dynamic, Circle(placedBall.center, GetBallRadius(placedBall.kind)));
+			// m_startBallsInWorld.push_back(Ball{ ballBody, placedBall.kind });
+		}
+
+	}
+
+	for (const auto& line : m_initialLines) {
+		auto lineBody = createLine(m_world, P2Static, line);
 		m_linesInWorld.push_back(lineBody);
 	}
-	
-	// プレイヤーが配置したボールを物理世界に追加
-	for (const auto& placedBall : m_placedBalls) {
-		P2Body ballBody = createCircle(
-			m_world,
-			P2Dynamic,
-			placedBall.circle
-		);
-		m_startBallsInWorld.push_back(Ball{ ballBody, placedBall.kind });
+
+	for (const auto& circle : m_initialBalls) {
+		P2Body ballBody = createCircle(m_world, P2Dynamic, Circle(circle.center, GetBallRadius(circle.kind)));
+		m_startBallsInWorld.push_back(Ball{ ballBody, circle.kind });
 	}
 	
 	// クエリ固有のシミュレーション開始処理
@@ -408,7 +450,7 @@ double Stage::getLowestY() const
 	
 	// PlacedBalls
 	for (const auto& b : m_placedBalls) {
-		lowestY = Max(lowestY, b.circle.center.y + b.circle.r);
+		lowestY = Max(lowestY, b.center.y + GetBallRadius(b.kind));
 	}
 	
 	return lowestY;
@@ -487,6 +529,17 @@ bool Stage::isAllQueriesCompleted() const
 	return true;
 }
 
+bool Stage::isQueriesInitialState() const
+{
+	for (bool completed : m_queryCompleted) {
+		if (completed) return false;
+	}
+	for (bool failed : m_queryFailed) {
+		if (failed) return false;
+	}
+	return true;
+}
+
 StageSnapshot Stage::createSnapshot() const
 {
 	return StageSnapshot{
@@ -513,6 +566,100 @@ void Stage::restoreSnapshot(const StageSnapshot& snapshot)
 	m_inventorySlots = snapshot.inventorySlots;
 	m_layerOrder = snapshot.layerOrder;
 	m_nonEditableAreas = snapshot.nonEditableAreas;
+}
+
+PointEdgeGroup Stage::getAllSelectableObjectsAsPointEdgeGroup() const
+{
+	SelectedIDSet allSelectedIDs;
+	
+	allSelectedIDs.selectAllObjects(*this);
+
+	return copySelectedObjects(allSelectedIDs.m_ids);
+}
+
+void Stage::removeAllSelectableObjects()
+{
+	// すべてのオブジェクトを選択状態にしてから削除
+	SelectedIDSet allSelectedIDs;
+	allSelectedIDs.selectAllObjects(*this);
+	eraseSelectedPoints(allSelectedIDs.m_ids);
+}
+
+void Stage::pastePointEdgeGroup(const PointEdgeGroup& m_clipboard, SelectedIDSet& selectedIDs)
+{
+	HashSet<int32> newSelectedPointIds;
+	HashTable<int32, int32> pointIdMapping;
+	HashSet<int32> usedNewPointIds;
+	HashSet<int32> usedOldPointIds;
+	for (const auto& [oldPointId, pos] : m_clipboard.m_points) {
+		int32 newPointId = m_nextPointId++;
+		pointIdMapping[oldPointId] = newPointId;
+		m_points[newPointId] = pos;
+		newSelectedPointIds.insert(newPointId);
+	}
+	for (const auto& edge : m_clipboard.m_edges) {
+		const Vec2 p1 = m_points.at(pointIdMapping.at(edge[0]));
+		const Vec2 p2 = m_points.at(pointIdMapping.at(edge[1]));
+		Line newLine{ p1, p2 };
+		if (!isLineAllowedInEditableArea(newLine)) {
+			continue;
+		}
+		Edge newEdge = { { pointIdMapping.at(edge[0]), pointIdMapping.at(edge[1]) } };
+		int32 edgeIndex = m_edges.size();
+		m_edges.push_back(newEdge);
+		m_layerOrder.push_back(LayerObject{ LayerObjectType::Edge, edgeIndex });
+		usedNewPointIds.insert(pointIdMapping.at(edge[0]));
+		usedNewPointIds.insert(pointIdMapping.at(edge[1]));
+		usedOldPointIds.insert(edge[0]);
+		usedOldPointIds.insert(edge[1]);
+	}
+	// エッジに使われなかったポイントは反映しない（編集不可エリアで弾かれて孤立するケース対策）
+	for (const auto& [oldPointId, newPointId] : pointIdMapping) {
+		if (!usedNewPointIds.contains(newPointId)) {
+			m_points.erase(newPointId);
+			newSelectedPointIds.erase(newPointId);
+		}
+	}
+	for (const auto& group : m_clipboard.m_groups) {
+		// エッジ制限で消えたポイントを含むグループはスキップ
+		bool ok = true;
+		for (auto oldPid : group.getAllPointIds()) {
+			if (!usedOldPointIds.contains(oldPid)) {
+				ok = false;
+				break;
+			}
+		}
+		if (ok) {
+			createGroup(mapGroupIDs(group, pointIdMapping));
+		}
+	}
+
+	auto& sel = selectedIDs;
+	sel.clear();
+	for (const auto& placedBall : m_clipboard.m_placedBalls) {
+		// インベントリに残数があるかチェック
+		BallKind ballKind = placedBall.kind;
+		bool canPlace = false;
+
+		// 対応するスロットを探して残数確認
+		for (int32 i = 0; i < inventorySlots().size(); ++i) {
+			const auto& slot = inventorySlots()[i];
+			if (slot.kind == InventoryObjectKind::Ball && slot.ballKind == ballKind && canPlaceFromSlot(i)) {
+				// 配置可能なのでインベントリから使用
+				useFromSlot(i);
+				canPlace = true;
+				break;
+			}
+		}
+
+		// 配置可能な場合のみステージに追加
+		if (canPlace) {
+			addPlacedBall(placedBall);
+			sel.insert(SelectedID{ SelectType::PlacedBall, static_cast<int32>(m_placedBalls.size()) - 1 });
+		}
+	}
+
+	sel.selectObjectsByPoints(*this, newSelectedPointIds);
 }
 
 bool Stage::isPointInNonEditableArea(const Vec2& pos) const
@@ -544,6 +691,7 @@ bool Stage::isLineAllowedInEditableArea(const Line& line) const
 	return true;
 }
 
+
 void Stage::save() const
 {
 	auto task = saveAsync();
@@ -561,10 +709,13 @@ void Stage::load()
 	}
 
 	Deserializer<BinaryReader> deserializer{ path };
-	StageSnapshot snapshot{};
-	deserializer(snapshot);
+	PointEdgeGroup peg;
+	deserializer(peg);
 	deserializer(m_isCleared);
-	restoreSnapshot(snapshot);
+	removeAllSelectableObjects();
+	SelectedIDSet sid;
+	pastePointEdgeGroup(peg, sid);
+
 }
 
 AsyncTask<bool> Stage::saveAsync() const
@@ -572,7 +723,7 @@ AsyncTask<bool> Stage::saveAsync() const
 	{
 		Serializer<BinaryWriter> serializer{ U"Ballgorithm/VStages/{}.bin"_fmt(m_name) };
 
-		serializer(createSnapshot());
+		serializer(getAllSelectableObjectsAsPointEdgeGroup());
 		serializer(m_isCleared);
 	}
 
@@ -585,7 +736,7 @@ AsyncTask<bool> Stage::saveAsync() const
 
 int32 StageSnapshot::CalculateNumberOfObjects() const
 {
-	return edges.count_if([](const Edge& edge) { return !edge.isLocked; }) + placedBalls.size();
+	return edges.count_if([](const Edge& edge) { return !edge.isLocked; }) + placedBalls.count_if([](const PlacedBall& ball) { return !ball.isLocked; });
 }
 
 int32 StageSnapshot::CalculateTotalLength() const

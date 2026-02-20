@@ -18,6 +18,8 @@ namespace {
 			return U"\uF0EA";
 		case ContextMenuItemType::Run:
 			return U"\uF04B";
+		case ContextMenuItemType::FlipHorizontal:
+			return U"\uF07E";
 		default:
 			return U"";
 		}
@@ -31,12 +33,13 @@ void ContextMenu::openWithSelection(const Vec2& pos)
 	m_hoveredIndex = none;
 	m_alignRight = false;
 
-	// 選択ありメニュー: Copy, Delete, Group, Ungroup
+	// 選択ありメニュー: Copy, Delete, Group, Ungroup, FlipHorizontal
 	m_items.clear();
 	m_items.push_back({ ContextMenuItemType::Delete, U"Delete", true });
 	m_items.push_back({ ContextMenuItemType::Copy, U"Copy", true });
 	m_items.push_back({ ContextMenuItemType::Group, U"Group", true });
 	m_items.push_back({ ContextMenuItemType::Ungroup, U"Ungroup", true });
+	m_items.push_back({ ContextMenuItemType::FlipHorizontal, U"Flip Horizontal", true });
 }
 
 void ContextMenu::openWithSelectionAlignRight(const Vec2& pos)
@@ -46,12 +49,13 @@ void ContextMenu::openWithSelectionAlignRight(const Vec2& pos)
 	m_hoveredIndex = none;
 	m_alignRight = true;
 
-	// 選択ありメニュー: Copy, Delete, Group, Ungroup
+	// 選択ありメニュー: Copy, Delete, Group, Ungroup, FlipHorizontal
 	m_items.clear();
 	m_items.push_back({ ContextMenuItemType::Delete, U"Delete", true });
 	m_items.push_back({ ContextMenuItemType::Copy, U"Copy", true });
 	m_items.push_back({ ContextMenuItemType::Group, U"Group", true });
 	m_items.push_back({ ContextMenuItemType::Ungroup, U"Ungroup", true });
+	m_items.push_back({ ContextMenuItemType::FlipHorizontal, U"Flip Horizontal", true });
 }
 
 void ContextMenu::openWithSelectionClick(const Vec2& pos)
@@ -61,13 +65,14 @@ void ContextMenu::openWithSelectionClick(const Vec2& pos)
 	m_hoveredIndex = none;
 	m_alignRight = false;
 
-	// 選択ありメニュー: Copy, Delete, Group, Ungroup
+	// 選択ありメニュー: Copy, Delete, Group, Ungroup, FlipHorizontal
 	m_items.clear();
 	m_items.push_back({ ContextMenuItemType::Delete, U"Delete", true });
 	m_items.push_back({ ContextMenuItemType::Copy, U"Copy", true });
 	m_items.push_back({ ContextMenuItemType::Paste, U"Paste", true });
 	m_items.push_back({ ContextMenuItemType::Group, U"Group", true });
 	m_items.push_back({ ContextMenuItemType::Ungroup, U"Ungroup", true });
+	m_items.push_back({ ContextMenuItemType::FlipHorizontal, U"Flip Horizontal", true });
 }
 
 void ContextMenu::openWithoutSelection(const Vec2& pos)
@@ -119,6 +124,9 @@ Optional<ContextMenuItemType> ContextMenu::update(SingleUseCursorPos& cursorPos,
 			break;
 		case ContextMenuItemType::Run:
 			item.enabled = !isSimulationRunning;
+			break;
+		case ContextMenuItemType::FlipHorizontal:
+			item.enabled = hasSelection && !isSimulationRunning;
 			break;
 		}
 	}

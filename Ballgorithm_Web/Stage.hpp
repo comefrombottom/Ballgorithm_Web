@@ -107,6 +107,8 @@ public:
 	P2World m_world;
 	Array<P2Body> m_linesInWorld;
 	Array<Ball> m_startBallsInWorld;
+	Array<Line> m_initialLines;
+	Array<PlacedBall> m_initialBalls;
 	double m_simulationTimeAccumlate = 0.0;
 	static constexpr double simulationTimeStep = 1.0 / 60.0;
 	bool m_isSimulationRunning = false;
@@ -173,6 +175,7 @@ public:
 	void markQueryCompleted(int32 queryIndex);
 	void markQueryFailed(int32 queryIndex);
 	bool isAllQueriesCompleted() const;
+	bool isQueriesInitialState() const;
 	
 	// 編集不可エリア操作
 	void addNonEditableArea(const RectF& rect) { m_nonEditableAreas.push_back(rect); }
@@ -183,6 +186,10 @@ public:
 	// Undo/Redo用スナップショット
 	StageSnapshot createSnapshot() const;
 	void restoreSnapshot(const StageSnapshot& snapshot);
+
+	PointEdgeGroup getAllSelectableObjectsAsPointEdgeGroup() const;
+	void removeAllSelectableObjects();
+	void pastePointEdgeGroup(const PointEdgeGroup& group, SelectedIDSet& selectedIDs);
 
 	void save() const;
 	void load();

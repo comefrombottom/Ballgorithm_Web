@@ -15,6 +15,7 @@ enum class ContextMenuItemType {
 	CameraReset,
 	Paste,
 	Run,
+	FlipHorizontal,
 };
 
 struct ContextMenuItem {

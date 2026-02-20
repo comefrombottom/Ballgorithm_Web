@@ -194,7 +194,8 @@ void StageEditUI::updateHoverInfo(Stage& stage, SingleUseCursorPos& cursorPos)
 		switch (obj.type) {
 		case LayerObjectType::PlacedBall: {
 			const auto& ball = stage.m_placedBalls[obj.id];
-			if (cursorPos.eval_use([&](Vec2 pos) { return ball.circle.contains(pos); })) {
+			if (ball.isLocked) break;
+			if (cursorPos.eval_use([&](Vec2 pos) { return Circle(ball.center, GetBallRadius(ball.kind)).contains(pos); })) {
 				if (auto topGroupId = stage.findTopGroupForPlacedBall(obj.id)) {
 					m_hoveredInfo = HoverInfo{ HoverType::Group, *topGroupId };
 				}
@@ -329,9 +330,9 @@ void StageEditUI::updateDragObject(Stage& stage, SingleUseCursorPos& cursorPos, 
 					else {
 						// 単体PlacedBallを掴んだ場合はdraggingBallに移動
 						const auto& ball = stage.m_placedBalls[placedBallId];
-						Vec2 grabOffset = ball.circle.center - Cursor::PosF();
+						Vec2 grabOffset = ball.center - Cursor::PosF();
 						// クリック時のスクリーン座標を保存（カメラ変換前の座標が必要なのでワールド座標を保存)
-						draggingBall = DraggingBallInfo{ ball.kind, 0, placedBallId, grabOffset, ball.circle.center, Cursor::PosF() };
+						draggingBall = DraggingBallInfo{ ball.kind, 0, placedBallId, grabOffset, ball.center, Cursor::PosF() };
 						
 						// ステージからボールを削除（インデックスは保持)
 						stage.removePlacedBall(placedBallId);
@@ -776,11 +777,12 @@ void StageEditUI::drawWorld(const Stage& stage, const MyCamera2D& camera) const
 				frameColor = ColorF(1.0, 0.8, 0.4);
 			}
 
-			Circle shadow{ placedBall.circle.center + Vec2{3, 3}, placedBall.circle.r };
+			Circle ballCircle{ placedBall.center, GetBallRadius(placedBall.kind) };
+			Circle shadow{ placedBall.center + Vec2{3, 3}, ballCircle.r };
 			shadow.draw(ColorF(0.0, 0.3));
 
-			placedBall.circle.draw(color);
-			placedBall.circle.drawFrame(2.5 / Graphics2D::GetMaxScaling(), frameColor);
+			ballCircle.draw(color);
+			ballCircle.drawFrame(2.5 / Graphics2D::GetMaxScaling(), frameColor);
 			break;
 		}
 		case LayerObjectType::Edge: {

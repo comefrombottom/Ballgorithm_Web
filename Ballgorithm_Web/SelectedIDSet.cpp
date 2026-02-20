@@ -97,7 +97,7 @@ Optional<Vec2> SelectedIDSet::getBeginPointOfSelectedObjects(const Stage& stage)
 	}
 	for (const auto& s : m_ids) {
 		if (s.type == SelectType::PlacedBall) {
-			return stage.m_placedBalls[s.id].circle.center;
+			return stage.m_placedBalls[s.id].center;
 		}
 	}
 	return none;
@@ -125,8 +125,8 @@ Vec2 SelectedIDSet::getBottomRightOfSelectedObjects(const Stage& stage) const
 			auto allPlacedBallIds = group.getAllPlacedBallIds();
 			for (auto ballId : allPlacedBallIds) {
 				const auto& ball = stage.m_placedBalls[ballId];
-				maxX = Max(maxX, ball.circle.center.x + ball.circle.r);
-				maxY = Max(maxY, ball.circle.center.y + ball.circle.r);
+				maxX = Max(maxX, ball.center.x + GetBallRadius(ball.kind));
+				maxY = Max(maxY, ball.center.y + GetBallRadius(ball.kind));
 			}
 			auto allStartCircleIds = group.getAllStartCircleIds();
 			for (auto scId : allStartCircleIds) {
@@ -153,8 +153,8 @@ Vec2 SelectedIDSet::getBottomRightOfSelectedObjects(const Stage& stage) const
 		}
 		else if (s.type == SelectType::PlacedBall) {
 			const auto& ball = stage.m_placedBalls[s.id];
-			maxX = Max(maxX, ball.circle.center.x + ball.circle.r);
-			maxY = Max(maxY, ball.circle.center.y + ball.circle.r);
+			maxX = Max(maxX, ball.center.x + GetBallRadius(ball.kind));
+			maxY = Max(maxY, ball.center.y + GetBallRadius(ball.kind));
 		}
 	}
 	
@@ -218,7 +218,7 @@ bool SelectedIDSet::isMovedSelectedNotInNonEditableArea(const Stage& stage, cons
 			if (stage.isPointInNonEditableArea(newPos)) return false;
 		}
 		else if (s.type == SelectType::PlacedBall) {
-			const Vec2 newCenter = stage.m_placedBalls[s.id].circle.center + delta;
+			const Vec2 newCenter = stage.m_placedBalls[s.id].center + delta;
 			if (stage.isPointInNonEditableArea(newCenter)) return false;
 		}
 	}
@@ -237,7 +237,7 @@ bool SelectedIDSet::isMovedSelectedNotInNonEditableArea(const Stage& stage, cons
 			if (stage.isPointInNonEditableArea(newPos)) return false;
 		}
 		for (auto bid : g.getAllPlacedBallIds()) {
-			const Vec2 newCenter = stage.m_placedBalls[bid].circle.center + delta;
+			const Vec2 newCenter = stage.m_placedBalls[bid].center + delta;
 			if (stage.isPointInNonEditableArea(newCenter)) return false;
 		}
 	}
@@ -268,7 +268,7 @@ void SelectedIDSet::moveSelectedObjects(Stage& stage, const Vec2& delta) const
 			}
 			auto placedBallIds = group.getAllPlacedBallIds();
 			for (auto bid : placedBallIds) {
-				stage.m_placedBalls[bid].circle.center += delta;
+				stage.m_placedBalls[bid].center += delta;
 			}
 			break;
 		}
@@ -279,13 +279,176 @@ void SelectedIDSet::moveSelectedObjects(Stage& stage, const Vec2& delta) const
 			stage.m_goalAreas[s.id].rect.pos += delta;
 			break;
 		case SelectType::PlacedBall:
-			stage.m_placedBalls[s.id].circle.center += delta;
+			stage.m_placedBalls[s.id].center += delta;
 			break;
 		}
 	}
 }
 
-void SelectedIDSet::selectAllObjects(Stage& stage)
+void SelectedIDSet::flipHorizontalSelectedObjects(Stage& stage) const
+{
+	// Compute bounding box X extents of all selected objects
+	double minX = Inf<double>;
+	double maxX = -Inf<double>;
+
+	auto expandX = [&](double x) {
+		minX = Min(minX, x);
+		maxX = Max(maxX, x);
+	};
+
+	for (const auto& s : m_ids) {
+		switch (s.type) {
+		case SelectType::Point:
+			expandX(stage.m_points.at(s.id).x);
+			break;
+		case SelectType::Group: {
+			const auto& group = stage.m_groups.at(s.id);
+			for (auto pid : group.getAllPointIds())
+				expandX(stage.m_points.at(pid).x);
+			for (auto bid : group.getAllPlacedBallIds()) {
+				const auto& ball = stage.m_placedBalls[bid];
+				expandX(ball.center.x - GetBallRadius(ball.kind));
+				expandX(ball.center.x + GetBallRadius(ball.kind));
+			}
+			for (auto cid : group.getAllStartCircleIds()) {
+				const auto& sc = stage.m_startCircles[cid];
+				expandX(sc.circle.center.x - sc.circle.r);
+				expandX(sc.circle.center.x + sc.circle.r);
+			}
+			for (auto gid : group.getAllGoalAreaIds()) {
+				const auto& ga = stage.m_goalAreas[gid];
+				expandX(ga.rect.x);
+				expandX(ga.rect.x + ga.rect.w);
+			}
+			break;
+		}
+		case SelectType::StartCircle: {
+			const auto& sc = stage.m_startCircles[s.id];
+			expandX(sc.circle.center.x - sc.circle.r);
+			expandX(sc.circle.center.x + sc.circle.r);
+			break;
+		}
+		case SelectType::GoalArea: {
+			const auto& ga = stage.m_goalAreas[s.id];
+			expandX(ga.rect.x);
+			expandX(ga.rect.x + ga.rect.w);
+			break;
+		}
+		case SelectType::PlacedBall: {
+			const auto& ball = stage.m_placedBalls[s.id];
+			expandX(ball.center.x - GetBallRadius(ball.kind));
+			expandX(ball.center.x + GetBallRadius(ball.kind));
+			break;
+		}
+		}
+	}
+
+	if (minX > maxX) return;
+
+	const double cx = (minX + maxX) * 0.5;
+	auto flipX = [&](double x) { return 2.0 * cx - x; };
+
+	// Check that all flipped positions are outside non-editable areas
+	if (!stage.nonEditableAreas().empty()) {
+		// Collect moved point IDs
+		HashSet<int32> movedPointIds;
+		for (const auto& s : m_ids) {
+			if (s.type == SelectType::Point) movedPointIds.insert(s.id);
+			else if (s.type == SelectType::Group) movedPointIds.merge(stage.m_groups.at(s.id).getAllPointIds());
+		}
+
+		// Check flipped point positions
+		for (auto pid : movedPointIds) {
+			const Vec2& pos = stage.m_points.at(pid);
+			if (stage.isPointInNonEditableArea({ flipX(pos.x), pos.y })) return;
+		}
+
+		// Check edges incident to moved points
+		if (!movedPointIds.empty()) {
+			for (const auto& e : stage.m_edges) {
+				if (e.isLocked) continue;
+				const bool end0Moved = movedPointIds.contains(e[0]);
+				const bool end1Moved = movedPointIds.contains(e[1]);
+				if (!(end0Moved || end1Moved)) continue;
+				const Vec2& pos0 = stage.m_points.at(e[0]);
+				const Vec2& pos1 = stage.m_points.at(e[1]);
+				Vec2 p0 = end0Moved ? Vec2{ flipX(pos0.x), pos0.y } : pos0;
+				Vec2 p1 = end1Moved ? Vec2{ flipX(pos1.x), pos1.y } : pos1;
+				if (!stage.isLineAllowedInEditableArea(Line{ p0, p1 })) return;
+			}
+		}
+
+		// Check other selected objects
+		for (const auto& s : m_ids) {
+			if (s.type == SelectType::StartCircle) {
+				const Vec2& c = stage.m_startCircles[s.id].circle.center;
+				if (stage.isPointInNonEditableArea({ flipX(c.x), c.y })) return;
+			}
+			else if (s.type == SelectType::GoalArea) {
+				const auto& ga = stage.m_goalAreas[s.id];
+				if (stage.isPointInNonEditableArea({ flipX(ga.rect.x + ga.rect.w), ga.rect.y })) return;
+			}
+			else if (s.type == SelectType::PlacedBall) {
+				const Vec2& c = stage.m_placedBalls[s.id].center;
+				if (stage.isPointInNonEditableArea({ flipX(c.x), c.y })) return;
+			}
+		}
+
+		// Check group non-point members
+		for (const auto& s : m_ids) {
+			if (s.type != SelectType::Group) continue;
+			const auto& g = stage.m_groups.at(s.id);
+			for (auto cid : g.getAllStartCircleIds()) {
+				const Vec2& c = stage.m_startCircles[cid].circle.center;
+				if (stage.isPointInNonEditableArea({ flipX(c.x), c.y })) return;
+			}
+			for (auto gid : g.getAllGoalAreaIds()) {
+				const auto& ga = stage.m_goalAreas[gid];
+				if (stage.isPointInNonEditableArea({ flipX(ga.rect.x + ga.rect.w), ga.rect.y })) return;
+			}
+			for (auto bid : g.getAllPlacedBallIds()) {
+				const Vec2& c = stage.m_placedBalls[bid].center;
+				if (stage.isPointInNonEditableArea({ flipX(c.x), c.y })) return;
+			}
+		}
+	}
+
+	// Apply horizontal flip
+	for (const auto& s : m_ids) {
+		switch (s.type) {
+		case SelectType::Point:
+			stage.m_points.at(s.id).x = flipX(stage.m_points.at(s.id).x);
+			break;
+		case SelectType::Group: {
+			const auto& group = stage.m_groups.at(s.id);
+			for (auto pid : group.getAllPointIds())
+				stage.m_points.at(pid).x = flipX(stage.m_points.at(pid).x);
+			for (auto bid : group.getAllPlacedBallIds())
+				stage.m_placedBalls[bid].center.x = flipX(stage.m_placedBalls[bid].center.x);
+			for (auto cid : group.getAllStartCircleIds())
+				stage.m_startCircles[cid].circle.center.x = flipX(stage.m_startCircles[cid].circle.center.x);
+			for (auto gid : group.getAllGoalAreaIds()) {
+				auto& ga = stage.m_goalAreas[gid];
+				ga.rect.x = flipX(ga.rect.x + ga.rect.w);
+			}
+			break;
+		}
+		case SelectType::StartCircle:
+			stage.m_startCircles[s.id].circle.center.x = flipX(stage.m_startCircles[s.id].circle.center.x);
+			break;
+		case SelectType::GoalArea: {
+			auto& ga = stage.m_goalAreas[s.id];
+			ga.rect.x = flipX(ga.rect.x + ga.rect.w);
+			break;
+		}
+		case SelectType::PlacedBall:
+			stage.m_placedBalls[s.id].center.x = flipX(stage.m_placedBalls[s.id].center.x);
+			break;
+		}
+	}
+}
+
+void SelectedIDSet::selectAllObjects(const Stage& stage)
 {
 	m_ids.clear();
 
@@ -319,11 +482,13 @@ void SelectedIDSet::selectAllObjects(Stage& stage)
 		}
 	}
 	for (int32 i = 0; i < stage.m_placedBalls.size(); ++i) {
-		m_ids.insert(SelectedID{ SelectType::PlacedBall, i });
+		if (!stage.m_placedBalls[i].isLocked) {
+			m_ids.insert(SelectedID{ SelectType::PlacedBall, i });
+		}
 	}
 }
 
-void SelectedIDSet::selectObjectsByPoints(Stage& stage, const HashSet<int32>& pointIds)
+void SelectedIDSet::selectObjectsByPoints(const Stage& stage, const HashSet<int32>& pointIds)
 {
 	HashSet<int32> group_candidates;
 	for (auto pointId : pointIds) {
@@ -341,7 +506,7 @@ void SelectedIDSet::selectObjectsByPoints(Stage& stage, const HashSet<int32>& po
 	}
 }
 
-void SelectedIDSet::selectPlacedBallsByIds(Stage& stage, const HashSet<int32>& ballIds)
+void SelectedIDSet::selectPlacedBallsByIds(const Stage& stage, const HashSet<int32>& ballIds)
 {
 	HashSet<int32> group_candidates;
 	for (auto ballId : ballIds) {
@@ -359,7 +524,7 @@ void SelectedIDSet::selectPlacedBallsByIds(Stage& stage, const HashSet<int32>& b
 	}
 }
 
-void SelectedIDSet::selectObjectsInArea(Stage& stage, const RectF& area)
+void SelectedIDSet::selectObjectsInArea(const Stage& stage, const RectF& area)
 {
 	Array<int32> areaPointIds;
 	Array<int32> areaStartCircleIds;
@@ -401,7 +566,8 @@ void SelectedIDSet::selectObjectsInArea(Stage& stage, const RectF& area)
 		}
 	}
 	for (int32 i = 0; i < stage.m_placedBalls.size(); ++i) {
-		if (area.intersects(stage.m_placedBalls[i].circle.center)) {
+		if (stage.m_placedBalls[i].isLocked) continue;
+		if (area.intersects(stage.m_placedBalls[i].center)) {
 			// グループに属している場合はグループ候補に追加
 			if (auto topGroupId = stage.findTopGroupForPlacedBall(i)) {
 				group_candidates.insert(*topGroupId);
@@ -442,7 +608,7 @@ void SelectedIDSet::selectObjectsInArea(Stage& stage, const RectF& area)
 		if (allMembersInArea) {
 			auto allPlacedBallIdsInGroup = group.getAllPlacedBallIds();
 			for (auto& memberId : allPlacedBallIdsInGroup) {
-				if (not area.contains(stage.m_placedBalls[memberId].circle.center)) { allMembersInArea = false; break; }
+				if (not area.contains(stage.m_placedBalls[memberId].center)) { allMembersInArea = false; break; }
 			}
 		}
 		

@@ -60,7 +60,25 @@ void Main()
 				}, 100);
 			}
 		});
+
+		{
+			let lastTouchendTime = 0;
+			addEventListener("touchend", () => {
+				lastTouchendTime = Date.now();
+			});
+			for (const eventType of["mousedown", "mouseup", "mousemove"]) {
+				addEventListener(eventType, e => {
+					// touchend の約 50ms 後にマウスイベントのエミュレーションが発生する
+					// それの誤検知を防ぐため、 touchend の 100ms 後までマウスイベントを無視する
+					if (Date.now() - lastTouchendTime < 100) {
+						e.stopImmediatePropagation();
+					}
+				}, true);
+			}
+		}
 	});
+
+
 
 	Platform::Web::IndexedDB::Init(U"Ballgorithm");
 # endif
