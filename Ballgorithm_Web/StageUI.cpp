@@ -124,6 +124,9 @@ void StageUI::onStageEnter(Stage& stage, bool isSameWithLastStage)
 
 	// share status をリセット
 	m_shareStatus = ShareStatus::Idle;
+
+	// シミュレーション速度を現在の設定に同期
+	stage.m_simulationSpeed = kSimulationSpeeds[m_speedIndex];
 }
 
 void StageUI::onStageExit(Stage& stage)
@@ -884,7 +887,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 #if SIV3D_PLATFORM(WEB)
 						Platform::Web::IndexedDB::SaveAsync();
 #endif // SIV3D_PLATFORM(WEB)
-						if (game.m_postTask.isEmpty())
+						if (game.m_postTask.isEmpty() and (not game.m_username.contains(U"nosender")))
 						{
 							game.m_postTask = StageRecord(stage, game.m_username).createPostTask();
 						}

@@ -2,6 +2,10 @@
 # include "Game.hpp"
 # include "Stage.hpp"
 
+namespace {
+	constexpr std::array<double, 4> kSimulationSpeeds = { 1.0, 2.0, 4.0, 8.0 };
+}
+
 LeaderboardScene::LeaderboardScene()
 {
 	Camera2DParameters params = m_viewerCamera.getParameters();
@@ -100,6 +104,7 @@ void LeaderboardScene::enterViewer(Game& game, int32 recordIndex)
 	layoutViewerUI();
 	m_viewerQueryPanel.onStageEnter(m_viewerStage);
 	m_singleQueryMode = false;
+	m_viewerStage.m_simulationSpeed = kSimulationSpeeds[m_speedIndex];
 }
 
 void LeaderboardScene::exitViewer()
@@ -421,15 +426,8 @@ void LeaderboardScene::updateViewer(Game& game, double dt)
 	// Fast Forward ボタン
 	if (m_cursorPos.intersects_use(m_simulationFastForwardButtonRect)) {
 		if (MouseL.down()) {
-			if (stage.m_simulationSpeed < 1.5) {
-				stage.m_simulationSpeed = 2.0;
-			}
-			else if (stage.m_simulationSpeed < 3.0) {
-				stage.m_simulationSpeed = 4.0;
-			}
-			else {
-				stage.m_simulationSpeed = 1.0;
-			}
+			m_speedIndex = (m_speedIndex + 1) % static_cast<int32>(kSimulationSpeeds.size());
+			stage.m_simulationSpeed = kSimulationSpeeds[m_speedIndex];
 		}
 		Cursor::RequestStyle(CursorStyle::Hand);
 	}
@@ -632,8 +630,8 @@ void LeaderboardScene::drawViewer(const Game& game) const
 
 	drawButton(m_simulationStopButtonRect, U"Stop", U"\uF04D", ColorF(0.7, 0.3, 0.3), simRunning, m_simulationStopButtonRect.mouseOver());
 
-	String ffText = U"{}x"_fmt(static_cast<int>(stage.m_simulationSpeed));
-	ColorF ffColor = stage.m_simulationSpeed > 1.5 ? ColorF(0.3, 0.6, 0.8) : ColorF(0.4, 0.5, 0.6);
+	String ffText = U"{}x"_fmt(static_cast<int>(kSimulationSpeeds[m_speedIndex]));
+	ColorF ffColor = m_speedIndex != 0 ? ColorF(0.3, 0.6, 0.8) : ColorF(0.4, 0.5, 0.6);
 	drawButton(m_simulationFastForwardButtonRect, ffText, U"\uF04E", ffColor, true, m_simulationFastForwardButtonRect.mouseOver());
 
 	// クエリパネル

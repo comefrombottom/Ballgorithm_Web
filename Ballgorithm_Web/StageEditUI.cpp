@@ -627,7 +627,6 @@ void StageEditUI::update(Stage& stage, bool isDoubleClicked, SingleUseCursorPos&
 	updateHoverInfo(stage, cursorPos);
 	updateDragObject(stage, cursorPos, onStageEdited, draggingBall, openContextMenu);
 	updateSelectArea(stage, cursorPos, openContextMenu, useRightDragSelect, cancelSelectArea);
-	PrintDebug(m_selectSingleLine);
 }
 
 void StageEditUI::drawWorld(const Stage& stage, const MyCamera2D& camera) const
@@ -892,5 +891,18 @@ void StageEditUI::drawWorld(const Stage& stage, const MyCamera2D& camera) const
 		RectF area = RectF{ tl, br - tl };
 		area.draw(ColorF(0.4, 0.6, 1.0, 0.15));
 		area.drawFrame(2 / Graphics2D::GetMaxScaling(), ColorF(0.5, 0.7, 1.0, 0.7));
+
+		Point d = Cursor::Pos() - m_selectAreaStart.value().asPoint();
+		const String sizeText = U"({}, {})"_fmt(d.x, d.y);
+		const auto& coordFont = FontAsset(U"Regular");
+		bool right = (Cursor::PosF().x >= m_selectAreaStart->x);
+		const Vec2 labelAnchor = Cursor::Pos();
+		const Vec2 labelCenter = labelAnchor + (right ? Vec2(18, -22) : Vec2(-18, -22));
+		const RectF textRgn = coordFont(sizeText).region(13);
+		const Vec2 drawPos = right ? Vec2{ labelCenter.x, labelCenter.y - textRgn.h / 2 }
+								   : Vec2{ labelCenter.x - textRgn.w, labelCenter.y - textRgn.h / 2 };
+		coordFont(sizeText).region(13, drawPos).stretched(4, 2).rounded(4).draw(ColorF(0.1, 0.12, 0.15, 0.85));
+		if (right) { coordFont(sizeText).draw(13, Arg::leftCenter = labelCenter, ColorF(0.9)); }
+		else { coordFont(sizeText).draw(13, Arg::rightCenter = labelCenter, ColorF(0.9)); }
 	}
 }

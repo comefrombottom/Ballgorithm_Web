@@ -48,6 +48,9 @@ private:
 	QueryPanel m_viewerQueryPanel;
 	bool m_singleQueryMode = false;
 
+	// シミュレーション速度
+	int32 m_speedIndex = 0;
+
 	// タッチ 2本指ジェスチャー（パン/ピンチ）
 	bool m_isTwoFingerGesturing = false;
 	int32 m_twoFingerId0 = -1;
