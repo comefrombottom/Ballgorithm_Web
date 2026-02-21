@@ -395,7 +395,7 @@ struct SelectedIDSet {
 	Vec2 getBottomRightOfSelectedObjects(const Stage& stage) const;
 	bool isMovedSelectedNotInNonEditableArea(const Stage& stage, const Vec2& delta) const;
 	void moveSelectedObjects(Stage& stage, const Vec2& delta) const;
-	void flipHorizontalSelectedObjects(Stage& stage) const;
+	bool flipHorizontalSelectedObjects(Stage& stage) const;
 	
 	// 選択操作
 	void selectAllObjects(const Stage& stage);

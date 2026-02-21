@@ -285,7 +285,7 @@ void SelectedIDSet::moveSelectedObjects(Stage& stage, const Vec2& delta) const
 	}
 }
 
-void SelectedIDSet::flipHorizontalSelectedObjects(Stage& stage) const
+bool SelectedIDSet::flipHorizontalSelectedObjects(Stage& stage) const
 {
 	// Compute bounding box X extents of all selected objects
 	double minX = Inf<double>;
@@ -343,7 +343,7 @@ void SelectedIDSet::flipHorizontalSelectedObjects(Stage& stage) const
 		}
 	}
 
-	if (minX > maxX) return;
+	if (minX > maxX) return false;
 
 	const double cx = (minX + maxX) * 0.5;
 	auto flipX = [&](double x) { return 2.0 * cx - x; };
@@ -360,7 +360,7 @@ void SelectedIDSet::flipHorizontalSelectedObjects(Stage& stage) const
 		// Check flipped point positions
 		for (auto pid : movedPointIds) {
 			const Vec2& pos = stage.m_points.at(pid);
-			if (stage.isPointInNonEditableArea({ flipX(pos.x), pos.y })) return;
+			if (stage.isPointInNonEditableArea({ flipX(pos.x), pos.y })) return false;
 		}
 
 		// Check edges incident to moved points
@@ -374,7 +374,7 @@ void SelectedIDSet::flipHorizontalSelectedObjects(Stage& stage) const
 				const Vec2& pos1 = stage.m_points.at(e[1]);
 				Vec2 p0 = end0Moved ? Vec2{ flipX(pos0.x), pos0.y } : pos0;
 				Vec2 p1 = end1Moved ? Vec2{ flipX(pos1.x), pos1.y } : pos1;
-				if (!stage.isLineAllowedInEditableArea(Line{ p0, p1 })) return;
+				if (!stage.isLineAllowedInEditableArea(Line{ p0, p1 })) return false;
 			}
 		}
 
@@ -382,15 +382,15 @@ void SelectedIDSet::flipHorizontalSelectedObjects(Stage& stage) const
 		for (const auto& s : m_ids) {
 			if (s.type == SelectType::StartCircle) {
 				const Vec2& c = stage.m_startCircles[s.id].circle.center;
-				if (stage.isPointInNonEditableArea({ flipX(c.x), c.y })) return;
+				if (stage.isPointInNonEditableArea({ flipX(c.x), c.y })) return false;
 			}
 			else if (s.type == SelectType::GoalArea) {
 				const auto& ga = stage.m_goalAreas[s.id];
-				if (stage.isPointInNonEditableArea({ flipX(ga.rect.x + ga.rect.w), ga.rect.y })) return;
+				if (stage.isPointInNonEditableArea({ flipX(ga.rect.x + ga.rect.w), ga.rect.y })) return false;
 			}
 			else if (s.type == SelectType::PlacedBall) {
 				const Vec2& c = stage.m_placedBalls[s.id].center;
-				if (stage.isPointInNonEditableArea({ flipX(c.x), c.y })) return;
+				if (stage.isPointInNonEditableArea({ flipX(c.x), c.y })) return false;
 			}
 		}
 
@@ -400,15 +400,15 @@ void SelectedIDSet::flipHorizontalSelectedObjects(Stage& stage) const
 			const auto& g = stage.m_groups.at(s.id);
 			for (auto cid : g.getAllStartCircleIds()) {
 				const Vec2& c = stage.m_startCircles[cid].circle.center;
-				if (stage.isPointInNonEditableArea({ flipX(c.x), c.y })) return;
+				if (stage.isPointInNonEditableArea({ flipX(c.x), c.y })) return false;
 			}
 			for (auto gid : g.getAllGoalAreaIds()) {
 				const auto& ga = stage.m_goalAreas[gid];
-				if (stage.isPointInNonEditableArea({ flipX(ga.rect.x + ga.rect.w), ga.rect.y })) return;
+				if (stage.isPointInNonEditableArea({ flipX(ga.rect.x + ga.rect.w), ga.rect.y })) return false;
 			}
 			for (auto bid : g.getAllPlacedBallIds()) {
 				const Vec2& c = stage.m_placedBalls[bid].center;
-				if (stage.isPointInNonEditableArea({ flipX(c.x), c.y })) return;
+				if (stage.isPointInNonEditableArea({ flipX(c.x), c.y })) return false;
 			}
 		}
 	}
@@ -446,6 +446,7 @@ void SelectedIDSet::flipHorizontalSelectedObjects(Stage& stage) const
 			break;
 		}
 	}
+	return true;
 }
 
 void SelectedIDSet::selectAllObjects(const Stage& stage)

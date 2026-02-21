@@ -121,6 +121,9 @@ private:
 	enum class ShareStatus { Idle, Sending, Ready, Done } m_shareStatus = ShareStatus::Idle;
 	String m_shareURL;
 
+	// シミュレーション速度
+	int32 m_speedIndex = 0;
+
 	// クリア演出用
 	bool m_showClearEffect = false;
 	double m_clearEffectTime = 0.0;

@@ -78,8 +78,6 @@ void Main()
 		}
 	});
 
-
-
 	Platform::Web::IndexedDB::Init(U"Ballgorithm");
 # endif
 

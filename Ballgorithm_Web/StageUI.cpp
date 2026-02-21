@@ -4,6 +4,11 @@
 
 # include "IndexedDB.hpp"
 
+namespace {
+	// 速度レベルに対応する倍率テーブル（SimulationSpeedLevel の順に対応）
+	constexpr std::array<double, 4> kSimulationSpeeds = { 1.0, 2.0, 4.0, 8.0 };
+}
+
 StageUI::StageUI() {
 	Camera2DParameters params = m_camera.getParameters();
 	params.minScale = (1.0 / 8.0);
@@ -64,7 +69,7 @@ StageUI::StageUI() {
 
 	// インベントリUIの初期位置設定（画面下部）
 	// 実際の描画時に中央揃えされるが、ヒットテスト用にY座標と高さを設定しておく
-	m_inventoryUI.setBarRect(RectF(0, Scene::Height() - 90, Scene::Width(), 90));
+	m_inventoryUI.setBarRect(RectF(0, Scene::Height() - 110, Scene::Width(), 90));
 
 }
 
@@ -413,6 +418,11 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 					stage.startSimulation();
 				}
 				break;
+			case ContextMenuItemType::FlipHorizontal:
+				if (m_editUI.selectedIDs().flipHorizontalSelectedObjects(stage)) {
+					onStageEdited(stage);
+				}
+				break;
 			}
 		}
 		
@@ -459,9 +469,6 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 		}
 	}
 	
-	// インベントリUIの位置更新（ウィンドウサイズ変更対応）
-	m_inventoryUI.setBarRect(RectF(0, Scene::Height() - 90, Scene::Width(), 90));
-
 	// ドラッグモード切り替え（範囲選択 / カメラ移動）
 	{
 		const double toggleW = 140.0;
@@ -642,6 +649,13 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 		pasteFromClipboard(stage);
 	}
 
+	// Ctrl+X で切り取り
+	if (KeyControl.pressed() and KeyX.down() and not stage.m_isSimulationRunning) {
+		m_clipboard = stage.copySelectedObjects(m_editUI.selectedIDs().m_ids);
+		eraseSelection(stage);
+	}
+
+
 	// Ctrl+Z / Ctrl+Y で Undo/Redo
 	if (KeyControl.pressed() and KeyZ.down() and not stage.m_isSimulationRunning) {
 		undo(stage);
@@ -751,9 +765,9 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 	//	}
 	//	Cursor::RequestStyle(CursorStyle::Hand);
 	//}
-	//if (KeyBackspace.down() or KeyDelete.down()) { 
-	//	eraseSelection(stage);
-	//}
+	if (KeyBackspace.down() or KeyDelete.down()) { 
+		eraseSelection(stage);
+	}
 
 	// Paste ボタン
 	if (m_cursorPos.intersects_use(m_pasteButtonRect)) {
@@ -804,17 +818,8 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 	// Simulation Fast Forward ボタン
 	if (m_cursorPos.intersects_use(m_simulationFastForwardButtonRect)) {
 		if (MouseL.down()) {
-			// 速度を切り替え: 1x -> 2x -> 4x -> 1x
-			if (stage.m_simulationSpeed < 1.5) {
-				stage.m_simulationSpeed = 2.0;
-			}
-			else if (stage.m_simulationSpeed < 3.0) {
-				stage.m_simulationSpeed = 4.0;
-			}
-			else {
-				stage.m_simulationSpeed = 1.0;
-			}
-			// Console << U"Simulation Speed: {}x"_fmt(stage.m_simulationSpeed);
+			m_speedIndex = (m_speedIndex + 1) % static_cast<int32>(kSimulationSpeeds.size());
+			stage.m_simulationSpeed = kSimulationSpeeds[m_speedIndex];
 		}
 		Cursor::RequestStyle(CursorStyle::Hand);
 	}
@@ -856,6 +861,8 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 				bool wasAlreadyCleared = stage.m_isCleared;
 				
 				if (isSuccess) {
+					bool preAllCompleted = stage.isAllQueriesCompleted();
+
 					// Console << U"Query {} Success!"_fmt(completedQueryIndex + 1);
 					stage.markQueryCompleted(completedQueryIndex);
 					
@@ -865,7 +872,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 						startClearEffect();  // クリア演出を開始
 					}
 
-					if (stage.isAllQueriesCompleted()) {
+					if (not preAllCompleted && stage.isAllQueriesCompleted()) {
 						// TODO 
 						stage.save();
 #if SIV3D_PLATFORM(WEB)
@@ -1236,8 +1243,8 @@ void StageUI::draw(const Stage& stage) const
 	drawButton(m_simulationStopButtonRect, U"Stop", U"\uF04D", ColorF(0.7, 0.3, 0.3), simRunning, stopHovered);
 
 	bool ffHovered = m_simulationFastForwardButtonRect.mouseOver();
-	String ffText = U"{}x"_fmt(static_cast<int>(stage.m_simulationSpeed));
-	ColorF ffColor = stage.m_simulationSpeed > 1.5 ? ColorF(0.3, 0.6, 0.8) : ColorF(0.4, 0.5, 0.6);
+	String ffText = U"{}x"_fmt(static_cast<int>(kSimulationSpeeds[m_speedIndex]));
+	ColorF ffColor = m_speedIndex != 0 ? ColorF(0.3, 0.6, 0.8) : ColorF(0.4, 0.5, 0.6);
 	drawButton(m_simulationFastForwardButtonRect, ffText, U"\uF04E", ffColor, true, ffHovered);
 
 	// Leaderboard / Share icon buttons
@@ -1382,14 +1389,14 @@ void StageUI::draw(const Stage& stage) const
 	}
 
 	// 操作説明の表示
-	if (!stage.m_isSimulationRunning) {
+	/*if (!stage.m_isSimulationRunning) {
 		const Font& font = FontAsset(U"Regular");
 		Vec2 helpPos{ 20, 90 };
 		String helpText = U"Double-click: Create Line\nRight-click: Move Camera";
 		RectF bgRect = font(helpText).region(14, helpPos).stretched(8, 4);
 		bgRect.rounded(4).draw(ColorF(0.0, 0.25));
 		font(helpText).draw(14, helpPos, ColorF(0.8, 0.8, 0.9));
-	}
+	}*/
 	
 	// クリア演出の描画（最前面）
 	drawClearEffect();
