@@ -839,13 +839,15 @@ void StageEditUI::drawWorld(const Stage& stage, const MyCamera2D& camera) const
 						if ((direction - Floor(direction)).isZero()) {
 							Point direction_int = Floor(direction).asPoint();
 							bool right = (pointPos.x >= otherPointPos.x);
-							String coordText = U"{}/{}"_fmt(direction_int.x, direction_int.y);
-							Vec2 textPos = right ? pointPos + Vec2(20, -25) : pointPos + Vec2(-20 - FontAsset(U"Regular")(coordText).region(13).w, -25);
-							RectF textBg = FontAsset(U"Regular")(coordText).region(13, textPos);
-							textBg = textBg.stretched(4, 2);
-							textBg.rounded(4).draw(ColorF(0.1, 0.12, 0.15, 0.9));
-							if (right) { FontAsset(U"Regular")(coordText).draw(13, pointPos + Vec2(24, -23), ColorF(0.9)); }
-							else { FontAsset(U"Regular")(coordText).draw(13, pointPos + Vec2(-24 - FontAsset(U"Regular")(coordText).region(13).w, -23), ColorF(0.9)); }
+							const String coordText = U"({}, {})"_fmt(direction_int.x, direction_int.y);
+							const auto& coordFont = FontAsset(U"Regular");
+							const Vec2 labelCenter = pointPos + (right ? Vec2(18, -22) : Vec2(-18, -22));
+							const RectF textRgn = coordFont(coordText).region(13);
+							const Vec2 drawPos = right ? Vec2{ labelCenter.x, labelCenter.y - textRgn.h / 2 }
+													   : Vec2{ labelCenter.x - textRgn.w, labelCenter.y - textRgn.h / 2 };
+							coordFont(coordText).region(13, drawPos).stretched(4, 2).rounded(4).draw(ColorF(0.1, 0.12, 0.15, 0.9));
+							if (right) { coordFont(coordText).draw(13, Arg::leftCenter = labelCenter, ColorF(0.9)); }
+							else { coordFont(coordText).draw(13, Arg::rightCenter = labelCenter, ColorF(0.9)); }
 						}
 					}
 				}
@@ -873,9 +875,15 @@ void StageEditUI::drawWorld(const Stage& stage, const MyCamera2D& camera) const
 		if ((direction - Floor(direction)).isZero()) {
 			Point direction_int = Floor(direction).asPoint();
 			bool right = (end.x >= start.x);
-			const String coordText = U"{}/{}"_fmt(direction_int.x, direction_int.y);
-			if (right) { FontAsset(U"Regular")(coordText).draw(13, end + Vec2(20, -20), ColorF(0.7)); }
-			else { FontAsset(U"Regular")(coordText).draw(13, end + Vec2(-20 - FontAsset(U"Regular")(coordText).region(13).w, -20), ColorF(0.7)); }
+			const String coordText = U"({}, {})"_fmt(direction_int.x, direction_int.y);
+			const auto& coordFont = FontAsset(U"Regular");
+			const Vec2 labelCenter = end + (right ? Vec2(18, -22) : Vec2(-18, -22));
+			const RectF textRgn = coordFont(coordText).region(13);
+			const Vec2 drawPos = right ? Vec2{ labelCenter.x, labelCenter.y - textRgn.h / 2 }
+									   : Vec2{ labelCenter.x - textRgn.w, labelCenter.y - textRgn.h / 2 };
+			coordFont(coordText).region(13, drawPos).stretched(4, 2).rounded(4).draw(ColorF(0.1, 0.12, 0.15, 0.85));
+			if (right) { coordFont(coordText).draw(13, Arg::leftCenter = labelCenter, ColorF(0.9)); }
+			else { coordFont(coordText).draw(13, Arg::rightCenter = labelCenter, ColorF(0.9)); }
 		}
 	}
 	if (m_selectAreaStart) {

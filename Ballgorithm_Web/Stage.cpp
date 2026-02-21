@@ -700,7 +700,7 @@ void Stage::save(FilePath path) const
 #endif
 }
 
-void Stage::load(FilePath path, bool restoreClearFlag)
+void Stage::load(FilePath path)
 {
 	if (path.isEmpty()) {
 		path = U"Ballgorithm/V2Stages/{}.bin"_fmt(m_name);
@@ -720,9 +720,7 @@ void Stage::load(FilePath path, bool restoreClearFlag)
 			deserializer(peg);
 			bool isCleared;
 			deserializer(isCleared);
-			if (restoreClearFlag) {
-				m_isCleared = isCleared;
-			}
+			m_isCleared = isCleared;
 			removeAllSelectableObjects();
 			SelectedIDSet sid;
 			pastePointEdgeGroup(peg, sid);
@@ -780,6 +778,8 @@ void Stage::restoreRecord(const StageRecord& record)
 	m_goalAreas = record.m_goalAreas;
 	m_placedBalls = record.m_placedBalls;
 	m_nonEditableAreas = record.m_nonEditableAreas;
+	m_inventorySlots = record.m_inventorySlots;
+	m_layerOrder = record.m_layerOrder;
 }
 
 # include ".SECRET"
@@ -880,11 +880,12 @@ AsyncHTTPTask StageRecord::createPostTask()
 	const std::string url{ SIV3D_OBFUSCATE(LEADERBOARD_URL) };
 	URL requestURL = Unicode::Widen(url);
 
-	if (!m_author.all([](char32 c) { return IsASCII(c) && !IsControl(c); }))
+	if (m_author.empty() || !m_author.all([](char32 c) { return IsASCII(c) && !IsControl(c); }))
 	{
 		m_author = U"?";
 	}
 
+	intoBlobStr();
 	calculateHash();
 
 	JSON json{};
@@ -895,13 +896,13 @@ AsyncHTTPTask StageRecord::createPostTask()
 	json[U"stagename"] = m_stageName;
 	json[U"data"] = m_blobStr;
 	json[U"sig"] = m_hash.asString();
-	json[U"persistent"] = true;
+	json[U"persistent"] = false;
 
 	//Console << json;
 
 	auto code = json.formatUTF8Minimum();
 
-	return SimpleHTTP::PostAsync(requestURL, {}, code.data(), code.length() * sizeof(std::string::value_type), U"Temp/Ballgorithm/{}.json"_fmt(Time::GetMillisecSinceEpoch()));
+	return SimpleHTTP::PostAsync(requestURL, {}, code.data(), code.length() * sizeof(std::string::value_type));
 }
 
 AsyncHTTPTask StageRecord::CreateGetLeaderboradTask(String stageName)
@@ -961,7 +962,7 @@ AsyncHTTPTask StageSave::createPostTask()
 	json[U"version"] = 2;
 	json[U"stagename"] = name;
 	json[U"data"] = blobStr;
-	json[U"persistent"] = false;
+	json[U"persistent"] = true;
 
 	auto code = json.formatUTF8Minimum();
 
@@ -1008,7 +1009,11 @@ StageSave StageSave::ProcessGetTask(AsyncHTTPTask& task)
 			return {};
 		}
 
-		Deserializer<BinaryReader> deserializer(task.getFilePath());
+		auto json = task.getAsJSON();
+
+		auto blob = Base64::Decode(json[U"data"].getString());
+
+		Deserializer<MemoryReader> deserializer(blob);
 
 		int32 version;
 		deserializer(version);

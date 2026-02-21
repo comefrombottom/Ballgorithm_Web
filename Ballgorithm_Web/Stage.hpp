@@ -201,7 +201,7 @@ public:
 	void restoreRecord(const StageRecord& record);
 
 	void save(FilePath path = {}) const;
-	void load(FilePath path = {}, bool restoreClearFlag = false);
+	void load(FilePath path = {});
 
 	AsyncTask<bool> saveAsync(FilePath path = {}) const;
 };

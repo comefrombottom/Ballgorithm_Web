@@ -80,10 +80,15 @@ void Main()
 	Platform::Web::IndexedDB::Init(U"Ballgorithm");
 # endif
 
+	FontAsset::Register(U"Regular", FontMethod::MSDF, 30, Resource(U"font/mplus-1p-regular_ballgorithm.ttf"));
+	// FontAsset::Register(U"Regular", FontMethod::MSDF, 30);
+	FontAsset::Register(U"Bold", FontMethod::MSDF, 80, Resource(U"font/mplus-1p-bold_ballgorithm.ttf"));
+	// FontAsset::Register(U"Icon", FontMethod::MSDF, 18, U"font/fontawesome-solid_ballgorithm.otf");
+	// FontAsset::Register(U"Icon", FontMethod::MSDF, 18, U"font/fontawesome-solid.otf");
+	FontAsset::Register(U"Icon", FontMethod::MSDF, 18, Typeface::Icon_Awesome_Solid);
+
 	Game game;
-	FontAsset::Register(U"Regular", FontMethod::MSDF, 30);
-	FontAsset::Register(U"Bold", FontMethod::MSDF, 80, Typeface::Bold);
-	FontAsset::Register(U"Icon", FontMethod::MSDF, 24, Typeface::Icon_Awesome_Solid);
+	
 	Scene::SetBackground(ColorF(0.08, 0.1, 0.14));
 	//Scene::SetBackground(Palette::Papayawhip);
 
@@ -132,6 +137,7 @@ void Main()
 	{
 		ClearPrint();
 
+#if SIV3D_BUILD(DEBUG)
 		if (KeyR.down())
 		{
 			subTouchActive = true;
@@ -158,6 +164,9 @@ void Main()
 		{
 			Print << U"Touch: " << touch.id << U" Position: " << touch.pos << U" Up: " << touch.up << U" Down: " << touch.down;
 		}
+#else
+		Touches.update();
+#endif
 
 		if (KeyF11.down())
 		{

@@ -35,5 +35,5 @@ void TitleScene::draw() const
 
 	// Press Start
 	double alpha = (Math::Sin(m_time * 3.0) + 1.0) * 0.5 * 0.8 + 0.2;
-	FontAsset(U"Regular")(U"Press Enter or Click to Start").drawAt(24, Scene::Center().moveBy(0, 150), ColorF(1.0, alpha));
+	FontAsset(U"Regular")(U"Click to Start").drawAt(24, Scene::Center().moveBy(0, 150), ColorF(1.0, alpha));
 }

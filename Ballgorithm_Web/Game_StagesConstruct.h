@@ -135,7 +135,7 @@ void stagestagesConstruct_0(Array<std::unique_ptr<Stage>>& m_stages) {
 		stage->m_queries->push_back(std::move(query1));
 
 		stage->m_tutorialTexts = {
-			U"赤いエリアには新たに線を引くことが出来ません。",
+			U"赤いエリアには新たに線を引くことが出来ません",
 		};
 
 
