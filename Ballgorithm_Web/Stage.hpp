@@ -11,7 +11,6 @@ class Game;
 
 // Undo/Redo用のステージスナップショット
 struct StageSnapshot {
-	int32 version;
 	HashTable<int32, Vec2> points;
 	int32 nextPointId;
 	Array<Edge> edges;
@@ -21,32 +20,38 @@ struct StageSnapshot {
 	Array<InventorySlot> inventorySlots;
 	Array<LayerObject> layerOrder;
 	Array<RectF> nonEditableAreas;
-
-	int32 CalculateNumberOfObjects() const;
-	int32 CalculateTotalLength() const;
 };
 
-template <class Archive>
-inline void SIV3D_SERIALIZE_SAVE(Archive& archive, const StageSnapshot& snapshot)
+class StageSave
 {
-	archive(snapshot.version, snapshot.points, snapshot.nextPointId, snapshot.edges, snapshot.groups, snapshot.nextGroupId, snapshot.placedBalls, snapshot.inventorySlots, snapshot.layerOrder, snapshot.nonEditableAreas);
-}
+public:
+	String name;
+	PointEdgeGroup peg;
 
-template <class Archive>
-inline void SIV3D_SERIALIZE_LOAD(Archive& archive, StageSnapshot& snapshot)
-{
-	archive(snapshot.version);
-	if (snapshot.version == 0)
-	{
-		archive(snapshot.points, snapshot.nextPointId, snapshot.edges, snapshot.groups, snapshot.nextGroupId, snapshot.placedBalls, snapshot.inventorySlots, snapshot.layerOrder, snapshot.nonEditableAreas);
-	}
-}
+	StageSave() = default;
+	StageSave(const Stage& stage);
+
+	AsyncHTTPTask createPostTask();
+
+	static String ProcessPostTask(AsyncHTTPTask& task);
+	static AsyncHTTPTask CreateGetTask(String shareCode);
+	static StageSave ProcessGetTask(AsyncHTTPTask& task);
+};
 
 class StageRecord
 {
 public:
 	String m_stageName;
-	StageSnapshot m_snapshot;
+
+	HashTable<int32, Vec2> m_points;
+	Array<Edge> m_edges;
+	HashTable<int32, Group> m_groups;
+	Array<StartCircle> m_startCircles;
+	Array<GoalArea> m_goalAreas;
+	Array<PlacedBall> m_placedBalls;
+	Array<RectF> m_nonEditableAreas;
+	Array<InventorySlot> m_inventorySlots;
+	Array<LayerObject> m_layerOrder;
 
 	int32 m_numberOfObjects;
 	int32 m_totalLength;
@@ -62,18 +67,17 @@ public:
 
 	bool isValid() const;
 
+	void intoBlobStr();
+	void fromBlobStr();
+
 	void calculateHash();
 
 	void fromJSON(const JSON& json);
 
-	AsyncHTTPTask createPostTask(bool persistent);
+	AsyncHTTPTask createPostTask();
 
-	static AsyncHTTPTask createGetTask(String shareCode);
-	static AsyncHTTPTask createGetLeaderboradTask(String stageName);
-
-	static String processPostTask(AsyncHTTPTask& task);
-	static StageRecord processGetTask(AsyncHTTPTask& task);
-	static Array<StageRecord> processGetLeaderboardTask(AsyncHTTPTask& task);
+	static AsyncHTTPTask CreateGetLeaderboradTask(String stageName);
+	static Array<StageRecord> ProcessGetLeaderboardTask(AsyncHTTPTask& task);
 };
 
 
@@ -114,7 +118,7 @@ public:
 	bool m_isSimulationRunning = false;
 	bool m_isSimulationPaused = false;
 	double m_simulationSpeed = 1.0;  // 1.0 = 通常速度, 2.0以上 = 早送り
-	Array<std::unique_ptr<IQuery>> m_queries;
+	std::shared_ptr<Array<std::unique_ptr<IQuery>>> m_queries = std::make_shared<Array<std::unique_ptr<IQuery>>>();
 	int32 m_currentQueryIndex = 0;
 	
 	// クエリ達成状況
@@ -191,9 +195,14 @@ public:
 	void removeAllSelectableObjects();
 	void pastePointEdgeGroup(const PointEdgeGroup& group, SelectedIDSet& selectedIDs);
 
-	void save() const;
-	void load();
+	int32 CalculateNumberOfObjects() const;
+	int32 CalculateTotalLength() const;
 
-	AsyncTask<bool> saveAsync() const;
+	void restoreRecord(const StageRecord& record);
+
+	void save(FilePath path = {}) const;
+	void load(FilePath path = {}, bool restoreClearFlag = false);
+
+	AsyncTask<bool> saveAsync(FilePath path = {}) const;
 };
 

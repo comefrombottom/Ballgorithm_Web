@@ -401,8 +401,8 @@ void Stage::startSimulation()
 	}
 	
 	// クエリ固有のシミュレーション開始処理
-	if (m_currentQueryIndex < m_queries.size()) {
-		m_queries[m_currentQueryIndex]->startSimulation(*this);
+	if (m_currentQueryIndex < m_queries->size()) {
+		(*m_queries)[m_currentQueryIndex]->startSimulation(*this);
 	}
 
 #if SIV3D_PLATFORM(WEB)
@@ -412,8 +412,8 @@ void Stage::startSimulation()
 
 bool Stage::checkSimulationResult() const
 {
-	if (m_currentQueryIndex < m_queries.size()) {
-		return m_queries[m_currentQueryIndex]->checkSimulationResult(*this);
+	if (m_currentQueryIndex < m_queries->size()) {
+		return (*m_queries)[m_currentQueryIndex]->checkSimulationResult(*this);
 	}
 	return false;
 }
@@ -494,8 +494,8 @@ void Stage::returnToInventory(BallKind ballKind)
 
 void Stage::resetQueryProgress()
 {
-	m_queryCompleted.assign(m_queries.size(), false);
-	m_queryFailed.assign(m_queries.size(), false);
+	m_queryCompleted.assign(m_queries->size(), false);
+	m_queryFailed.assign(m_queries->size(), false);
 	m_currentQueryIndex = 0;
 	// m_isCleared = false;
 }
@@ -522,7 +522,7 @@ void Stage::markQueryFailed(int32 queryIndex)
 
 bool Stage::isAllQueriesCompleted() const
 {
-	if (m_queries.empty()) return false;
+	if (m_queries->empty()) return false;
 	for (bool completed : m_queryCompleted) {
 		if (!completed) return false;
 	}
@@ -692,37 +692,54 @@ bool Stage::isLineAllowedInEditableArea(const Line& line) const
 }
 
 
-void Stage::save() const
+void Stage::save(FilePath path) const
 {
-	auto task = saveAsync();
+	auto task = saveAsync(path);
 #if SIV3D_PLATFORM(WEB)
 	s3d::Platform::Web::System::AwaitAsyncTask(task).value_or(false);
 #endif
 }
 
-void Stage::load()
+void Stage::load(FilePath path, bool restoreClearFlag)
 {
-	const String path = U"Ballgorithm/VStages/{}.bin"_fmt(m_name);
+	if (path.isEmpty()) {
+		path = U"Ballgorithm/V2Stages/{}.bin"_fmt(m_name);
+	}
 
 	if (!FileSystem::Exists(path)) {
 		return;
 	}
 
-	Deserializer<BinaryReader> deserializer{ path };
-	PointEdgeGroup peg;
-	deserializer(peg);
-	deserializer(m_isCleared);
-	removeAllSelectableObjects();
-	SelectedIDSet sid;
-	pastePointEdgeGroup(peg, sid);
-
+	{
+		Deserializer<BinaryReader> deserializer{ path };
+		int32 version;
+		deserializer(version);
+		if (version == 2)
+		{
+			PointEdgeGroup peg;
+			deserializer(peg);
+			bool isCleared;
+			deserializer(isCleared);
+			if (restoreClearFlag) {
+				m_isCleared = isCleared;
+			}
+			removeAllSelectableObjects();
+			SelectedIDSet sid;
+			pastePointEdgeGroup(peg, sid);
+		}
+	}
 }
 
-AsyncTask<bool> Stage::saveAsync() const
+AsyncTask<bool> Stage::saveAsync(FilePath path) const
 {
-	{
-		Serializer<BinaryWriter> serializer{ U"Ballgorithm/VStages/{}.bin"_fmt(m_name) };
+	if (path.isEmpty()) {
+		path = U"Ballgorithm/V2Stages/{}.bin"_fmt(m_name);
+	}
 
+	{
+		Serializer<BinaryWriter> serializer{ path };
+		int32 version = 2;
+		serializer(version);
 		serializer(getAllSelectableObjectsAsPointEdgeGroup());
 		serializer(m_isCleared);
 	}
@@ -734,35 +751,54 @@ AsyncTask<bool> Stage::saveAsync() const
 #endif
 }
 
-int32 StageSnapshot::CalculateNumberOfObjects() const
+int32 Stage::CalculateNumberOfObjects() const
 {
-	return edges.count_if([](const Edge& edge) { return !edge.isLocked; }) + placedBalls.count_if([](const PlacedBall& ball) { return !ball.isLocked; });
+	return m_edges.count_if([](const Edge& edge) { return !edge.isLocked; }) + m_placedBalls.count_if([](const PlacedBall& ball) { return !ball.isLocked; });
 }
 
-int32 StageSnapshot::CalculateTotalLength() const
+int32 Stage::CalculateTotalLength() const
 {
 	double sum = 0;
-	for (const auto& edge : edges) {
+	for (const auto& edge : m_edges) {
 		if (!edge.isLocked)
 		{
-			const Vec2& p1 = points.at(edge[0]);
-			const Vec2& p2 = points.at(edge[1]);
+			const Vec2& p1 = m_points.at(edge[0]);
+			const Vec2& p2 = m_points.at(edge[1]);
 			sum += p1.distanceFrom(p2);
 		}
 	}
 	return sum;
 }
 
+void Stage::restoreRecord(const StageRecord& record)
+{
+	m_name = record.m_stageName;
+	m_points = record.m_points;
+	m_edges = record.m_edges;
+	m_groups = record.m_groups;
+	m_startCircles = record.m_startCircles;
+	m_goalAreas = record.m_goalAreas;
+	m_placedBalls = record.m_placedBalls;
+	m_nonEditableAreas = record.m_nonEditableAreas;
+}
+
 # include ".SECRET"
 
 StageRecord::StageRecord(const Stage& stage, String author)
 {
-	//const std::string secret{ SIV3D_OBFUSCATE(SECRET_KEY) };
 	m_stageName = stage.m_name;
-	m_snapshot = stage.createSnapshot();
-	m_numberOfObjects = m_snapshot.CalculateNumberOfObjects();
-	m_totalLength = m_snapshot.CalculateTotalLength();
 	m_author = author;
+	m_points = stage.m_points;
+	m_edges = stage.m_edges;
+	m_groups = stage.m_groups;
+	m_startCircles = stage.m_startCircles;
+	m_goalAreas = stage.m_goalAreas;
+	m_placedBalls = stage.m_placedBalls;
+	m_nonEditableAreas = stage.m_nonEditableAreas;
+	m_inventorySlots = stage.m_inventorySlots;
+	m_layerOrder = stage.m_layerOrder;
+	m_numberOfObjects = stage.CalculateNumberOfObjects();
+	m_totalLength = stage.CalculateTotalLength();
 }
 
 bool StageRecord::isValid() const
@@ -770,16 +806,32 @@ bool StageRecord::isValid() const
 	return !m_stageName.isEmpty() && m_hash != MD5Value();
 }
 
+void StageRecord::intoBlobStr()
+{
+	Serializer<MemoryWriter> archive;
+	int32 version = 2;
+	archive(version);
+	archive(m_points, m_edges, m_groups, m_startCircles, m_goalAreas, m_placedBalls, m_nonEditableAreas, m_inventorySlots, m_layerOrder);
+	m_blobStr = archive->getBlob().base64Str();
+}
+
+void StageRecord::fromBlobStr()
+{
+	Deserializer<MemoryReader> archive{ Base64::Decode(m_blobStr) };
+	int32 version;
+	archive(version);
+	if (version == 2)
+	{
+		archive(m_points, m_edges, m_groups, m_startCircles, m_goalAreas, m_placedBalls, m_nonEditableAreas, m_inventorySlots, m_layerOrder);
+	}
+}
+
 void StageRecord::calculateHash()
 {
+	static constexpr int32 version = 2;
 	try {
 		const std::string secret{ SIV3D_OBFUSCATE(SECRET_KEY) };
-		if (m_blobStr.isEmpty()) {
-			Serializer<MemoryWriter> serializer;
-			serializer(m_snapshot);
-			m_blobStr = serializer->getBlob().base64Str();
-		}
-		m_hash = MD5::FromText(String(U"{};{};{};{};{};{};{}"_fmt(m_stageName, m_numberOfObjects, m_totalLength, m_blobStr, m_snapshot.version, Unicode::Widen(secret), m_author)).toUTF8());
+		m_hash = MD5::FromText(String(U"{};{};{};{};{};{};{}"_fmt(m_stageName, m_numberOfObjects, m_totalLength, m_blobStr, version, Unicode::Widen(secret), m_author)).toUTF8());
 	}
 	catch (...) {
 		m_hash = MD5Value{};
@@ -794,27 +846,28 @@ void StageRecord::fromJSON(const JSON& json)
 		m_numberOfObjects = json[U"sc1"].get<int32>();
 		m_totalLength = json[U"sc2"].get<int32>();
 		m_blobStr = json[U"data"].getString();
-		m_snapshot.version = json[U"version"].get<int32>();
-		calculateHash();
-		MD5Value sig;
+		int32 version = json[U"version"].get<int32>();
+		if (version == 2)
 		{
-			auto md5Str = json[U"sig"].getString();
-			std::array<uint8, 16> md5Array;
-			// MD5値(String)をuint8のarrayに変換
-			for (int i = 0; i < 16; i++) {
-				md5Array[i] = ParseInt<uint8>(md5Str.substrView(i * 2, 2), Arg::radix = 16);
+			calculateHash();
+			MD5Value sig;
+			{
+				auto md5Str = json[U"sig"].getString();
+				std::array<uint8, 16> md5Array;
+				// MD5値(String)をuint8のarrayに変換
+				for (int i = 0; i < 16; i++) {
+					md5Array[i] = ParseInt<uint8>(md5Str.substrView(i * 2, 2), Arg::radix = 16);
+				}
+				sig = MD5Value{ md5Array };
 			}
-			sig = MD5Value{ md5Array };
-		}
-		// Console << sig;
-		// Console << m_hash;
-		if (sig == m_hash) {
-			const auto blob = Base64::Decode(m_blobStr);
-			Deserializer<MemoryReader> deserializer{ blob };
-			deserializer(m_snapshot);
-		}
-		else {
-			m_hash = MD5Value{};
+			// Console << sig;
+			// Console << m_hash;
+			if (sig == m_hash) {
+				fromBlobStr();
+			}
+			else {
+				m_hash = MD5Value{};
+			}
 		}
 	}
 	catch (...) {
@@ -822,7 +875,7 @@ void StageRecord::fromJSON(const JSON& json)
 	}
 }
 
-AsyncHTTPTask StageRecord::createPostTask(bool persistent)
+AsyncHTTPTask StageRecord::createPostTask()
 {
 	const std::string url{ SIV3D_OBFUSCATE(LEADERBOARD_URL) };
 	URL requestURL = Unicode::Widen(url);
@@ -835,14 +888,14 @@ AsyncHTTPTask StageRecord::createPostTask(bool persistent)
 	calculateHash();
 
 	JSON json{};
-	json[U"version"] = m_snapshot.version;
+	json[U"version"] = 2;
 	json[U"sc1"] = m_numberOfObjects;
 	json[U"sc2"] = m_totalLength;
 	json[U"username"] = m_author;
 	json[U"stagename"] = m_stageName;
 	json[U"data"] = m_blobStr;
 	json[U"sig"] = m_hash.asString();
-	json[U"persistent"] = persistent;
+	json[U"persistent"] = true;
 
 	//Console << json;
 
@@ -851,21 +904,78 @@ AsyncHTTPTask StageRecord::createPostTask(bool persistent)
 	return SimpleHTTP::PostAsync(requestURL, {}, code.data(), code.length() * sizeof(std::string::value_type), U"Temp/Ballgorithm/{}.json"_fmt(Time::GetMillisecSinceEpoch()));
 }
 
-AsyncHTTPTask StageRecord::createGetTask(String shareCode)
-{
-	const std::string url{ SIV3D_OBFUSCATE(LEADERBOARD_URL) };
-	URL requestURL = U"{}?code={}"_fmt(Unicode::Widen(url), shareCode);
-	return SimpleHTTP::GetAsync(requestURL, {}, U"Temp/Ballgorithm/{}.json"_fmt(Time::GetMillisecSinceEpoch()));
-}
-
-AsyncHTTPTask StageRecord::createGetLeaderboradTask(String stageName)
+AsyncHTTPTask StageRecord::CreateGetLeaderboradTask(String stageName)
 {
 	const std::string url{ SIV3D_OBFUSCATE(LEADERBOARD_URL) };
 	URL requestURL = U"{}?leaderboard={}"_fmt(Unicode::Widen(url), stageName);
 	return SimpleHTTP::GetAsync(requestURL, {}, U"Temp/Ballgorithm/{}.json"_fmt(Time::GetMillisecSinceEpoch()));
 }
 
-String StageRecord::processPostTask(AsyncHTTPTask& task)
+Array<StageRecord> StageRecord::ProcessGetLeaderboardTask(AsyncHTTPTask& task)
+{
+	Array<StageRecord> records;
+
+	try {
+		const auto& response = task.getResponse();
+		if (!response.isOK()) {
+			return records;
+		}
+
+		JSON json = task.getAsJSON();
+
+		for (const auto& item : json[U"records"]) {
+			records.push_back(StageRecord());
+			records.back().fromJSON(item.value);
+			if (!records.back().isValid()) {
+				records.pop_back();
+			}
+		}
+
+		return records;
+	}
+	catch (...) {
+		return records;
+	}
+}
+
+StageSave::StageSave(const Stage& stage)
+{
+	name = stage.m_name;
+	peg = stage.getAllSelectableObjectsAsPointEdgeGroup();
+}
+
+AsyncHTTPTask StageSave::createPostTask()
+{
+	const std::string url{ SIV3D_OBFUSCATE(LEADERBOARD_URL) };
+	URL requestURL = Unicode::Widen(url);
+
+
+	Serializer<MemoryWriter> archive;
+	int32 version = 2;
+	archive(version);
+	archive(name);
+	archive(peg);
+	auto blobStr = archive->getBlob().base64Str();
+
+	JSON json{};
+	json[U"version"] = 2;
+	json[U"stagename"] = name;
+	json[U"data"] = blobStr;
+	json[U"persistent"] = false;
+
+	auto code = json.formatUTF8Minimum();
+
+	return SimpleHTTP::PostAsync(requestURL, {}, code.data(), code.length() * sizeof(std::string::value_type), U"Temp/Ballgorithm/{}.json"_fmt(Time::GetMillisecSinceEpoch()));
+}
+
+AsyncHTTPTask StageSave::CreateGetTask(String shareCode)
+{
+	const std::string url{ SIV3D_OBFUSCATE(LEADERBOARD_URL) };
+	URL requestURL = U"{}?code={}"_fmt(Unicode::Widen(url), shareCode);
+	return SimpleHTTP::GetAsync(requestURL, {}, U"Temp/Ballgorithm/{}.json"_fmt(Time::GetMillisecSinceEpoch()));
+}
+
+String StageSave::ProcessPostTask(AsyncHTTPTask& task)
 {
 	try {
 		const auto& response = task.getResponse();
@@ -890,7 +1000,7 @@ String StageRecord::processPostTask(AsyncHTTPTask& task)
 	}
 }
 
-StageRecord StageRecord::processGetTask(AsyncHTTPTask& task)
+StageSave StageSave::ProcessGetTask(AsyncHTTPTask& task)
 {
 	try {
 		const auto& response = task.getResponse();
@@ -898,40 +1008,20 @@ StageRecord StageRecord::processGetTask(AsyncHTTPTask& task)
 			return {};
 		}
 
-		StageRecord record;
-		
-		record.fromJSON(task.getAsJSON());
+		Deserializer<BinaryReader> deserializer(task.getFilePath());
 
-		return record;
+		int32 version;
+		deserializer(version);
+		StageSave save;
+		if (version == 2)
+		{
+			deserializer(save.name);
+			deserializer(save.peg);
+		}
+		
+		return save;
 	}
 	catch (...) {
 		return {};
-	}
-}
-
-Array<StageRecord> StageRecord::processGetLeaderboardTask(AsyncHTTPTask& task)
-{
-	Array<StageRecord> records;
-
-	try {
-		const auto& response = task.getResponse();
-		if (!response.isOK()) {
-			return records;
-		}
-
-		JSON json = task.getAsJSON();
-
-		for (const auto& item : json[U"records"]) {
-			records.push_back(StageRecord());
-			records.back().fromJSON(item.value);
-			if (!records.back().isValid()) {
-				records.pop_back();
-			}
-		}
-
-		return records;
-	}
-	catch (...) {
-		return records;
 	}
 }

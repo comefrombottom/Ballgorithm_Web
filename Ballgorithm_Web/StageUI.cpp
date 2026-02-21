@@ -106,7 +106,7 @@ void StageUI::onStageEnter(Stage& stage, bool isSameWithLastStage)
 	}
 	
 	// クエリ進捗を初期化（まだ初期化されていない場合）
-	if (stage.m_queryCompleted.size() != stage.m_queries.size()) {
+	if (stage.m_queryCompleted.size() != stage.m_queries->size()) {
 		stage.resetQueryProgress();
 	}
 
@@ -740,8 +740,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 		// Share ボタン
 		if (m_cursorPos.intersects_use(m_shareButtonRect)) {
 			if (MouseL.down() && m_shareStatus == ShareStatus::Idle) {
-				auto record = StageRecord(stage, game.m_username);
-				game.m_postTaskToShare = record.createPostTask(true);
+				game.m_postTaskToShare = StageSave(stage).createPostTask();
 				m_shareStatus = ShareStatus::Sending;
 			}
 			Cursor::RequestStyle(CursorStyle::Hand);
@@ -849,8 +848,8 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 			
 			// クエリが全てのボールを放出済みかチェック
 			bool hasFinishedReleasing = true;
-			if (stage.m_currentQueryIndex < stage.m_queries.size()) {
-				hasFinishedReleasing = stage.m_queries[stage.m_currentQueryIndex]->hasFinishedReleasing();
+			if (stage.m_currentQueryIndex < stage.m_queries->size()) {
+				hasFinishedReleasing = (*stage.m_queries)[stage.m_currentQueryIndex]->hasFinishedReleasing();
 			}
 			
 			if (allFinished && hasFinishedReleasing) {
@@ -880,7 +879,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 #endif // SIV3D_PLATFORM(WEB)
 						if (game.m_postTask.isEmpty())
 						{
-							game.m_postTask = StageRecord(stage, game.m_username).createPostTask(false);
+							game.m_postTask = StageRecord(stage, game.m_username).createPostTask();
 						}
 					}
 				}
@@ -899,7 +898,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 				else {
 					// 次の未判定クエリを探す（成功・失敗に関わらず続行）
 
-					if (completedQueryIndex + 1 < stage.m_queries.size()) {
+					if (completedQueryIndex + 1 < stage.m_queries->size()) {
 						stage.m_currentQueryIndex = completedQueryIndex + 1;
 						stage.startSimulation();
 					}
@@ -990,8 +989,8 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 				}
 
 				// クエリの時間ベース更新（SequentialQuery用）
-				if (stage.m_currentQueryIndex < stage.m_queries.size()) {
-					stage.m_queries[stage.m_currentQueryIndex]->update(stage, Stage::simulationTimeStep);
+				if (stage.m_currentQueryIndex < stage.m_queries->size()) {
+					(*stage.m_queries)[stage.m_currentQueryIndex]->update(stage, Stage::simulationTimeStep);
 				}
 
 				// 遅すぎる場合は強制終了

@@ -30,7 +30,7 @@ void LeaderboardScene::enter(Game& game, int32 stageIndex)
 
 	// リーダーボード取得開始
 	const auto& stage = game.m_stages[stageIndex];
-	m_leaderboardTask = StageRecord::createGetLeaderboradTask(stage->m_name);
+	m_leaderboardTask = StageRecord::CreateGetLeaderboradTask(stage->m_name);
 }
 
 void LeaderboardScene::exit()
@@ -75,24 +75,22 @@ void LeaderboardScene::layoutViewerUI()
 
 void LeaderboardScene::enterViewer(Game& game, int32 recordIndex)
 {
-	auto& stage = *game.m_stages[m_stageIndex];
+	auto& originalStage = *game.m_stages[m_stageIndex].get();
 
 	// 既にビュワーが有効な場合、元のスナップショットに復元してから切り替え
 	if (m_viewerActive) {
-		if (stage.m_isSimulationRunning) {
-			stage.endSimulation();
+		if (m_viewerStage.m_isSimulationRunning) {
+			m_viewerStage.endSimulation();
 		}
-		stage.restoreSnapshot(m_viewerStageSnapshot);
-		stage.resetQueryProgress();
 	}
 
 	m_selectedRecordIndex = recordIndex;
 	m_viewerActive = true;
 
 	// スナップショットを一時ステージに適用（元のステージのクエリを使う）
-	m_viewerStageSnapshot = stage.createSnapshot();
-	stage.restoreSnapshot(m_records[recordIndex].m_snapshot);
-	stage.resetQueryProgress();
+	m_viewerStage.restoreRecord(m_records[recordIndex]);
+	m_viewerStage.m_queries = originalStage.m_queries;
+	m_viewerStage.resetQueryProgress();
 
 	m_viewerCamera.setCenter(Vec2{ 150,300 });
 	m_viewerCamera.setTargetCenter(Vec2{ 150,300 });
@@ -100,7 +98,7 @@ void LeaderboardScene::enterViewer(Game& game, int32 recordIndex)
 	m_viewerCamera.setTargetScale(0.8);
 
 	layoutViewerUI();
-	m_viewerQueryPanel.onStageEnter(stage);
+	m_viewerQueryPanel.onStageEnter(m_viewerStage);
 	m_singleQueryMode = false;
 }
 
@@ -117,7 +115,7 @@ void LeaderboardScene::update(Game& game, double dt)
 	// 非同期タスクの完了チェック
 	if (m_isLoading && !m_leaderboardTask.isEmpty() && m_leaderboardTask.isReady())
 	{
-		m_records = StageRecord::processGetLeaderboardTask(m_leaderboardTask);
+		m_records = StageRecord::ProcessGetLeaderboardTask(m_leaderboardTask);
 		m_isLoading = false;
 		m_loadFailed = m_records.empty();
 
@@ -156,12 +154,9 @@ void LeaderboardScene::updateRanking(Game& game, double dt)
 	if (m_cursorPos.intersects_use(m_backButtonRect)) {
 		if (MouseL.down()) {
 			if (m_viewerActive) {
-				auto& stage = *game.m_stages[m_stageIndex];
-				if (stage.m_isSimulationRunning) {
-					stage.endSimulation();
+				if (m_viewerStage.m_isSimulationRunning) {
+					m_viewerStage.endSimulation();
 				}
-				stage.restoreSnapshot(m_viewerStageSnapshot);
-				stage.resetQueryProgress();
 				exitViewer();
 			}
 			game.exitLeaderboard();
@@ -324,7 +319,7 @@ void LeaderboardScene::drawRanking(const Game& game) const
 
 void LeaderboardScene::updateViewer(Game& game, double dt)
 {
-	auto& stage = *game.m_stages[m_stageIndex];
+	auto& stage = m_viewerStage;
 
 
 	bool hasTwoFingerTouch = false;
@@ -472,8 +467,8 @@ void LeaderboardScene::updateViewer(Game& game, double dt)
 		}
 
 		bool hasFinishedReleasing = true;
-		if (stage.m_currentQueryIndex < stage.m_queries.size()) {
-			hasFinishedReleasing = stage.m_queries[stage.m_currentQueryIndex]->hasFinishedReleasing();
+		if (stage.m_currentQueryIndex < stage.m_queries->size()) {
+			hasFinishedReleasing = (*stage.m_queries)[stage.m_currentQueryIndex]->hasFinishedReleasing();
 		}
 
 		if (allFinished && hasFinishedReleasing) {
@@ -493,7 +488,7 @@ void LeaderboardScene::updateViewer(Game& game, double dt)
 				m_singleQueryMode = false;
 			}
 			else {
-				if (completedQueryIndex + 1 < stage.m_queries.size()) {
+				if (completedQueryIndex + 1 < stage.m_queries->size()) {
 					stage.m_currentQueryIndex = completedQueryIndex + 1;
 					stage.startSimulation();
 				}
@@ -552,8 +547,8 @@ void LeaderboardScene::updateViewer(Game& game, double dt)
 				}
 			}
 
-			if (stage.m_currentQueryIndex < stage.m_queries.size()) {
-				stage.m_queries[stage.m_currentQueryIndex]->update(stage, Stage::simulationTimeStep);
+			if (stage.m_currentQueryIndex < stage.m_queries->size()) {
+				(*stage.m_queries)[stage.m_currentQueryIndex]->update(stage, Stage::simulationTimeStep);
 			}
 
 			for (auto& c : stage.m_startBallsInWorld) {
@@ -570,7 +565,7 @@ void LeaderboardScene::updateViewer(Game& game, double dt)
 
 void LeaderboardScene::drawViewer(const Game& game) const
 {
-	auto& stage = *game.m_stages[m_stageIndex];
+	auto& stage = m_viewerStage;
 	const Font& font = FontAsset(U"Regular");
 	const Font& iconFont = FontAsset(U"Icon");
 

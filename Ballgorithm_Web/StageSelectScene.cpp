@@ -468,7 +468,7 @@ void StageSelectScene::draw(const Game& game) const
 		// カード描画
 		for (int32 i = 0; i < stages.size(); ++i) {
 			const auto& stage = stages[i];
-			int32 queryCount = stage->m_queries.size();
+			int32 queryCount = stage->m_queries->size();
 			int32 completedCount = 0;
 			for (int32 j = 0; j < stage->m_queryCompleted.size(); ++j) {
 				if (stage->m_queryCompleted[j]) ++completedCount;

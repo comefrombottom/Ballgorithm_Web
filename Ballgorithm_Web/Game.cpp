@@ -19,6 +19,7 @@ Game::Game()
 	// 旧セーブの削除
 	FileSystem::Remove(U"Ballagorithm");
 	FileSystem::Remove(U"Ballgorithm/Stages");
+	FileSystem::Remove(U"Ballgorithm/VStages");
 	FileSystem::Remove(U"Temp/Ballgorithm");
 
 	for (const auto& stage : m_stages) {
@@ -241,13 +242,13 @@ void Game::update()
 
 	if (m_postTask.isReady())
 	{
-		StageRecord::processPostTask(m_postTask);
+		StageSave::ProcessPostTask(m_postTask);
 		m_postTask = AsyncHTTPTask();
 	}
 
 	if (m_postTaskToShare.isReady())
 	{
-		m_shareCode = StageRecord::processPostTask(m_postTaskToShare);
+		m_shareCode = StageSave::ProcessPostTask(m_postTaskToShare);
 		m_postTaskToShare = AsyncHTTPTask();
 	}
 

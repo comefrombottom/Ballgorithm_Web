@@ -22,6 +22,8 @@ public:
 	void draw(const Game& game) const;
 
 private:
+	Stage m_viewerStage;
+
 	int32 m_stageIndex = 0;
 	bool m_viewerActive = false;  // 解法が選択されビュワーが有効か
 
@@ -41,7 +43,6 @@ private:
 
 	// 解法閲覧用
 	Optional<int32> m_selectedRecordIndex;
-	StageSnapshot m_viewerStageSnapshot;  // 閲覧前の元スナップショット（復元用）
 	StageEditUI m_viewerEditUI;
 	MyCamera2D m_viewerCamera{ Vec2(500, 300), 1.0, CameraControl::Wheel };
 	QueryPanel m_viewerQueryPanel;

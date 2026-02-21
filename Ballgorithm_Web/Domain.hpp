@@ -2,6 +2,8 @@
 
 # include <Siv3D.hpp>
 # include "HashCache.hpp"
+#include <Siv3D/AsyncHTTPTask.hpp>
+#include <Siv3D/String.hpp>
 
 // Forward declarations
 class Stage;

@@ -3,7 +3,6 @@
 # include "Touches.h"
 # include "IndexedDB.hpp"
 
-
 # if SIV3D_PLATFORM(WEB)
 EM_JS(void, setupMultiTouchHandler, (), {
 	// グローバル変数を定義
@@ -96,7 +95,7 @@ void Main()
 	auto params = Platform::Web::System::GetURLParameters();
 	if (params.contains(U"share"))
 	{
-		getTask = StageRecord::createGetTask(params[U"share"]);
+		getTask = StageSave::CreateGetTask(params[U"share"]);
 	}
 # endif
 
@@ -110,38 +109,24 @@ void Main()
 		game.m_username = profile[U"username"].getString();
 	}
 
-	StageRecord stageToLoad;
-
 # if SIV3D_PLATFORM(WEB)
 	Platform::Web::IndexedDB::SaveAsync();
 	if (!getTask.isEmpty())
 	{
 		auto asyncTask = Platform::Web::SimpleHTTP::CreateAsyncTask(getTask);
 		Platform::Web::System::AwaitAsyncTask(asyncTask);
-		stageToLoad = StageRecord::processGetTask(getTask);
-	}
-# else
-	/*if (!getTask.isEmpty())
-	{
-		while (!getTask.isReady())
-		{
-			System::Update();
+		StageSave save = StageSave::ProcessGetTask(getTask);
+		if (game.m_stageNameToIndex.contains(save.name)) {
+			auto index = game.m_stageNameToIndex[save.name];
+			auto& stage = *game.m_stages[index];
+			stage.removeAllSelectableObjects();
+			SelectedIDSet sid;
+			stage.pastePointEdgeGroup(save.peg, sid);
+			game.selectStage(index);
+			game.enterSelectedStage();
 		}
-		stageToLoad = StageRecord::processGetTask(getTask);
-	}*/
-# endif
-
-	//ConsoleDebug(stageToLoad.isValid())
-	//ConsoleDebug(game.m_stageNameToIndex)
-	//
-	// Debug(stageToLoad.m_stageName)
-	if (stageToLoad.isValid() && game.m_stageNameToIndex.contains(stageToLoad.m_stageName))
-	{
-		auto index = game.m_stageNameToIndex[stageToLoad.m_stageName];
-		game.m_stages[index]->restoreSnapshot(stageToLoad.m_snapshot);
-		game.selectStage(index);
-		game.enterSelectedStage();
 	}
+# endif
 	
 	while (System::Update())
 	{

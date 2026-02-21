@@ -87,7 +87,7 @@ void stagestagesConstruct_0(Array<std::unique_ptr<Stage>>& m_stages) {
 			U"準備ができたら右上の「Run」ボタンで実行！"
 		};
 
-		stage->m_queries.push_back(std::move(query1));
+		stage->m_queries->push_back(std::move(query1));
 
 		m_stages.push_back(std::move(stage));
 	}
@@ -109,7 +109,7 @@ void stagestagesConstruct_0(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
 
-		stage->m_queries.push_back(std::move(query1));
+		stage->m_queries->push_back(std::move(query1));
 
 		m_stages.push_back(std::move(stage));
 	}
@@ -132,7 +132,7 @@ void stagestagesConstruct_0(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
 
-		stage->m_queries.push_back(std::move(query1));
+		stage->m_queries->push_back(std::move(query1));
 
 		stage->m_tutorialTexts = {
 			U"赤いエリアには新たに線を引くことが出来ません。",
@@ -164,7 +164,7 @@ void stagestagesConstruct_0(Array<std::unique_ptr<Stage>>& m_stages) {
 			U"右下のボタンでモードを変更できます",
 		};
 
-		stage->m_queries.push_back(std::move(query1));
+		stage->m_queries->push_back(std::move(query1));
 
 		m_stages.push_back(std::move(stage));
 	}
@@ -189,7 +189,7 @@ void stagestagesConstruct_0(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
 
-		stage->m_queries.push_back(std::move(query1));
+		stage->m_queries->push_back(std::move(query1));
 
 		m_stages.push_back(std::move(stage));
 	}
@@ -214,7 +214,7 @@ void stagestagesConstruct_0(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
 
-		stage->m_queries.push_back(std::move(query1));
+		stage->m_queries->push_back(std::move(query1));
 
 		m_stages.push_back(std::move(stage));
 	}
@@ -239,8 +239,8 @@ void stagestagesConstruct_0(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
 
-		stage->m_queries.push_back(std::move(query1));
-		stage->m_queries.push_back(std::move(query2));
+		stage->m_queries->push_back(std::move(query1));
+		stage->m_queries->push_back(std::move(query2));
 
 		stage->m_tutorialTexts = {
 			// U"クエリが複数あるステージでは同じ構造で全てのクエリを満たす必要があります。",
@@ -272,8 +272,8 @@ void stagestagesConstruct_0(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Large, none }
 		);
 
-		stage->m_queries.push_back(std::move(query1));
-		stage->m_queries.push_back(std::move(query2));
+		stage->m_queries->push_back(std::move(query1));
+		stage->m_queries->push_back(std::move(query2));
 
 		m_stages.push_back(std::move(stage));
 	}
@@ -296,7 +296,7 @@ void stagestagesConstruct_0(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
 
-		stage->m_queries.push_back(std::move(query1));
+		stage->m_queries->push_back(std::move(query1));
 
 		m_stages.push_back(std::move(stage));
 	}
@@ -326,8 +326,8 @@ void stagestagesConstruct_0_2(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Large, BallKind::Small }
 		);
 
-		stage->m_queries.push_back(std::move(query1));
-		stage->m_queries.push_back(std::move(query2));
+		stage->m_queries->push_back(std::move(query1));
+		stage->m_queries->push_back(std::move(query2));
 
 		m_stages.push_back(std::move(stage));
 	}
@@ -359,8 +359,8 @@ void stagestagesConstruct_0_2(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small, BallKind::Large }
 		);
 
-		stage->m_queries.push_back(std::move(query1));
-		stage->m_queries.push_back(std::move(query2));
+		stage->m_queries->push_back(std::move(query1));
+		stage->m_queries->push_back(std::move(query2));
 
 		m_stages.push_back(std::move(stage));
 	}
@@ -386,8 +386,8 @@ void stagestagesConstruct_0_2(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ none, BallKind::Large }
 		);
 
-		stage->m_queries.push_back(std::move(query1));
-		stage->m_queries.push_back(std::move(query2));
+		stage->m_queries->push_back(std::move(query1));
+		stage->m_queries->push_back(std::move(query2));
 
 		m_stages.push_back(std::move(stage));
 	}
@@ -429,8 +429,8 @@ void stagestagesConstruct_0_2(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small, BallKind::Large }
 		);
 
-		stage->m_queries.push_back(std::move(query1));
-		stage->m_queries.push_back(std::move(query2));
+		stage->m_queries->push_back(std::move(query1));
+		stage->m_queries->push_back(std::move(query2));
 
 		m_stages.push_back(std::move(stage));
 	}
@@ -472,8 +472,8 @@ void stagestagesConstruct_0_2(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small, BallKind::Large }
 		);
 
-		stage->m_queries.push_back(std::move(query1));
-		stage->m_queries.push_back(std::move(query2));
+		stage->m_queries->push_back(std::move(query1));
+		stage->m_queries->push_back(std::move(query2));
 
 		m_stages.push_back(std::move(stage));
 	}
@@ -487,12 +487,12 @@ void stagestagesConstruct_0_2(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		addGoalAreaWithContainer(*stage, RectF{ 500, 400, 80, 80 });
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{none},
 			Array<Optional<BallKind>>{none}
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
@@ -520,12 +520,12 @@ void stagestagesConstruct_0_2(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		addGoalAreaWithContainer(*stage, RectF{ 500, 500, 60, 40 });
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{none},
 			Array<Optional<BallKind>>{none}
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } },
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
@@ -544,12 +544,12 @@ void stagestagesConstruct_0_2(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		addGoalAreaWithContainer(*stage, RectF{ 500, 400, 80, 80 });
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } },
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
@@ -568,12 +568,12 @@ void stagestagesConstruct_0_2(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		addGoalAreaWithContainer(*stage, RectF{ 500, 400, 80, 80 });
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } },
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
@@ -596,12 +596,12 @@ void stagestagesConstruct_0_3(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		addGoalAreaWithContainer(*stage, RectF{ 500, 400, 80, 80 });
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ none },
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ none }
 		);
@@ -621,22 +621,22 @@ void stagestagesConstruct_0_3(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		addGoalAreaWithContainer(*stage, RectF{ 200 - 40, 500, 80, 80 });
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ none, none },
 			Array<Optional<BallKind>>{ none }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none },
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ none }
 		);
@@ -664,17 +664,17 @@ void stagestagesConstruct_0_3(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		stage->addNonEditableArea(RectF::FromPoints(Vec2{ 440, 100 }, Vec2{ 820, 680 }).stretched(-1));
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none, none },
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small }, none },
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ none, none, StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
@@ -712,7 +712,7 @@ void stagestagesConstruct_0_3(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		stage->addGoalArea({ RectF{ 500,400,60,80 } ,true });
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{},
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
@@ -735,16 +735,16 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 		stage->addNonEditableArea(RectF{ 500,400,80,80 }.stretched(-1));
 		addGoalAreaWithContainer(*stage, RectF{ 500,400,80,80 });
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ none },
 			Array<Optional<BallKind>>{ none }
 		);
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } },
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{StartBallState{ BallKind::Large }}, 0.0 },
 				{ Array<Optional<StartBallState>>{StartBallState{ BallKind::Large }}, none },
@@ -768,7 +768,7 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 		stage->addNonEditableArea(RectF{ 500,400,80,80 }.stretched(-1));
 		addGoalAreaWithContainer(*stage, RectF{ 500,400,80,80 });
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none }
@@ -777,14 +777,14 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 		);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none }
 		},
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none }
@@ -792,7 +792,7 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none }
@@ -815,13 +815,13 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 		stage->addNonEditableArea(RectF{ 500,400,80,80 }.stretched(-1));
 		addGoalAreaWithContainer(*stage, RectF{ 500,400,80,80 });
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ none }
 		);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none }
@@ -842,7 +842,7 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 		stage->addNonEditableArea(RectF{ 500,400,80,80 }.stretched(-1));
 		addGoalAreaWithContainer(*stage, RectF{ 500,400,80,80 });
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none }
@@ -851,14 +851,14 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 		);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none }
 		},
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none }
@@ -866,7 +866,7 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none }
@@ -889,13 +889,13 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 		stage->addNonEditableArea(RectF{ 500,400,80,80 }.stretched(-1));
 		addGoalAreaWithContainer(*stage, RectF{ 500,400,80,80 });
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ none }
 		);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none }
@@ -903,7 +903,7 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ none }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
@@ -912,7 +912,7 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
@@ -922,7 +922,7 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
@@ -948,7 +948,7 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 		stage->addNonEditableArea(RectF{ 500,400,80,80 }.stretched(-1));
 		addGoalAreaWithContainer(*stage, RectF{ 500,400,80,80 });
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
@@ -958,14 +958,14 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 		);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none }
 		},
 			Array<Optional<BallKind>>{ none }
 		);
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none }
@@ -973,7 +973,7 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ none }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none }
@@ -995,7 +995,7 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 		stage->addNonEditableArea(RectF{ 500,400,80,80 }.stretched(-1));
 		addGoalAreaWithContainer(*stage, RectF{ 500,400,80,80 });
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none }
@@ -1004,14 +1004,14 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 		);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none }
 		},
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none }
@@ -1019,7 +1019,7 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none }
@@ -1042,7 +1042,7 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 		stage->addNonEditableArea(RectF{ 500,400,80,80 }.stretched(-1));
 		addGoalAreaWithContainer(*stage, RectF{ 500,400,80,80 });
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none }
@@ -1051,14 +1051,14 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 		);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none }
 		},
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none }
@@ -1066,7 +1066,7 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none }
@@ -1090,7 +1090,7 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 		stage->addNonEditableArea(RectF{ 500,400,80,80 }.stretched(-1));
 		addGoalAreaWithContainer(*stage, RectF{ 500,400,80,80 });
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none }
@@ -1099,14 +1099,14 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 		);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none }
 		},
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none }
@@ -1114,7 +1114,7 @@ void stagestagesConstruct_1(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none }
@@ -1142,12 +1142,12 @@ void stagestagesConstruct_2(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		addGoalAreaWithContainer(*stage, RectF{ 500, 550, 80, 80 });
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ none },
 			Array<Optional<BallKind>>{ none, none }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } },
 			Array<Optional<BallKind>>{ BallKind::Large, BallKind::Large }
 		);
@@ -1168,17 +1168,17 @@ void stagestagesConstruct_2(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		addGoalAreaWithContainer(*stage, RectF{ 500, 550, 80, 80 });
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ none },
 			Array<Optional<BallKind>>{ none, none }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ BallKind::Small, BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } },
 			Array<Optional<BallKind>>{ BallKind::Large, BallKind::Large }
 		);
@@ -1218,8 +1218,8 @@ void stagestagesConstruct_2(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Large, BallKind::Small, BallKind::Large, BallKind::Small }
 		);
 
-		stage->m_queries.push_back(std::move(query1));
-		stage->m_queries.push_back(std::move(query2));
+		stage->m_queries->push_back(std::move(query1));
+		stage->m_queries->push_back(std::move(query2));
 
 		m_stages.push_back(std::move(stage));
 	}
@@ -1243,22 +1243,22 @@ void stagestagesConstruct_2(Array<std::unique_ptr<Stage>>& m_stages) {
 		addGoalAreaWithContainer(*stage, RectF{ 460, 500, 80, 80 });
 		addGoalAreaWithContainer(*stage, RectF{ 560, 500, 80, 80 });
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, StartBallState{ BallKind::Small }, StartBallState{ BallKind::Small }, StartBallState{ BallKind::Large }, StartBallState{ BallKind::Large }, StartBallState{ BallKind::Large } },
 			Array<Optional<BallKind>>{ BallKind::Small, BallKind::Large, BallKind::Small, BallKind::Large, BallKind::Small, BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, StartBallState{ BallKind::Large }, StartBallState{ BallKind::Large }, StartBallState{ BallKind::Small }, StartBallState{ BallKind::Small }, StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ BallKind::Large, BallKind::Small, BallKind::Large, BallKind::Small, BallKind::Large, BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, StartBallState{ BallKind::Small }, StartBallState{ BallKind::Large }, StartBallState{ BallKind::Small }, StartBallState{ BallKind::Small }, StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ BallKind::Small, BallKind::Small, BallKind::Small, BallKind::Small, BallKind::Large, BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, StartBallState{ BallKind::Small }, StartBallState{ BallKind::Small }, StartBallState{ BallKind::Large }, StartBallState{ BallKind::Small }, StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ BallKind::Small, BallKind::Large, BallKind::Small, BallKind::Small, BallKind::Small, BallKind::Small }
 		);
@@ -1281,17 +1281,17 @@ void stagestagesConstruct_2(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		addGoalAreaWithContainer(*stage, RectF{ 500, 550, 80, 80 });
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ none },
 			Array<Optional<BallKind>>{ none, none }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ BallKind::Small, BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } },
 			Array<Optional<BallKind>>{ BallKind::Large, BallKind::Large }
 		);
@@ -1319,27 +1319,27 @@ void stagestagesConstruct_2(Array<std::unique_ptr<Stage>>& m_stages) {
 		addGoalAreaWithContainer(*stage, RectF{ 600, 800, 80, 80 });
 		addGoalAreaWithContainer(*stage, RectF{ 600, 950, 80, 80 });
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ none, none },
 			Array<Optional<BallKind>>{ none, none, none, none }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ BallKind::Small, BallKind::Small, BallKind::Small, BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, StartBallState{ BallKind::Large } },
 			Array<Optional<BallKind>>{ BallKind::Small, BallKind::Large, BallKind::Small, BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ BallKind::Large, BallKind::Small, BallKind::Large, BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, StartBallState{ BallKind::Large } },
 			Array<Optional<BallKind>>{ BallKind::Large, BallKind::Large, BallKind::Large, BallKind::Large }
 		);
@@ -1370,27 +1370,27 @@ void stagestagesConstruct_2(Array<std::unique_ptr<Stage>>& m_stages) {
 
 
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ none, none },
 			Array<Optional<BallKind>>{ none, none }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ BallKind::Small, BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, StartBallState{ BallKind::Large } },
 			Array<Optional<BallKind>>{ BallKind::Small, BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ BallKind::Small, BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, StartBallState{ BallKind::Large } },
 			Array<Optional<BallKind>>{ BallKind::Large, BallKind::Large }
 		);
@@ -1414,26 +1414,26 @@ void stagestagesConstruct_2(Array<std::unique_ptr<Stage>>& m_stages) {
 
 
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ none, none },
 			Array<Optional<BallKind>>{ none, none }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ BallKind::Large, BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, StartBallState{ BallKind::Large } },
 			Array<Optional<BallKind>>{ BallKind::Large, BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
-		 Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, StartBallState{ BallKind::Small } },
-		 Array<Optional<BallKind>>{ BallKind::Large, BallKind::Large }
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
+			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, StartBallState{ BallKind::Small } },
+			Array<Optional<BallKind>>{ BallKind::Large, BallKind::Large }
 		);
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, StartBallState{ BallKind::Large } },
 			Array<Optional<BallKind>>{ BallKind::Small, BallKind::Large }
 		);
@@ -1456,27 +1456,27 @@ void stagestagesConstruct_2(Array<std::unique_ptr<Stage>>& m_stages) {
 
 
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ none, none },
 			Array<Optional<BallKind>>{ none }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, StartBallState{ BallKind::Large } },
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, StartBallState{ BallKind::Large } },
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
@@ -1504,14 +1504,14 @@ void stagestagesConstruct_3(Array<std::unique_ptr<Stage>>& m_stages) {
 		stage->addNonEditableArea(RectF{ 500,400,80,80 }.stretched(-1));
 		addGoalAreaWithContainer(*stage, RectF{ 500,400,80,80 });
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none }, 0.0 },
 		},
 			Array<Optional<BallKind>>{ none, none }
 		);
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -1553,21 +1553,21 @@ void stagestagesConstruct_3(Array<std::unique_ptr<Stage>>& m_stages) {
 		stage->addNonEditableArea(RectF{ 500,400,80,80 }.stretched(-1));
 		addGoalAreaWithContainer(*stage, RectF{ 500,400,80,80 });
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none }, 0.0 },
 		},
 			Array<Optional<BallKind>>{ none, none }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 		},
 			Array<Optional<BallKind>>{ BallKind::Large, none }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
@@ -1590,14 +1590,14 @@ void stagestagesConstruct_3(Array<std::unique_ptr<Stage>>& m_stages) {
 		stage->addNonEditableArea(RectF{ 500,300,80,80 }.stretched(-1));
 		addGoalAreaWithContainer(*stage, RectF{ 500,300,80,80 });
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none }, 0.0 },
 		},
 			Array<Optional<BallKind>>{ none }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
@@ -1606,7 +1606,7 @@ void stagestagesConstruct_3(Array<std::unique_ptr<Stage>>& m_stages) {
 		);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
@@ -1614,7 +1614,7 @@ void stagestagesConstruct_3(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ none }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
@@ -1622,7 +1622,7 @@ void stagestagesConstruct_3(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ none }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
@@ -1645,14 +1645,14 @@ void stagestagesConstruct_3(Array<std::unique_ptr<Stage>>& m_stages) {
 		stage->addNonEditableArea(RectF{ 500,300,80,80 }.stretched(-1));
 		addGoalAreaWithContainer(*stage, RectF{ 500,300,80,80 });
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none }, 0.0 },
 		},
 			Array<Optional<BallKind>>{ none }
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
@@ -1663,7 +1663,7 @@ void stagestagesConstruct_3(Array<std::unique_ptr<Stage>>& m_stages) {
 		);
 
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
@@ -1673,7 +1673,7 @@ void stagestagesConstruct_3(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
@@ -1683,7 +1683,7 @@ void stagestagesConstruct_3(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
@@ -1709,14 +1709,14 @@ void stagestagesConstruct_3(Array<std::unique_ptr<Stage>>& m_stages) {
 		stage->addNonEditableArea(RectF{ 500,300,80,80 }.stretched(-1));
 		addGoalAreaWithContainer(*stage, RectF{ 500,300,80,80 });
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none }, 0.0 },
 		},
 			Array<Optional<BallKind>>{ none }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
@@ -1725,7 +1725,7 @@ void stagestagesConstruct_3(Array<std::unique_ptr<Stage>>& m_stages) {
 		);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
@@ -1733,7 +1733,7 @@ void stagestagesConstruct_3(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
@@ -1741,7 +1741,7 @@ void stagestagesConstruct_3(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
@@ -1765,14 +1765,14 @@ void stagestagesConstruct_3(Array<std::unique_ptr<Stage>>& m_stages) {
 		stage->addNonEditableArea(RectF{ 600,500,80,80 }.stretched(-1));
 		addGoalAreaWithContainer(*stage, RectF{ 600,500,80,80 });
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none }, 0.0 },
 		},
 			Array<Optional<BallKind>>{ none }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
@@ -1781,7 +1781,7 @@ void stagestagesConstruct_3(Array<std::unique_ptr<Stage>>& m_stages) {
 		);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
@@ -1789,7 +1789,7 @@ void stagestagesConstruct_3(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
@@ -1797,7 +1797,7 @@ void stagestagesConstruct_3(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
@@ -1827,7 +1827,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 		addGoalAreaWithContainer(*stage, RectF{ 500, 550, 80, 80 }, true);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
@@ -1853,7 +1853,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 		addGoalAreaWithContainer(*stage, RectF{ 500, 700, 80, 80 }, true);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
@@ -1879,7 +1879,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 		addGoalAreaWithContainer(*stage, RectF{ 500, 550, 80, 80 }, true);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
@@ -1887,7 +1887,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small, BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
@@ -1895,7 +1895,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small, BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
@@ -1903,7 +1903,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Large, BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
@@ -1930,7 +1930,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 		addGoalAreaWithContainer(*stage, RectF{ 200 - 40, 450, 80, 80 }, true);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, 0.0 },
 		},
@@ -1938,7 +1938,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 		);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
@@ -1963,7 +1963,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 		addGoalAreaWithContainer(*stage, RectF{ 400 - 40, 450, 80, 80 }, true);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, 0.0 },
 		},
@@ -1971,7 +1971,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 		);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
@@ -1979,7 +1979,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ none, BallKind::Small, BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, none },
@@ -2010,7 +2010,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 		addGoalAreaWithContainer(*stage, RectF{ 200 - 40, 450, 80, 80 }, true);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, 0.0 },
 		},
@@ -2018,7 +2018,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 		);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
@@ -2026,7 +2026,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ none, BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none }, 0.0 },
 		},
@@ -2034,7 +2034,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 		);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none }, none },
@@ -2061,7 +2061,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 		addGoalAreaWithContainer(*stage, RectF{ 300 - 40, 450, 80, 80 }, true);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small }, none }, none },
@@ -2069,7 +2069,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small, none }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small }, none }, none },
@@ -2077,7 +2077,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ none, BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
@@ -2086,7 +2086,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small, none }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, none, StartBallState{ BallKind::Large } }, none },
@@ -2095,7 +2095,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ none, BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
@@ -2104,7 +2104,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small, none }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, none, StartBallState{ BallKind::Large } }, none },
@@ -2131,7 +2131,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 		addGoalAreaWithContainer(*stage, RectF{ 400 - 40, 450, 80, 80 }, true);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
 		},
@@ -2139,7 +2139,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 		);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
@@ -2160,7 +2160,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 		addGoalAreaWithContainer(*stage, RectF{ 100 - 40, 400, 80, 160 }, true);
 		addGoalAreaWithContainer(*stage, RectF{ 300 - 40, 400, 80, 160 }, true);
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -2259,7 +2259,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		addGoalAreaWithContainer(*stage, RectF{ 400 - 40, 450, 80, 80 }, true);
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -2339,7 +2339,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 		addGoalAreaWithContainer(*stage, RectF{ 400 - 40, 450, 80, 80 }, true);
 
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -2445,7 +2445,7 @@ void stagestagesConstruct_4(Array<std::unique_ptr<Stage>>& m_stages) {
 		addGoalAreaWithContainer(*stage, RectF{ 400 - 40, 450, 80, 80 }, true);
 
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -2557,7 +2557,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		addGoalAreaWithContainer(*stage, RectF{ 400 - 40, 550, 80, 80 }, true);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none, none, none }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, none, StartBallState{ BallKind::Small }, none }, none },
@@ -2565,7 +2565,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small, none }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none, none, none }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, none, none, StartBallState{ BallKind::Small } }, none },
@@ -2573,7 +2573,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ none, BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small }, none, none }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, none, StartBallState{ BallKind::Small }, none }, none },
@@ -2581,7 +2581,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ none, BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small }, none, none }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, none, none, StartBallState{ BallKind::Small } }, none },
@@ -2611,7 +2611,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		addGoalAreaWithContainer(*stage, RectF{ 400 - 40, 550, 80, 80 }, true);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none, none, none }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, none, StartBallState{ BallKind::Small }, none }, none },
@@ -2619,7 +2619,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small, none }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none, none, none }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, none, none, StartBallState{ BallKind::Small } }, none },
@@ -2627,7 +2627,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small, none }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small }, none, none }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, none, StartBallState{ BallKind::Small }, none }, none },
@@ -2635,7 +2635,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small, none }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small }, none, none }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, none, none, StartBallState{ BallKind::Small } }, none },
@@ -2667,7 +2667,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		addGoalAreaWithContainer(*stage, RectF{ 400 - 40, 650, 80, 80 }, true);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 		},
@@ -2678,7 +2678,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none, none, none }, none },
@@ -2691,7 +2691,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none, none, none }, none },
@@ -2704,7 +2704,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small }, none, none }, none },
@@ -2717,7 +2717,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small }, none, none }, none },
@@ -2732,7 +2732,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		// 2回目以降 00 
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none, none, none }, none },
@@ -2748,7 +2748,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none, none, none }, none },
@@ -2764,7 +2764,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none, none, none }, none },
@@ -2780,7 +2780,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none, none, none }, none },
@@ -2798,7 +2798,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		// 2回目以降 01
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none, none, none }, none },
@@ -2814,7 +2814,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none, none, none }, none },
@@ -2830,7 +2830,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none, none, none }, none },
@@ -2846,7 +2846,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none, none, none }, none },
@@ -2864,7 +2864,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		// 2回目以降 10
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small }, none, none }, none },
@@ -2880,7 +2880,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small }, none, none }, none },
@@ -2896,7 +2896,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small }, none, none }, none },
@@ -2912,7 +2912,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small }, none, none }, none },
@@ -2929,7 +2929,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 		);
 
 		// 2回目以降 11
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small }, none, none }, none },
@@ -2945,7 +2945,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small }, none, none }, none },
@@ -2961,7 +2961,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small }, none, none }, none },
@@ -2977,7 +2977,7 @@ void stagestagesConstruct_5(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none, none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small }, none, none }, none },
@@ -3014,7 +3014,7 @@ void stagestagesConstruct_5_2(Array<std::unique_ptr<Stage>>& m_stages) {
 		addGoalAreaWithContainer(*stage, RectF{ 700,600,60,60 });
 		addGoalAreaWithContainer(*stage, RectF{ 800,600,60,60 });
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none }
@@ -3023,14 +3023,14 @@ void stagestagesConstruct_5_2(Array<std::unique_ptr<Stage>>& m_stages) {
 		);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none }
 		},
 			Array<Optional<BallKind>>{ none, BallKind::Small, none, none }
 		);
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none }
@@ -3038,7 +3038,7 @@ void stagestagesConstruct_5_2(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ none, none, BallKind::Small, none }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none }
@@ -3064,22 +3064,22 @@ void stagestagesConstruct_5_2(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		addGoalAreaWithContainer(*stage, RectF{ 500,600,60,60 });
 		addGoalAreaWithContainer(*stage, RectF{ 600,600,60,60 });
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none, none, none },
 			Array<Optional<BallKind>>{ BallKind::Small, BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small }, none, none },
 			Array<Optional<BallKind>>{ BallKind::Large, BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ none, none, StartBallState{ BallKind::Small }, none },
 			Array<Optional<BallKind>>{ BallKind::Small, BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SampleQuery>(
+		(*stage->m_queries) << std::make_unique<SampleQuery>(
 			Array<Optional<StartBallState>>{ none, none, none, StartBallState{ BallKind::Small } },
 			Array<Optional<BallKind>>{ BallKind::Large, BallKind::Large }
 		);
@@ -3100,7 +3100,7 @@ void stagestagesConstruct_5_2(Array<std::unique_ptr<Stage>>& m_stages) {
 		addGoalAreaWithContainer(*stage, RectF{ 500,480,60,60 });
 		addGoalAreaWithContainer(*stage, RectF{ 500,600,60,60 });
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none }
@@ -3108,7 +3108,7 @@ void stagestagesConstruct_5_2(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small, BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none }
@@ -3116,7 +3116,7 @@ void stagestagesConstruct_5_2(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Large, BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none }
@@ -3124,7 +3124,7 @@ void stagestagesConstruct_5_2(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Large, BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none }
@@ -3146,23 +3146,23 @@ void stagestagesConstruct_5_2(Array<std::unique_ptr<Stage>>& m_stages) {
 		stage->addStartCircle({ Circle{ 100, 100, 20 }, true });
 		stage->addStartCircle({ Circle{ 300, 100, 20 }, true });
 
-		addGoalAreaWithContainer(*stage, RectF{ 200-40,480,80,80 });
+		addGoalAreaWithContainer(*stage, RectF{ 200 - 40,480,80,80 });
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, 0.0 },
 		},
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none }, 0.0 },
 		},
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
@@ -3170,7 +3170,7 @@ void stagestagesConstruct_5_2(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
@@ -3196,7 +3196,7 @@ void stagestagesConstruct_5_2(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		addGoalAreaWithContainer(*stage, RectF{ 200 - 40,480,80,80 });
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small }, none }, none },
@@ -3204,7 +3204,7 @@ void stagestagesConstruct_5_2(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Small }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Small } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none }, none },
@@ -3212,7 +3212,7 @@ void stagestagesConstruct_5_2(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Small } }, none },
@@ -3220,7 +3220,7 @@ void stagestagesConstruct_5_2(Array<std::unique_ptr<Stage>>& m_stages) {
 			Array<Optional<BallKind>>{ BallKind::Large }
 		);
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, StartBallState{ BallKind::Large } }, 0.0 },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large } }, none },
@@ -3245,7 +3245,7 @@ void stagestagesConstruct_5_2(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		addGoalAreaWithContainer(*stage, RectF{ 500,480,80,80 });
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -3266,7 +3266,7 @@ void stagestagesConstruct_5_2(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -3287,7 +3287,7 @@ void stagestagesConstruct_5_2(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -3308,7 +3308,7 @@ void stagestagesConstruct_5_2(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -3352,14 +3352,14 @@ void stagestagesConstruct_5_3(Array<std::unique_ptr<Stage>>& m_stages) {
 		addGoalAreaWithContainer(*stage, RectF{ 300 - 40, 550, 80, 80 }, true);
 
 
-		stage->m_queries << std::make_unique<SequentialQuery>(
+		(*stage->m_queries) << std::make_unique<SequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none }, none },
 		},
 			Array<Optional<BallKind>>{ BallKind::Large, none }
 		);
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -3379,10 +3379,10 @@ void stagestagesConstruct_5_3(Array<std::unique_ptr<Stage>>& m_stages) {
 							GoalRequirement::multi({ {BallKind::Large, 1} }),
 					}
 				},
-			}
+		}
 		);
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -3429,7 +3429,7 @@ void stagestagesConstruct_5_3(Array<std::unique_ptr<Stage>>& m_stages) {
 		addGoalAreaWithContainer(*stage, RectF{ 100 - 40, 550, 80, 80 }, true);
 		addGoalAreaWithContainer(*stage, RectF{ 300 - 40, 550, 80, 80 }, true);
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -3486,7 +3486,7 @@ void stagestagesConstruct_5_3(Array<std::unique_ptr<Stage>>& m_stages) {
 		addGoalAreaWithContainer(*stage, RectF{ 100 - 40, 450, 80, 80 }, true);
 		addGoalAreaWithContainer(*stage, RectF{ 300 - 40, 450, 80, 80 }, true);
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -3543,7 +3543,7 @@ void stagestagesConstruct_5_3(Array<std::unique_ptr<Stage>>& m_stages) {
 		addGoalAreaWithContainer(*stage, RectF{ 100 - 40, 550, 80, 80 }, true);
 		addGoalAreaWithContainer(*stage, RectF{ 300 - 40, 550, 80, 80 }, true);
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -3600,7 +3600,7 @@ void stagestagesConstruct_5_3(Array<std::unique_ptr<Stage>>& m_stages) {
 		addGoalAreaWithContainer(*stage, RectF{ 100 - 80, 400, 160, 160 }, true);
 		addGoalAreaWithContainer(*stage, RectF{ 300 - 80, 400, 160, 160 }, true);
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -3623,7 +3623,7 @@ void stagestagesConstruct_5_3(Array<std::unique_ptr<Stage>>& m_stages) {
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -3756,7 +3756,7 @@ void stagestagesConstruct_6(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		stage->addInventorySlot(BallKind::Large, 2);
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -3850,7 +3850,7 @@ void stagestagesConstruct_6(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		stage->addInventorySlot(BallKind::Large, 2);
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -3948,7 +3948,7 @@ void stagestagesConstruct_6(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		stage->addInventorySlot(BallKind::Large, 4);
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -4098,43 +4098,43 @@ void stagestagesConstruct_6(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		stage->addInventorySlot(BallKind::Large, 4);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none }, none },
 				{ Array<Optional<StartBallState>>{ none,StartBallState{ BallKind::Small },StartBallState{ BallKind::Small } }, none },
 		},
-						Array<GoalRequirement>{
+			Array<GoalRequirement>{
 			GoalRequirement::multi({ {BallKind::Small, 0} }),
 				GoalRequirement::multi({ {BallKind::Small, 0} }),
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none }, none },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
 				{ Array<Optional<StartBallState>>{ none,StartBallState{ BallKind::Small },StartBallState{ BallKind::Small } }, none },
 		},
-						Array<GoalRequirement>{
+			Array<GoalRequirement>{
 			GoalRequirement::multi({ {BallKind::Small, 1} }),
 				GoalRequirement::multi({ {BallKind::Small, 0} }),
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none }, none },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
 				{ Array<Optional<StartBallState>>{ none,StartBallState{ BallKind::Small },StartBallState{ BallKind::Small } }, none },
 		},
-						Array<GoalRequirement>{
+			Array<GoalRequirement>{
 			GoalRequirement::multi({ {BallKind::Small, 0} }),
 				GoalRequirement::multi({ {BallKind::Small, 1} }),
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none }, none },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
@@ -4142,13 +4142,13 @@ void stagestagesConstruct_6(Array<std::unique_ptr<Stage>>& m_stages) {
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
 				{ Array<Optional<StartBallState>>{ none,StartBallState{ BallKind::Small },StartBallState{ BallKind::Small } }, none },
 		},
-						Array<GoalRequirement>{
+			Array<GoalRequirement>{
 			GoalRequirement::multi({ {BallKind::Small, 1} }),
 				GoalRequirement::multi({ {BallKind::Small, 1} }),
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none }, none },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
@@ -4157,13 +4157,13 @@ void stagestagesConstruct_6(Array<std::unique_ptr<Stage>>& m_stages) {
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
 				{ Array<Optional<StartBallState>>{ none,StartBallState{ BallKind::Small },StartBallState{ BallKind::Small } }, none },
 		},
-						Array<GoalRequirement>{
+			Array<GoalRequirement>{
 			GoalRequirement::multi({ {BallKind::Small, 0} }),
 				GoalRequirement::multi({ {BallKind::Small, 0} }),
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none }, none },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
@@ -4173,13 +4173,13 @@ void stagestagesConstruct_6(Array<std::unique_ptr<Stage>>& m_stages) {
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
 				{ Array<Optional<StartBallState>>{ none,StartBallState{ BallKind::Small },StartBallState{ BallKind::Small } }, none },
 		},
-						Array<GoalRequirement>{
+			Array<GoalRequirement>{
 			GoalRequirement::multi({ {BallKind::Small, 1} }),
 				GoalRequirement::multi({ {BallKind::Small, 0} }),
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none }, none },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
@@ -4190,13 +4190,13 @@ void stagestagesConstruct_6(Array<std::unique_ptr<Stage>>& m_stages) {
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
 				{ Array<Optional<StartBallState>>{ none,StartBallState{ BallKind::Small },StartBallState{ BallKind::Small } }, none },
 		},
-						Array<GoalRequirement>{
+			Array<GoalRequirement>{
 			GoalRequirement::multi({ {BallKind::Small, 0} }),
 				GoalRequirement::multi({ {BallKind::Small, 1} }),
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none }, none },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
@@ -4208,13 +4208,13 @@ void stagestagesConstruct_6(Array<std::unique_ptr<Stage>>& m_stages) {
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
 				{ Array<Optional<StartBallState>>{ none,StartBallState{ BallKind::Small },StartBallState{ BallKind::Small } }, none },
 		},
-						Array<GoalRequirement>{
+			Array<GoalRequirement>{
 			GoalRequirement::multi({ {BallKind::Small, 1} }),
 				GoalRequirement::multi({ {BallKind::Small, 1} }),
 		}
 		);
 
-		stage->m_queries << std::make_unique<MultiGoalSequentialQuery>(
+		(*stage->m_queries) << std::make_unique<MultiGoalSequentialQuery>(
 			Array<DelayedBallRelease>{
 				{ Array<Optional<StartBallState>>{ none, none, none }, none },
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
@@ -4227,7 +4227,7 @@ void stagestagesConstruct_6(Array<std::unique_ptr<Stage>>& m_stages) {
 				{ Array<Optional<StartBallState>>{ StartBallState{ BallKind::Large }, none, none }, none },
 				{ Array<Optional<StartBallState>>{ none,StartBallState{ BallKind::Small },StartBallState{ BallKind::Small } }, none },
 		},
-						Array<GoalRequirement>{
+			Array<GoalRequirement>{
 			GoalRequirement::multi({ {BallKind::Small, 0} }),
 				GoalRequirement::multi({ {BallKind::Small, 0} }),
 		}
@@ -4251,7 +4251,7 @@ void stagestagesConstruct_6(Array<std::unique_ptr<Stage>>& m_stages) {
 		stage->addInventorySlot(BallKind::Large, 2);
 		stage->addInventorySlot(BallKind::Small, 2);
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -4346,7 +4346,7 @@ void stagestagesConstruct_6(Array<std::unique_ptr<Stage>>& m_stages) {
 		stage->addInventorySlot(BallKind::Large, 2);
 		stage->addInventorySlot(BallKind::Small, 2);
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -4443,7 +4443,7 @@ void stagestagesConstruct_6(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		stage->addInventorySlot(BallKind::Large, 6);
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -4599,7 +4599,7 @@ void stagestagesConstruct_6(Array<std::unique_ptr<Stage>>& m_stages) {
 
 		stage->addInventorySlot(BallKind::Large, 4);
 
-		stage->m_queries << std::make_unique<MultiPhaseQuery>(
+		(*stage->m_queries) << std::make_unique<MultiPhaseQuery>(
 			Array<MultiPhaseQuery::Phase>{
 				{
 					Array<DelayedBallRelease>{
@@ -4705,7 +4705,7 @@ void stagestagesConstruct_7(Array<std::unique_ptr<Stage>>& m_stages) {
 }
 
 void stagestagesConstruct_8(Array<std::unique_ptr<Stage>>& m_stages) {
-	
+
 }
 
 void stagesConstruct(Array<std::unique_ptr<Stage>>& m_stages) {
