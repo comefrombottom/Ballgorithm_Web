@@ -498,7 +498,8 @@ void StageSelectScene::draw(const Game& game) const
 	{
 		const Font& font = FontAsset(U"Regular");
 		const String progressText = U"Cleared: {}/{}"_fmt(clearedCount, stages.size());
-		font(progressText).draw(28, Arg::rightCenter = Vec2{ Scene::Width() - 30, 115 }, ColorF(0.85, 0.9, 0.95));
+		ColorF textColor = (clearedCount == stages.size()) ? ColorF(0.3, 0.8, 0.4) : ColorF(0.85, 0.9, 0.95);
+		font(progressText).draw(28, Arg::rightCenter = Vec2{ Scene::Width() - 30, 115 }, textColor);
 	}
 
 	

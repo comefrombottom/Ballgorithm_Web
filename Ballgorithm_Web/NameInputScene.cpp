@@ -123,5 +123,5 @@ void NameInputScene::draw() const
 	font(U"Press Enter to confirm").drawAt(20, Scene::Center().moveBy(0, 120), ColorF(0.7, 0.8, 0.9, alpha));
 
 	// ASCII制限メッセージ
-	font(U"ASCII characters only").draw(14, Arg::leftCenter = Vec2{ m_textBox.body.rect.x, m_textBox.body.rect.y - 15 }, ColorF(0.7, 0.8, 0.9, 0.7));
+	font(U"ASCII characters only | 半角英数字記号のみ").draw(14, Arg::leftCenter = Vec2{ m_textBox.body.rect.x, m_textBox.body.rect.y - 15 }, ColorF(0.7, 0.8, 0.9, 0.7));
 }

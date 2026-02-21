@@ -635,7 +635,7 @@ struct TextBox {
 
 	TextBox(Vec2 position, double width) {
 		body = RoundRect{ position.x, position.y, width, 40, 20 };
-		editableText = OneLineEditableText{ U"Hello, Siv3D!", position.asPoint() + Point{16, 5} , static_cast<int32>(width) - 32, SimpleGUI::GetFont() };
+		editableText = OneLineEditableText{ U"Hello, Siv3D!", position.asPoint() + Point{16, 5} , static_cast<int32>(width) - 32, FontAsset(U"Regular"), 20};
 	};
 
 	void update() {
