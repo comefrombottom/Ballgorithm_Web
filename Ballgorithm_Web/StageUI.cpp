@@ -1407,15 +1407,15 @@ void StageUI::draw(const Stage& stage) const
 		m_contextMenu.draw();
 	}
 
-	// 操作説明の表示
-	/*if (!stage.m_isSimulationRunning) {
+	// Obj / Len 表示
+	if (!stage.m_isSimulationRunning and stage.m_isCleared) {
 		const Font& font = FontAsset(U"Regular");
-		Vec2 helpPos{ 20, 90 };
-		String helpText = U"Double-click: Create Line\nRight-click: Move Camera";
-		RectF bgRect = font(helpText).region(14, helpPos).stretched(8, 4);
+		const String infoText = U"Obj: {}, Len: {}"_fmt(stage.CalculateNumberOfObjects(), stage.CalculateTotalLength());
+		const Vec2 pos{ 20, 90 };
+		RectF bgRect = font(infoText).region(14, pos).stretched(8, 4);
 		bgRect.rounded(4).draw(ColorF(0.0, 0.25));
-		font(helpText).draw(14, helpPos, ColorF(0.8, 0.8, 0.9));
-	}*/
+		font(infoText).draw(14, pos, ColorF(0.8, 0.8, 0.9));
+	}
 	
 	// クリア演出の描画（最前面）
 	drawClearEffect();
