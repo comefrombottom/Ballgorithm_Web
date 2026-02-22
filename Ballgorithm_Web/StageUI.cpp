@@ -544,7 +544,10 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 		if (m_inventoryUI.hitTestBar(Cursor::PosF())) {
 			// インベントリに戻す
 			stage.returnToInventory(m_draggingBall->kind);
-			// ボールは既に削除済み or まだ追加されていないので何もしない
+			// ステージ上にあったボールを戻した場合は編集として記録する
+			if (m_draggingBall->placedBallId.has_value()) {
+				onStageEdited(stage);
+			}
 		}
 		else {
 			// ステージ上に配置
