@@ -419,7 +419,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 					m_editUI.selectedIDs().clear();
 					stage.m_currentQueryIndex = 0;
 					m_singleQueryMode = false;
-					stage.startSimulation();
+					stage.startSimulationWithSave();
 				}
 				break;
 			case ContextMenuItemType::FlipHorizontal:
@@ -794,9 +794,9 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 				m_editUI.selectedIDs().clear();
 				stage.m_currentQueryIndex = 0;
 				m_singleQueryMode = false;
-				stage.startSimulation();
+				stage.startSimulationWithSave();
 				// 
-				// << U"Simulation Start!";
+				// << U"Simulation Start!":
 			}
 		}
 		Cursor::RequestStyle(CursorStyle::Hand);
@@ -910,7 +910,7 @@ void StageUI::update(Game& game, Stage& stage, double dt)
 
 					if (completedQueryIndex + 1 < stage.m_queries->size()) {
 						stage.m_currentQueryIndex = completedQueryIndex + 1;
-						stage.startSimulation();
+						stage.startSimulationWithSave();
 					}
 					else {
 						// 全クエリの判定が完了

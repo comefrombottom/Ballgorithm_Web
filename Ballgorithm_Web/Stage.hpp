@@ -125,7 +125,7 @@ public:
 	Array<bool> m_queryCompleted;
 	Array<bool> m_queryFailed;  // クエリ失敗状況
 	bool m_isCleared = false;
-	
+
 	// カメラ位置（ステージごとに保持）
 	Vec2 m_cameraCenter{ 400, 300 };
 	double m_cameraScale = 1.0;
@@ -163,6 +163,7 @@ public:
 	void deltaMoveGroup(const Group& group, const Vec2& deltaMove);
 	void eraseSelectedPoints(const HashSet<SelectedID>& selectedIDs);
 	void startSimulation();
+	void startSimulationWithSave();
 	bool checkSimulationResult() const;
 	void endSimulation();
 	double getLowestY() const;

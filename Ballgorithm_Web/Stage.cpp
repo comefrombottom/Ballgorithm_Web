@@ -331,14 +331,21 @@ void Stage::eraseSelectedPoints(const HashSet<SelectedID>& selectedIDs)
 	}
 }
 
+void Stage::startSimulationWithSave()
+{
+	auto saveTask = saveAsync();
+	startSimulation();
+#if SIV3D_PLATFORM(WEB)
+	s3d::Platform::Web::System::AwaitAsyncTask(saveTask);
+#endif
+}
+
 void Stage::startSimulation()
 {
 	m_isSimulationRunning = true;
 	m_world = P2World{ 980 };
 	m_linesInWorld.clear();
 	m_startBallsInWorld.clear();
-
-	auto saveTask = saveAsync();
 
 	if (isQueriesInitialState()) {
 
@@ -404,10 +411,6 @@ void Stage::startSimulation()
 	if (m_currentQueryIndex < m_queries->size()) {
 		(*m_queries)[m_currentQueryIndex]->startSimulation(*this);
 	}
-
-#if SIV3D_PLATFORM(WEB)
-	s3d::Platform::Web::System::AwaitAsyncTask(saveTask);
-#endif
 }
 
 bool Stage::checkSimulationResult() const
