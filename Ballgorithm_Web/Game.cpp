@@ -42,7 +42,7 @@ Game::~Game() = default;
 void Game::resetAllStages()
 {
 	// Stages フォルダを丸ごと削除
-	FileSystem::Remove(U"Ballgorithm/VStages", AllowUndo::No);
+	FileSystem::Remove(U"Ballgorithm/V2Stages", AllowUndo::No);
 
 #if SIV3D_PLATFORM(WEB)
 	Platform::Web::IndexedDB::SaveAsync();

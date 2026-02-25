@@ -1118,11 +1118,21 @@ void StageUI::draw(const Stage& stage) const
 			const ColorF guideColor{ 0.35, 0.7, 1.0, 0.8 };
 			const ColorF guideShadow{ 0.0, 0.35 };
 
+			const Font& font = FontAsset(U"Regular");
+			auto drawLabel = [&](const String& text, const Vec2& anchorPoint, double alpha) {
+				const Vec2 labelPos = anchorPoint + Vec2{ 15, -32 };
+				RectF bgRect = font(text).region(13, labelPos).stretched(6, 4);
+				bgRect.rounded(5).draw(ColorF(0.05, 0.1, 0.2, 0.85 * alpha));
+				bgRect.rounded(5).drawFrame(1, ColorF(0.4, 0.7, 1.0, 0.8 * alpha));
+				font(text).draw(13, labelPos, ColorF(0.9, 0.95, 1.0, alpha));
+			};
+
 			if (phase < 0.6)
 			{
 				double blink = (Sin(phase * Math::TwoPi * 2.0) + 1.0) * 0.5;
 				Circle{ startPos, 12 }.draw(guideShadow);
 				Circle{ startPos, 10 }.draw(guideColor.withAlpha(blink));
+				drawLabel(U"ダブルクリック", startPos, blink);
 			}
 			else if (phase < 2.2)
 			{
@@ -1132,6 +1142,7 @@ void StageUI::draw(const Stage& stage) const
 				Line{ startPos, current }.draw(4, guideColor);
 				Circle{ startPos, 9 }.draw(guideColor);
 				Circle{ current, 9 }.draw(guideColor);
+				drawLabel(U"ドラッグ", current, 1.0);
 			}
 			else if (phase < 2.6)
 			{
