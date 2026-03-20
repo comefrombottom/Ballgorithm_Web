@@ -67,7 +67,7 @@ void NameInputScene::update(Game& game)
 		commitName();
 	}
 
-	RectF okButton{ Arg::center = Vec2{ Scene::Width() / 2.0, Scene::Height() / 2.0 + 60 }, 140, 36 };
+	RectF okButton{ Arg::center = Vec2{ Scene::Width() / 2.0, Scene::Height() / 2.0 + 80 }, 140, 36 };
 	if (okButton.mouseOver())
 	{
 		Cursor::RequestStyle(CursorStyle::Hand);
